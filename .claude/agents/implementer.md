@@ -12,8 +12,10 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
 
 1. **Lee** `AGENTS.md`, `harness.config.json`, `docs/architecture.md`,
    `docs/conventions.md`.
-2. **Toma** una feature `pending` cuyas `depends_on` estén todas en `done`.
-   Cambia su estado a `in_progress` y guarda.
+2. **Identifica tu feature.** Si el líder o la tarea te asignó un id (emdash:
+   rama `feat/<id>-<slug>`), esa es tu feature — no elijas otra. Solo en modo
+   solitario: toma la `pending` de menor id con `depends_on` en `done`.
+   Cambia su estado a `in_progress` — toca **solo esa línea** — y guarda.
 3. **Anota** en `progress/current.md`: feature en curso, plan en 3-5 bullets.
 4. **Produce** el entregable siguiendo `docs/conventions.md`. No te salgas del
    scope de `acceptance`. No toques rutas fuera de `touches`: si necesitas

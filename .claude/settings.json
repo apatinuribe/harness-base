@@ -1,14 +1,24 @@
 {
-  "$schema_comment": "Hooks que automatizan la verificación. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh (en Windows: Git Bash o WSL).",
+  "$schema_comment": "Hooks de verificación automática. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh vía Git Bash/WSL (por eso el prefijo 'bash'). PreToolUse guard: bloquea editar harness.config.json/CHECKPOINTS.md/docs mientras hay una feature in_progress. PostToolUse: revalida estructura tras editar (salta progress/, docs/, .claude/). Stop: verificación completa con log en .harness/.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks.sh guard"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./init.sh --quick 2>&1 | tail -5",
-            "description": "Tras editar, revalida estructura y estado del backlog (barato). La verificación completa corre en el hook Stop."
+            "command": "bash scripts/hooks.sh post-edit"
           }
         ]
       }
@@ -18,8 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "mkdir -p .harness && (bash ./init.sh > .harness/init.log 2>&1 && echo '[harness] init.sh OK' || (echo '[harness] init.sh FALLÓ — revisa .harness/init.log antes de cerrar' && tail -20 .harness/init.log))",
-            "description": "Antes de cerrar la sesión, fuerza verificación completa. El log queda en .harness/ (gitignored)."
+            "command": "mkdir -p .harness && (bash ./init.sh > .harness/init.log 2>&1 && echo '[harness] init.sh OK' || (echo '[harness] init.sh FALLÓ — revisa .harness/init.log antes de cerrar' && tail -20 .harness/init.log))"
           }
         ]
       }
@@ -29,8 +38,10 @@
     "allow": [
       "Bash(./init.sh*)",
       "Bash(bash ./init.sh*)",
+      "Bash(bash scripts/hooks.sh*)",
       "Bash(git diff*)",
-      "Bash(git status*)"
+      "Bash(git status*)",
+      "Bash(git log*)"
     ]
   }
 }

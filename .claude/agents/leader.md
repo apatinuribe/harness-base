@@ -19,8 +19,9 @@ Tu único trabajo es **descomponer y coordinar**, nunca implementar.
 1. Identifica si la tarea es **una** feature del backlog o varias.
 2. Si no existe en el backlog, **no improvises**: propón la entrada al usuario
    con `acceptance` y `touches`, y espera confirmación.
-3. Una feature simple → **1** `implementer`.
-4. Requiere investigación previa → **2-3** exploradores en paralelo, cada uno
+3. Una feature simple → **1** `implementer`, siempre con el **id explícito**
+   en el prompt («implementa la feature #N»), nunca «la siguiente pendiente».
+4. Requiere investigación previa → **2-3** `explorer` en paralelo, cada uno
    con una pregunta concreta y acotada.
 5. Cuando el `implementer` termine → **1** `reviewer` antes de declarar `done`.
 
@@ -52,6 +53,11 @@ Este repo corre **una feature a la vez**. El paralelismo real vive fuera:
 un worktree por feature (Emdash, `git worktree`). Antes de abrir una ola,
 ejecuta `./init.sh --plan` y respeta la agrupación que imprime: features que
 comparten rutas en `touches` NO van en la misma ola.
+
+Cada tarea/worktree recibe su feature **por id** (emdash: rama
+`feat/<id>-<slug>`). Dentro del worktree solo se toca la línea `status` de esa
+feature — el resto de `feature_list.json` no se reformatea — y el `done` se
+consolida al mergear a `main`.
 
 ## Qué NO haces
 

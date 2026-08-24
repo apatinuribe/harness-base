@@ -19,7 +19,6 @@
       ],
       "touches": ["src/ejemplo/"],
       "depends_on": [],
-      "wave": 1,
       "status": "pending"
     }
   ]

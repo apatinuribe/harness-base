@@ -27,6 +27,7 @@
     "docs/conventions.md",
     "docs/verification.md",
     "feature_list.json",
-    "progress/current.md"
+    "progress/current.md",
+    "progress/history.md"
   ]
 }

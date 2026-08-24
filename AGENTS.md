@@ -19,7 +19,7 @@
 | `harness.config.json`        | Comandos de verificación, rutas protegidas y exclusivas | Siempre |
 | `feature_list.json`          | Backlog con estado, dependencias y rutas afectadas      | Siempre |
 | `progress/current.md`        | Estado de la sesión activa                              | Siempre |
-| `progress/history.md`        | Bitácora append-only                                    | Si necesitas contexto histórico |
+| `progress/history/`          | Bitácora append-only (un archivo por sesión)            | Si necesitas contexto histórico |
 | `docs/architecture.md`       | Qué significa "hacer un buen trabajo" aquí              | Antes de implementar |
 | `docs/conventions.md`        | Estilo, nombres, estructura, errores                    | Antes de producir |
 | `docs/verification.md`       | Cómo demostrar que el trabajo funciona                  | Antes de declarar `done` |
@@ -35,15 +35,29 @@
 - **Documenta mientras trabajas** en `progress/current.md`, no al final.
 - **Rutas exclusivas, una a la vez.** Lo declarado en `exclusive_paths`
   (migraciones, schema, tipos compartidos) no se toca desde dos worktrees.
+- **En `feature_list.json` toca solo la línea `status` de TU feature.** Sin
+  reformatear ni reordenar: es lo que hace que los merges de worktrees
+  paralelos sean automáticos.
 - **Si no sabes algo, búscalo en `docs/`** antes de inventarlo.
 
 ## 4. Cómo elegir una tarea
+
+**Si te asignaron una feature** (prompt del líder, o tarea de emdash con rama
+`feat/<id>-<slug>`): esa es tu feature. No elijas otra aunque tenga id menor.
+En paralelo, la selección la hace el planner en `main`, no cada worktree.
+
+**Solo en modo solitario** (nadie te asignó nada, sin worktrees abiertos):
 
 ```
 1. Abre feature_list.json
 2. Filtra por status == "pending" y depends_on todas en "done"
 3. Coge la de menor "id"
-4. Cambia su status a "in_progress" y guarda
+```
+
+En ambos casos:
+
+```
+4. Cambia su status a "in_progress" — toca SOLO esa línea — y guarda
 5. Anota en progress/current.md: feature, hora de inicio, plan breve
 ```
 
@@ -51,8 +65,10 @@
 
 1. `./init.sh` — todo verde.
 2. Si la feature está aprobada por el reviewer: `status: "done"`.
-3. Mueve el resumen de `progress/current.md` al final de `progress/history.md`.
-4. Vacía `progress/current.md` dejando la plantilla.
+3. Copia el resumen de `progress/current.md` a una entrada nueva
+   `progress/history/YYYY-MM-DD-f<id>-<slug>.md` (formato en `progress/history.md`).
+4. Vacía `progress/current.md` dejando la plantilla **antes del merge**:
+   así los worktrees paralelos nunca chocan en este archivo.
 5. Sin archivos temporales, sin debug suelto, sin TODOs sin contexto.
 
 ## 6. Si te bloqueas

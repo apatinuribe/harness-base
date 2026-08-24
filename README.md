@@ -10,7 +10,7 @@ proyecto (software, contenido, research, campañas).
 |---|---|
 | `init.sh` corre `unittest` hardcodeado | Corre los comandos de `harness.config.json` |
 | Reglas atadas a `src/` y `tests/` | Rutas configurables (`protected_paths`) |
-| Features sin dependencias ni rutas | `depends_on`, `touches`, `wave` en cada feature |
+| Features sin dependencias ni rutas | `depends_on` y `touches` en cada feature |
 | Paralelismo a ojo | `./init.sh --plan` agrupa features en olas seguras |
 | Reviewer solo con checkpoints | Reviewer con acceptance citable + rúbrica 1-5 bloqueante |
 | — | `exclusive_paths`: rutas que solo una feature puede tocar (migraciones, schema) |
@@ -19,6 +19,7 @@ proyecto (software, contenido, research, campañas).
 
 ```bash
 # 1. Copia el andamiaje dentro de tu repo real (NO al revés)
+#    Ojo: sobreescribe CLAUDE.md y README.md si el destino ya los tiene.
 cp -r harness-base/. /ruta/a/mi-proyecto/
 cd /ruta/a/mi-proyecto
 
@@ -67,8 +68,32 @@ git worktree add ../proyecto-feat-3 -b feat/3-nombre
 ```
 
 Reglas: una feature `in_progress` por worktree, y nunca dos features de la misma
-ola tocando la misma ruta. Lo declarado en `exclusive_paths` (migraciones,
-schema, tipos compartidos) va siempre en solitario.
+ola tocando la misma ruta. Una ruta de `exclusive_paths` (migraciones, schema,
+tipos compartidos) solo puede estar en una feature por ola; el planner difiere
+las demás.
+
+## Flujo con emdash
+
+Cada tarea de emdash = **una feature**, en su propio worktree y rama.
+
+1. En `main`: `./init.sh --plan` y elige una ola.
+2. Crea una tarea de emdash por feature de la ola, con rama `feat/<id>-<slug>`.
+3. Prompt de la tarea — el id **siempre explícito**:
+
+   > Implementa la feature #<id> de feature_list.json. Actúa como leader
+   > (CLAUDE.md): lanza implementer y reviewer. No elijas otra feature.
+
+4. Con `APPROVED` del reviewer, mergea a `main` una rama a la vez.
+5. Mergeada la ola completa: `./init.sh --plan` para planear la siguiente.
+
+Por qué los merges salen limpios (si se respetan las reglas):
+
+- Cada rama toca solo la línea `status` de **su** feature en `feature_list.json`.
+- `progress/current.md` vuelve a la plantilla antes del merge.
+- La bitácora es un archivo **por sesión** en `progress/history/`, nunca un
+  archivo compartido.
+- Los informes van a `progress/impl_<name>.md` / `progress/review_<name>.md`,
+  únicos por feature.
 
 ## Ejemplos de configuración
 
@@ -110,12 +135,12 @@ schema, tipos compartidos) va siempre en solitario.
 ├── AGENTS.md               # Mapa para agentes (divulgación progresiva)
 ├── CLAUDE.md               # Fuerza el rol de leader
 ├── CHECKPOINTS.md          # Criterios de estado final correcto
-├── feature_list.json       # Backlog con depends_on / touches / wave
+├── feature_list.json       # Backlog con depends_on / touches
 ├── init.sh                 # Verificación (--plan, --quick)
-├── scripts/plan_parallel.py
+├── scripts/                # plan_parallel.py + hooks.sh
 ├── docs/                   # architecture / conventions / verification
-├── progress/               # current.md (vivo) + history.md (append-only)
+├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
-    ├── agents/             # leader, implementer, reviewer
+    ├── agents/             # leader, implementer, reviewer, explorer
     └── settings.json       # Hooks de verificación automática
 ```

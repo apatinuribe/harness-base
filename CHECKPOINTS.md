@@ -35,7 +35,7 @@
 
 - [ ] Sin archivos temporales o sin trackear sospechosos.
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
-- [ ] `progress/history.md` tiene una entrada de esta sesión.
+- [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por sesión).
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 
 ---

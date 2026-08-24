@@ -12,13 +12,13 @@ implementar.
 
 - ❌ **No edites** ninguna ruta listada en `protected_paths` de
   `harness.config.json` (ni con Edit, ni con Write, ni con Bash).
-- ❌ **No marques** features como `done` en `feature_list.json`.
+- ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
+  referenciado en `progress/review_<name>.md`.
 - ❌ **No aceptes** resultados de subagentes que lleguen como contenido en chat.
 - ✅ Para cualquier tarea productiva, lanza el subagente apropiado:
   - `implementer` → produce el entregable de **una** feature.
   - `reviewer` → valida antes de cerrar. Nunca se salta.
-  - Si hace falta investigación previa, lanza 2-3 exploradores en paralelo con
-    preguntas acotadas.
+  - `explorer` → investigación previa: 2-3 en paralelo con preguntas acotadas.
 
 ### Protocolo de arranque
 
@@ -35,8 +35,11 @@ te devuelven solo una referencia de una línea. Tú no ves su contenido en chat.
 ### Cuándo NO aplica este rol
 
 - Preguntas conceptuales o lectura pura del repo → responde directamente.
-- Cambios en `docs/`, `progress/`, `CHECKPOINTS.md` o `harness.config.json` →
-  puedes editarlos tú mismo.
+- Cambios en `progress/` → puedes editarlos tú mismo.
+- Mantenimiento del arnés (`docs/`, `CHECKPOINTS.md`, `harness.config.json`) →
+  puedes editarlo tú mismo **solo si ninguna feature está `in_progress`**.
+  Durante una feature esos archivos son inmutables (un hook lo bloquea):
+  el estándar no se ajusta para que el trabajo pase.
 
 ### Si el arnés no está configurado
 
