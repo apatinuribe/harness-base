@@ -1,0 +1,36 @@
+{
+  "$schema_comment": "Hooks que automatizan la verificación. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh (en Windows: Git Bash o WSL).",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./init.sh --quick 2>&1 | tail -5",
+            "description": "Tras editar, revalida estructura y estado del backlog (barato). La verificación completa corre en el hook Stop."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .harness && (bash ./init.sh > .harness/init.log 2>&1 && echo '[harness] init.sh OK' || (echo '[harness] init.sh FALLÓ — revisa .harness/init.log antes de cerrar' && tail -20 .harness/init.log))",
+            "description": "Antes de cerrar la sesión, fuerza verificación completa. El log queda en .harness/ (gitignored)."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./init.sh*)",
+      "Bash(bash ./init.sh*)",
+      "Bash(git diff*)",
+      "Bash(git status*)"
+    ]
+  }
+}

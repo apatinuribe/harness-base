@@ -1,0 +1,32 @@
+{
+  "project": "TODO-nombre-del-proyecto",
+  "description": "TODO-una-linea",
+  "domain": "code",
+
+  "verify": [
+    {
+      "name": "tests",
+      "command": "echo 'TODO: reemplaza por tu comando de tests' && exit 1",
+      "required": true
+    },
+    {
+      "name": "typecheck",
+      "command": "echo skip",
+      "required": false
+    }
+  ],
+
+  "protected_paths": ["src/", "tests/"],
+
+  "exclusive_paths": [],
+
+  "required_files": [
+    "AGENTS.md",
+    "CHECKPOINTS.md",
+    "docs/architecture.md",
+    "docs/conventions.md",
+    "docs/verification.md",
+    "feature_list.json",
+    "progress/current.md"
+  ]
+}
