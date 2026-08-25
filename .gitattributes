@@ -3,3 +3,7 @@
 *.py text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+
+# Los hooks no tienen extension: sin esta linea git los pasa a CRLF en Windows
+# y dejan de arrancar en macOS/Linux ("bad interpreter: ...^M").
+.githooks/* text eol=lf
