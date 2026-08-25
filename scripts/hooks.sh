@@ -82,5 +82,12 @@ sys.exit(10 if skip else 0)
     [ $? -eq 10 ] && exit 0
     bash ./init.sh --quick 2>&1 | tail -5
     ;;
+  *)
+    # Falla cerrado, no abierto. Un subcomando mal escrito en
+    # .claude/settings.json haria desaparecer el guard en silencio, y una
+    # proteccion que parece instalada y no lo esta es peor que ninguna.
+    echo "[harness] hooks.sh: subcomando desconocido '${1:-}' (usa 'guard' o 'post-edit'). Revisa .claude/settings.json." >&2
+    exit 2
+    ;;
 esac
 exit 0

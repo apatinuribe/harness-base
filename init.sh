@@ -24,6 +24,14 @@ fail() { printf "${RED}[FAIL]${NC}  %s\n" "$1"; }
 EXIT_CODE=0
 MODE="${1:-}"
 
+# Un modo mal escrito ('--mrge') correria la verificacion normal y se saltaria
+# el gate sin decir nada. Mejor parar y decirlo.
+case "$MODE" in
+  ""|--plan|--quick|--merge) ;;
+  *) printf "${RED}[FAIL]${NC}  Modo desconocido: %s (usa --plan, --quick o --merge)
+" "$MODE"; exit 1 ;;
+esac
+
 echo "── 1. Entorno ──────────────────────────────────────────"
 
 PY=""
