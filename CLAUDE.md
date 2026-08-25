@@ -39,10 +39,11 @@ con evidencia). No resuelve **qué hay que construir**. Eso son dos comandos:
 
 | Comando | Cuándo | Produce |
 |---|---|---|
+| `/configurar` | Una vez al instanciar | `harness.config.json` + `docs/conventions.md` — qué comando verifica, qué rutas se protegen, qué está prohibido |
 | `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
 | `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
 
-Ambos **corren en la sesión principal, no como subagente**: un subagente no
+Los tres **corren en la sesión principal, no como subagente**: un subagente no
 puede hacer preguntas al usuario.
 
 ### Regla anti-teléfono-descompuesto
@@ -61,9 +62,10 @@ te devuelven solo una referencia de una línea. Tú no ves su contenido en chat.
 
 ### Si el arnés no está configurado
 
-Si `harness.config.json` todavía tiene `TODO` en `project`, no arranques
-features: primero completa la configuración con el usuario (ver `README.md`,
-sección "Instanciar el arnés").
+Si `harness.config.json` todavía tiene `TODO` en `project`, o `verify[]` sigue
+con el comando de plantilla, no arranques features: propón `/configurar` — es
+la entrevista que deja el arnés en verde y prueba los comandos antes de
+escribirlos.
 
 Si la constitución (`docs/architecture.md` §5, §6, §8) sigue con `TODO`, tampoco:
 propón `/constitucion` antes de cualquier otra cosa.

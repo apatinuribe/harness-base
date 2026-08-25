@@ -13,7 +13,7 @@ proyecto (software, contenido, research, campañas).
 | Features sin dependencias ni rutas | `depends_on` y `touches` en cada feature |
 | Paralelismo a ojo | `./init.sh --plan` agrupa features en olas seguras |
 | Reviewer solo con checkpoints | Reviewer con acceptance citable + rúbrica 1-5 bloqueante |
-| Sin capa de especificación | `/constitucion` y `/especificar`: entrevistan y producen specs auditables |
+| Sin capa de especificación | `/configurar`, `/constitucion` y `/especificar`: entrevistan y producen configuración y specs auditables |
 | Se construía sobre un titular | `init.sh` bloquea arrancar una feature sin spec resuelto |
 | Conocimiento que no se acumula | `docs/index.md` + `bibliotecario` cruzan los specs entre sí |
 | — | `exclusive_paths`: rutas que solo una feature puede tocar (migraciones, schema) |
@@ -26,25 +26,27 @@ proyecto (software, contenido, research, campañas).
 cp -r harness-base/. /ruta/a/mi-proyecto/
 cd /ruta/a/mi-proyecto
 
-# 2. Configura lo mecánico
-#    - harness.config.json: project, verify[], protected_paths, exclusive_paths
-#    - docs/conventions.md y docs/verification.md: resuelve los TODO
-#    - CHECKPOINTS.md: añade la sección de tu dominio
-
-# 3. Comprueba que el arnés arranca en rojo por la razón correcta
-./init.sh
-
-# 4. Define las reglas del producto (esto es el 80% del valor)
+# 2. Abre Claude y corre las tres entrevistas, en este orden
 claude
+#    /configurar                → detecta tu stack, prueba los comandos de test,
+#                                 escribe harness.config.json y conventions.md
 #    /constitucion              → llena docs/architecture.md entrevistándote
 #    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
 
-# 5. Vacía el backlog de ejemplo y mete las features que salieron del paso 4
+# 3. Comprueba que el arnés está en verde
+./init.sh
+
+# 4. Vacía el backlog de ejemplo y mete las features que salieron del paso 2
 ```
 
-**Los pasos 2 y 4 no son opcionales.** Un `docs/architecture.md` con TODOs
-produce un reviewer que aprueba cualquier cosa: la rúbrica de §4 es lo que le da
-criterio, y §5-§6 son lo que impide que cada módulo invente sus propias reglas.
+**Ninguno de los tres comandos es opcional.** Sin `/configurar` el arnés no
+tiene verificación determinista, y el reviewer queda aprobando por opinión. Sin
+`/constitucion` cada módulo inventa sus propias reglas transversales. Sin
+`/especificar` el implementador rellena los huecos del negocio a su criterio.
+
+También puedes editar `harness.config.json`, `docs/conventions.md` y
+`docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
+comprueba que los comandos que escribe realmente corren.
 
 ## Antes de lanzar agentes: haz una feature a mano
 
@@ -58,9 +60,11 @@ un «quiero un módulo de suscripciones con planes y cobros» llega al implement
 como un titular, y el implementador rellena los huecos inventando reglas de
 negocio. Eso es lo que hace que un producto se sienta «hecho con IA».
 
-Dos comandos, ambos en la sesión principal (un subagente no puede preguntarte):
+Tres comandos, los tres en la sesión principal (un subagente no puede
+preguntarte):
 
 ```bash
+/configurar              # una vez al instanciar el arnés
 /constitucion            # una vez por proyecto
 /especificar suscripciones   # una vez por módulo
 ```
@@ -74,6 +78,7 @@ Dos comandos, ambos en la sesión principal (un subagente no puede preguntarte):
 | **Vertical** | ¿Cuál es el journey? ¿Qué entidades hay? ¿Qué reglas de negocio? ¿Qué ve cada rol? | `/especificar` → `docs/specs/<modulo>.md` §4 |
 | **Temporal** | ¿Qué estados tiene? ¿Qué pasa si la acción llega dos veces? ¿Qué corre solo? ¿Y los datos que ya existen? | `/especificar` → `docs/specs/<modulo>.md` §5 |
 | **Ejecución** | ¿Quién construye qué, en qué orden, sin pisarse, y cómo se demuestra? | El arnés (`feature_list.json`, `init.sh`, `reviewer`) |
+| **Verificación** | ¿Qué comando demuestra que esto funciona? ¿Qué rutas no se tocan? ¿Qué causa rechazo automático? | `/configurar` → `harness.config.json`, `docs/conventions.md` |
 
 Regla de oro: si la respuesta es igual para todos los módulos, va a la
 constitución. Si cambia módulo a módulo, va al spec. Si es «quién lo hace y
@@ -198,7 +203,7 @@ Por qué los merges salen limpios (si se respetan las reglas):
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   analista, bibliotecario
-    ├── commands/           # /constitucion, /especificar
+    ├── commands/           # /configurar, /constitucion, /especificar
     └── settings.json       # Hooks de verificación automática
 ```
 

@@ -208,5 +208,9 @@ if [ $EXIT_CODE -eq 0 ]; then
   ok "Entorno listo. Puedes empezar a trabajar."
 else
   fail "Entorno NO está listo. Resuelve los errores antes de avanzar."
+  # Arnes recien instanciado: el comando que lo pone en verde es /configurar.
+  if grep -q '"project": *"TODO' harness.config.json 2>/dev/null; then
+    echo "        El arnés todavía no está configurado. Abre Claude y corre /configurar."
+  fi
 fi
 exit $EXIT_CODE
