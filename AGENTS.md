@@ -101,7 +101,9 @@ antes de empezarla él. En solitario ese paso sobra.
 4. Deja tu archivo de sesión en `idle`, para que nadie crea que sigues en esa
    feature.
 5. Con equipo y `require_peer_review` en `true`: **no mergees tú**. Abre el PR
-   y pide el cruce (checkpoint C7).
+   y pide el cruce (checkpoint C7). Quien revise pone su alias en la línea
+   `**Revisión cruzada:**` de la entrada del historial — sin eso, `./init.sh
+   --merge` y el push a `main` quedan bloqueados.
 6. Sin archivos temporales, sin debug suelto, sin TODOs sin contexto.
 
 ## 6. Si te bloqueas

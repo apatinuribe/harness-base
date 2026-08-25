@@ -86,6 +86,8 @@ Si `harness.config.json` declara un `team` de 2 o más, el reparto es explícito
 - `./init.sh` permite **una `in_progress` por persona**, no una en total.
 - Si `require_peer_review` es `true`, ninguna rama entra a `main` sin que otra
   persona del `team` haya revisado el veredicto y la evidencia (checkpoint C7).
+  No es honor system: `./init.sh --merge` y el hook de pre-push lo bloquean si
+  la entrada de `progress/history/` no acredita a nadie distinto del `owner`.
 - Los archivos del arnés (`harness.config.json`, la constitución) están
   bloqueados mientras **cualquiera** tenga una feature abierta. Si necesitas
   cambiarlos, no cierres la feature ajena: acuérdalo con su dueño y háganlo

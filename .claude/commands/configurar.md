@@ -116,7 +116,9 @@ Las cinco preguntas, si hicieran falta todas:
    cada persona. Con 2+ miembros el arnés exige `owner` en cada feature y
    permite una `in_progress` por persona; pregunta también si el merge debe
    pasar por otra persona (`require_peer_review`), explicando que es la única
-   revisión del sistema que no es un LLM aprobando a otro LLM.
+   revisión del sistema que no es un LLM aprobando a otro LLM — y que se
+   comprueba de verdad: bloquea el push a `main` hasta que la entrada de
+   `progress/history/` acredite a alguien distinto del `owner`.
 3. **Rutas intocables** — qué carpetas no debe tocar un agente por su cuenta
    (`protected_paths`), y cuáles solo puede tocar una feature a la vez
    (`exclusive_paths`: migraciones, esquema de base de datos, tipos compartidos).

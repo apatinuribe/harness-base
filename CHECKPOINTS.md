@@ -72,13 +72,17 @@
 > Por qué existe: cuando el reviewer es un LLM, la revisión sigue siendo IA
 > aprobando IA. La segunda persona es la única verificación del sistema que no
 > comparte los sesgos de la primera, y es gratis.
+>
+> **No es solo una regla escrita.** Lo comprueba `scripts/check_peer_review.py`:
+> avisa en cada `./init.sh`, y bloquea en `./init.sh --merge` y al empujar a
+> `main` (`.githooks/pre-push`).
 
 - [ ] Alguien del `team` distinto del `owner` leyó `progress/review_<name>.md`
       y comprobó la evidencia citada, no solo el veredicto.
-- [ ] Esa persona dejó constancia (aprobación del PR, o su alias en la entrada
-      de `progress/history/`).
-- [ ] Si se saltó el cruce (el otro no estaba disponible), la entrada de
-      `progress/history/` lo dice con su razón — no se omite en silencio.
+- [ ] Esa persona dejó constancia: su alias en la línea `Revisión cruzada:` de
+      la entrada de `progress/history/`. Es la línea que lee el script.
+- [ ] Si se saltó el cruce (el otro no estaba disponible), esa misma línea dice
+      `omitida — <razón>`. Sin razón no pasa, y en blanco tampoco.
 
 ---
 

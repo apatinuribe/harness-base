@@ -26,6 +26,23 @@ El reviewer puntúa 1-5 contra `docs/architecture.md` §4. Cualquier criterio
 > Sin Nivel 1, el Nivel 2 es teatro: un LLM aprobando a otro LLM.
 > Construye el determinista primero, aunque sea mínimo.
 
+### El cruce humano (solo con equipo)
+
+Los dos niveles anteriores los ejecuta una máquina o un LLM. Con un `team` de 2+
+y `require_peer_review: true`, hay un tercero: otra persona lee el veredicto y
+**la evidencia que cita** antes del merge (checkpoint C7).
+
+Se acredita en la entrada de `progress/history/`, y esa línea es la que se
+comprueba:
+
+```markdown
+**Owner:** arley
+**Revisión cruzada:** socio
+```
+
+`scripts/check_peer_review.py` avisa en cada `./init.sh` y bloquea en
+`./init.sh --merge` y al empujar a `main`.
+
 ## Cómo se presenta la evidencia
 
 Cada criterio de `acceptance` se responde en `progress/impl_<name>.md` así:
@@ -45,5 +62,6 @@ Cada criterio de `acceptance` se responde en `progress/impl_<name>.md` así:
 ## Antes de cerrar
 
 ```bash
-./init.sh    # debe terminar con [OK] Entorno listo
+./init.sh           # debe terminar con [OK] Entorno listo
+./init.sh --merge   # además, exige la revisión cruzada — antes de mergear
 ```

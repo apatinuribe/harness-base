@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Gate de revisión cruzada (checkpoint C7).
+#
+# Se dispara solo al empujar la rama principal: es el momento en que el trabajo
+# deja de ser tuyo y pasa a ser del proyecto. En ramas de feature no molesta.
+#
+# Lo activa init.sh con `git config core.hooksPath .githooks`.
+# Si de verdad tienes que saltártelo: git push --no-verify (y déjalo escrito
+# en la entrada de progress/history/, que para eso existe «omitida — razón»).
+
+set -u
+
+principal=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)
+principal="${principal#origin/}"
+[ -z "$principal" ] && principal="main"
+
+toca_principal=0
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  [ -z "${remote_ref:-}" ] && continue
+  case "$remote_ref" in
+    "refs/heads/$principal"|refs/heads/main|refs/heads/master) toca_principal=1 ;;
+  esac
+done
+
+[ "$toca_principal" -eq 0 ] && exit 0
+
+raiz=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$raiz/scripts/check_peer_review.py" ] || exit 0
+
+PY=""
+for c in "python" "python3" "py -3"; do
+  r=$(command -v ${c%% *} 2>/dev/null || true)
+  case "$r" in *WindowsApps*) continue ;; esac
+  if $c -c "import sys" >/dev/null 2>&1; then PY="$c"; break; fi
+done
+[ -z "$PY" ] && exit 0   # sin Python no bloqueamos el push; ya avisa init.sh
+
+# En silencio si todo está en orden: un push limpio no tiene que decir nada.
+salida=$($PY "$raiz/scripts/check_peer_review.py" 2>&1) || {
+  printf '%s
+' "$salida"
+  echo ""
+  echo "[harness] Push a '$principal' BLOQUEADO: falta la revisión cruzada."
+  echo "          Si de verdad tiene que salir ahora: git push --no-verify"
+  exit 1
+}
+exit 0

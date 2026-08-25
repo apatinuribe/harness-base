@@ -10,6 +10,8 @@
 #   ./init.sh          verificación completa
 #   ./init.sh --plan   además, imprime qué features pueden correr en paralelo
 #   ./init.sh --quick  salta el bloque de verificación (solo estructura y estado)
+#   ./init.sh --merge  todo lo anterior + exige la revisión cruzada (antes de
+#                      mergear a main; es lo que comprueba el hook de pre-push)
 
 set -u
 export PYTHONIOENCODING=utf-8
@@ -41,6 +43,23 @@ if [ ! -f harness.config.json ]; then
   exit 1
 fi
 ok "harness.config.json presente"
+
+# El gate de revisión cruzada vive en .githooks/pre-push, y git no mira ahí
+# hasta que se le dice. Se activa una vez, y nunca por encima de hooks ajenos.
+if [ -d .githooks ] && git rev-parse --git-dir >/dev/null 2>&1; then
+  hooks_actual=$(git config --get core.hooksPath 2>/dev/null || true)
+  if [ -z "$hooks_actual" ]; then
+    git_comun=$(git rev-parse --git-common-dir 2>/dev/null || echo ".git")
+    hooks_propios=$(ls "$git_comun/hooks" 2>/dev/null | grep -v '\.sample$' | head -1)
+    if [ -z "$hooks_propios" ]; then
+      git config core.hooksPath .githooks && ok "Hooks de git activados (.githooks)"
+    else
+      warn "Ya hay hooks propios en $git_comun/hooks — no toco core.hooksPath; copia .githooks/pre-push a mano si quieres el gate de revisión cruzada"
+    fi
+  elif [ "$hooks_actual" != ".githooks" ]; then
+    warn "core.hooksPath apunta a '$hooks_actual' — el gate de revisión cruzada (.githooks/pre-push) no está activo"
+  fi
+fi
 
 echo ""
 echo "── 2. Archivos base del arnés ──────────────────────────"
@@ -204,6 +223,19 @@ if not errors and not warns and not oks:
 sys.exit(1 if errors else 0)
 PYCODE
 [ $? -ne 0 ] && EXIT_CODE=1
+
+# Checkpoint C7. Durante la feature solo avisa: el cruce ocurre DESPUÉS del
+# veredicto del reviewer, así que exigirlo antes sería un rojo permanente — y
+# un rojo permanente se acaba ignorando. Bloquea en --merge y en el pre-push.
+if [ "$MODE" = "--merge" ]; then
+  echo ""
+  echo "── 3c. Revisión cruzada ──────────────────────────────"
+  $PY scripts/check_peer_review.py || EXIT_CODE=1
+else
+  aviso_cruce=$($PY scripts/check_peer_review.py --aviso 2>/dev/null)
+  [ -n "$aviso_cruce" ] && printf '%s
+' "$aviso_cruce"
+fi
 
 if [ "$MODE" = "--quick" ]; then
   echo ""

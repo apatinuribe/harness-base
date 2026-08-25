@@ -75,6 +75,43 @@ sin él la aprobación es IA aprobando a IA. La segunda persona es la única
 verificación que no comparte los sesgos de la primera. Si los frena más de lo
 que los protege, `require_peer_review: false` y queda como recomendación.
 
+### El cruce se comprueba, no se promete
+
+Una regla que nadie ejecuta no es una regla. `scripts/check_peer_review.py` lee
+cada feature `done` y exige que su entrada de `progress/history/` acredite a
+alguien del `team` **distinto del `owner`**:
+
+```markdown
+**Owner:** arley
+**Revisión cruzada:** socio
+```
+
+Se dispara solo, y aprieta justo donde el trabajo deja de ser tuyo:
+
+| Cuándo | Qué hace |
+|---|---|
+| `./init.sh`, al arrancar | **Avisa.** No bloquea: el cruce ocurre *después* del veredicto del reviewer, y un rojo permanente se acaba ignorando |
+| `./init.sh --merge` | **Bloquea.** Es el comando de "voy a mergear, ¿está todo?" |
+| `git push` a `main` | **Bloquea**, vía `.githooks/pre-push` — `./init.sh` lo activa solo la primera vez |
+
+Si el otro no está disponible, el atajo existe pero queda escrito:
+
+```markdown
+**Revisión cruzada:** omitida — socio sin acceso hasta el lunes
+```
+
+Lo que no pasa es la línea en blanco, ni «omitida» a secas sin razón, ni
+revisarte a ti mismo. La salida de emergencia de verdad es `git push
+--no-verify`, y esa deja rastro en git.
+
+**Capa extra, opcional.** El hook es local: protege a quien lo tiene instalado.
+Para un gate del lado del servidor, GitHub puede exigir una aprobación en cada
+PR a `main` — en repos privados requiere plan de pago:
+
+```bash
+gh api -X PUT repos/:owner/:repo/branches/main/protection   -f 'required_pull_request_reviews[required_approving_review_count]=1'   -F 'enforce_admins=true' -F 'required_status_checks=null'   -F 'restrictions=null'
+```
+
 ## Antes de lanzar agentes: haz una feature a mano
 
 Necesitas al menos un ejemplo de "así se ve bien" en el repo antes de que el
