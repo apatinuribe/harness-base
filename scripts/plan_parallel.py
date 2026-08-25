@@ -38,10 +38,19 @@ def touches_of(f):
     return [norm(t) for t in f.get("touches", [])]
 
 
+def quien(f):
+    """El dueño va pegado al nombre: esta salida es la que se lee para repartir."""
+    o = f.get("owner")
+    return " [%s]" % o if o else ""
+
+
 def main():
     cfg = json.load(open("harness.config.json", encoding="utf-8"))
     feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
     exclusive = [norm(e) for e in cfg.get("exclusive_paths", [])]
+    equipo = [t for t in cfg.get("team", [])
+              if t.get("id") and not str(t["id"]).startswith("TODO")]
+    multi = len(equipo) > 1
 
     done = {f["id"] for f in feats if f["status"] == "done"}
     running = [f for f in feats if f["status"] == "in_progress"]
@@ -55,7 +64,8 @@ def main():
     if running:
         print("  Ocupado ahora mismo (in_progress):")
         for f in running:
-            print("    #%-3s %-28s -> %s" % (f["id"], f["name"], ", ".join(f.get("touches", []))))
+            print("    #%-3s %-28s -> %s" % (
+                f["id"], f["name"] + quien(f), ", ".join(f.get("touches", []))))
 
     if not pending:
         print("  (no hay features pending)")
@@ -97,7 +107,12 @@ def main():
         tag = " (secuencial)" if len(wave) == 1 else " (%d worktrees en paralelo)" % len(wave)
         print("  Ola %d%s:" % (i, tag))
         for f in wave:
-            print("    #%-3s %-28s -> %s" % (f["id"], f["name"], ", ".join(f.get("touches", []))))
+            print("    #%-3s %-28s -> %s" % (
+                f["id"], f["name"] + quien(f), ", ".join(f.get("touches", []))))
+        huerfanas = [f for f in wave if not f.get("owner")]
+        if multi and huerfanas:
+            print("      sin dueño: %s -- asígnalos en main ANTES de abrir worktrees"
+                  % ", ".join("#%s" % f["id"] for f in huerfanas))
 
     if blocked:
         print("  Bloqueadas:")

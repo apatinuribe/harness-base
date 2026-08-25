@@ -66,8 +66,8 @@ PYCODE
 echo ""
 echo "── 3. Estado del backlog ───────────────────────────────"
 
-$PY - <<'PYCODE'
-import json, sys
+HARNESS_GIT_EMAIL="$(git config user.email 2>/dev/null)" $PY - <<'PYCODE'
+import json, os, sys
 try:
     data = json.load(open("feature_list.json", encoding="utf-8"))
 except Exception as e:
@@ -90,6 +90,21 @@ team_ids = set(t["id"] for t in team)
 # Con 0-1 personas el arnés corre en modo solitario y 'owner' es opcional:
 # nadie tiene con quién colisionar. Con 2+ la propiedad pasa a ser obligatoria.
 multi = len(team) > 1
+
+# Quien eres. Resolverlo aqui evita que cada agente cruce a mano su
+# 'git config user.email' contra el team -- y se equivoque en silencio.
+if not multi:
+    print("[OK]    Modo solitario: 'owner' es opcional (declara 'team' para repartir)")
+else:
+    correo = (os.environ.get("HARNESS_GIT_EMAIL") or "").strip().lower()
+    yo = next((t["id"] for t in team
+               if correo and str(t.get("git_email", "")).strip().lower() == correo), None)
+    if yo:
+        print("[OK]    Eres: %s (una feature in_progress por persona)" % yo)
+    else:
+        print("[WARN]  No sé quién eres: '%s' no está en 'team' de "
+              "harness.config.json. Añádete antes de reclamar una feature."
+              % (correo or "sin git user.email"))
 
 ids = [f["id"] for f in feats]
 if len(ids) != len(set(ids)):

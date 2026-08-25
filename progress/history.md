@@ -16,8 +16,8 @@ La **primera línea es un prefijo fijo y parseable** — no la cambies de format
 ## [2026-08-24] feature #3 | nombre_slug
 
 **Resultado:** done | blocked
-**Owner:** alias de quien la construyó
-**Revisión cruzada:** alias de quien la revisó · o «omitida — razón»
+**Owner:** alias de quien la construyó *(solo con equipo)*
+**Revisión cruzada:** alias de quien la revisó · o «omitida — razón» *(solo con equipo)*
 **Rama/worktree:** feat/3-nombre
 **Spec:** docs/specs/<modulo>.md
 **Resumen:** 2-4 líneas de qué se hizo y qué decisiones se tomaron.

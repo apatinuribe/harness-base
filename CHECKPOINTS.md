@@ -22,11 +22,13 @@
 
 ## C2 — El estado es coherente
 
-- [ ] Como mucho una feature en `in_progress` **por persona**, y cada una declara su `owner`.
+- [ ] Como mucho una feature en `in_progress` por persona. Con `team` de 2+,
+      además, cada una declara su `owner`.
 - [ ] Ninguna feature `in_progress` o `done` tiene dependencias sin cerrar.
 - [ ] Toda feature tiene `acceptance` y `touches` no vacíos.
 - [ ] Los criterios de `acceptance` están en DADO / CUANDO / ENTONCES y son observables.
-- [ ] `progress/current_<owner>.md` describe la sesión activa, sin restos de sesiones previas.
+- [ ] El archivo de sesión (`progress/current.md`, o `current_<alias>.md` con
+      `team` de 2+) describe la sesión activa, sin restos de sesiones previas.
 
 ## C3 — El trabajo respeta la arquitectura
 
@@ -46,7 +48,8 @@
 
 - [ ] Sin archivos temporales o sin trackear sospechosos.
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
-- [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por sesión), y nombra a su `owner`.
+- [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por
+      sesión). Con `team` de 2+, nombra a su `owner`.
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 - [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
 
