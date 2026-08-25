@@ -51,16 +51,21 @@ if is_spec:
     suyos = [(f.get("spec") or "").replace(chr(92), "/") for f in activas]
     if not any(sp and (fp == sp or fp.endswith("/" + sp)) for sp in suyos):
         sys.exit(0)
+    duenos = sorted(set(f.get("owner") or "sin owner" for f in activas))
     sys.stderr.write(
-        "[harness] BLOQUEADO: " + fp + " es el spec de la feature en curso. "
-        "El contrato no se ajusta al codigo a mitad de camino: si el spec esta "
-        "mal, marca la feature blocked y corrigelo con /especificar.\n")
+        "[harness] BLOQUEADO: " + fp + " es el spec de una feature en curso ("
+        + ", ".join(duenos) + "). El contrato no se ajusta al codigo a mitad de "
+        "camino: si el spec esta mal, marca la feature blocked y corrigelo "
+        "con /especificar." + chr(10))
     sys.exit(2)
 
+abiertas = ", ".join(
+    "#%s (%s)" % (f.get("id"), f.get("owner") or "sin owner") for f in activas)
 sys.stderr.write(
-    "[harness] BLOQUEADO: " + fp + " es inmutable mientras hay una feature "
-    "in_progress. El estandar no se ajusta para que el trabajo pase. "
-    "Cierra (done/blocked) la feature antes de tocar el arnes.\n")
+    "[harness] BLOQUEADO: " + fp + " es inmutable mientras hay features "
+    "in_progress: " + abiertas + ". El estandar no se ajusta para que el "
+    "trabajo pase. Si la feature no es tuya, NO la cierres: acuerdalo con "
+    "su owner y hagan el cambio entre olas, con todo mergeado." + chr(10))
 sys.exit(2)
 '
     exit $?

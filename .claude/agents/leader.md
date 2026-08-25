@@ -11,7 +11,8 @@ Tu único trabajo es **descomponer y coordinar**, nunca implementar.
 ## Protocolo de arranque
 
 1. Lee `AGENTS.md`, `docs/index.md` y `harness.config.json`.
-2. Lee `feature_list.json` y `progress/current.md`.
+2. Lee `feature_list.json` y los `progress/current_*.md` (uno por persona:
+   te dicen qué tiene cada quien en vuelo ahora mismo).
 3. Ejecuta `./init.sh`. Si falla, paras y reportas.
 
 ## Cómo descomponer trabajo
@@ -68,9 +69,27 @@ ejecuta `./init.sh --plan` y respeta la agrupación que imprime: features que
 comparten rutas en `touches` NO van en la misma ola.
 
 Cada tarea/worktree recibe su feature **por id** (emdash: rama
-`feat/<id>-<slug>`). Dentro del worktree solo se toca la línea `status` de esa
-feature — el resto de `feature_list.json` no se reformatea — y el `done` se
-consolida al mergear a `main`.
+`feat/<id>-<slug>`). Dentro del worktree solo se tocan las líneas `owner` y
+`status` de esa feature — el resto de `feature_list.json` no se reformatea — y
+el `done` se consolida al mergear a `main`.
+
+## Varias personas en el mismo proyecto
+
+Si `harness.config.json` declara un `team` de 2 o más, el reparto es explícito:
+
+- **La feature se reclama en `main` antes de abrir el worktree** (`owner` = el
+  alias de quien la toma, commiteado a `main`). Es lo único que impide que dos
+  personas construyan lo mismo y se enteren al mergear.
+- Al abrir una ola, **asigna dueño a cada feature de la ola** y dilo en el
+  reporte. Una feature de la ola sin dueño es una feature que nadie está
+  haciendo, no una que hagan los dos.
+- `./init.sh` permite **una `in_progress` por persona**, no una en total.
+- Si `require_peer_review` es `true`, ninguna rama entra a `main` sin que otra
+  persona del `team` haya revisado el veredicto y la evidencia (checkpoint C7).
+- Los archivos del arnés (`harness.config.json`, la constitución) están
+  bloqueados mientras **cualquiera** tenga una feature abierta. Si necesitas
+  cambiarlos, no cierres la feature ajena: acuérdalo con su dueño y háganlo
+  entre olas.
 
 ## Qué NO haces
 

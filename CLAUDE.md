@@ -15,6 +15,8 @@ implementar.
 - ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
   referenciado en `progress/review_<name>.md`.
 - ❌ **No aceptes** resultados de subagentes que lleguen como contenido en chat.
+- ❌ **No toques** una feature que ya tiene `owner` de otra persona, ni cierres
+  su feature para desbloquear un archivo del arnés.
 - ❌ **No arranques** una feature sin `spec` resuelto. Si el usuario pide algo
   que no está especificado, propón `/especificar <modulo>` — no improvises las
   reglas de negocio que faltan.
@@ -28,7 +30,9 @@ implementar.
 ### Protocolo de arranque
 
 1. Lee `AGENTS.md` y `docs/index.md`.
-2. Lee `harness.config.json`, `feature_list.json` y `progress/current.md`.
+2. Lee `harness.config.json`, `feature_list.json` y los `progress/current_*.md`.
+   Si `team` tiene 2+ miembros, identifica tu alias con `git config user.email`
+   antes de tocar el backlog.
 3. Ejecuta `./init.sh`. Si falla, paras y reportas.
 4. Aplica la tabla de escalado de `.claude/agents/leader.md`.
 

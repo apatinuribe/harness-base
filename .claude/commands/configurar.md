@@ -73,7 +73,7 @@ Y clasifícalo con lo que viste:
 
 ### 3. Preguntas
 
-**Máximo 4 preguntas. Una a la vez. Solo lo que no pudiste deducir.**
+**Máximo 5 preguntas. Una a la vez. Solo lo que no pudiste deducir.**
 
 Mismas reglas que el resto de comandos del arnés: interrogación completa que
 termina en `?`, línea `Por qué importa:` en lenguaje llano, recomendación
@@ -106,10 +106,17 @@ parecer no detecta que algo se rompió.
 Responde con la letra, o descríbeme la tuya.
 ```
 
-Las cuatro preguntas, si hicieran falta todas:
+Las cinco preguntas, si hicieran falta todas:
 
 1. **Verificación** — qué comprobación es obligatoria (§2).
 2. **Nombre y una línea** — para `project` y `description`.
+2b. **Quiénes trabajan en esto** — para `team` y `require_peer_review`.
+   Deduce los candidatos primero: `git config user.email` y
+   `git log --format='%aN <%ae>' | sort -u`. Luego confirma alias y correo de
+   cada persona. Con 2+ miembros el arnés exige `owner` en cada feature y
+   permite una `in_progress` por persona; pregunta también si el merge debe
+   pasar por otra persona (`require_peer_review`), explicando que es la única
+   revisión del sistema que no es un LLM aprobando a otro LLM.
 3. **Rutas intocables** — qué carpetas no debe tocar un agente por su cuenta
    (`protected_paths`), y cuáles solo puede tocar una feature a la vez
    (`exclusive_paths`: migraciones, esquema de base de datos, tipos compartidos).
@@ -135,9 +142,14 @@ Escribe el script, **pruébalo**, y solo entonces lo pones en `verify[]`.
 Escribe en este orden, y **después de cada archivo** informa en una línea de qué
 cambió:
 
-**`harness.config.json`** — `project`, `description`, `domain`, `verify[]` (solo
-comandos probados), `protected_paths`, `exclusive_paths`. No toques
-`required_files` salvo que el usuario añada documentos propios.
+**`harness.config.json`** — `project`, `description`, `domain`, `team`,
+`require_peer_review`, `verify[]` (solo comandos probados), `protected_paths`,
+`exclusive_paths`. No toques `required_files` salvo que el usuario añada
+documentos propios.
+
+Si el `team` queda con 2+ miembros, dilo explícitamente al cerrar: a partir de
+ahí toda feature necesita `owner` para arrancar, y cada persona trabaja en su
+`progress/current_<alias>.md`.
 
 **`docs/conventions.md`** — resuelve los TODO con reglas **comprobables**. Si una
 convención no se puede verificar leyendo el entregable, no es una convención: es

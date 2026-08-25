@@ -48,6 +48,33 @@ También puedes editar `harness.config.json`, `docs/conventions.md` y
 `docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
 comprueba que los comandos que escribe realmente corren.
 
+## Varias personas en el mismo proyecto
+
+Declara el equipo en `harness.config.json` (`/configurar` te lo pregunta):
+
+```json
+"team": [
+  { "id": "arley", "git_email": "arley@ejemplo.com" },
+  { "id": "socio", "git_email": "socio@ejemplo.com" }
+],
+"require_peer_review": true
+```
+
+Con **0 o 1 miembros** el arnés corre en modo solitario y nada cambia. Con **2 o
+más** se activan cuatro cosas:
+
+| | Qué pasa |
+|---|---|
+| **Reparto** | Cada feature declara `owner`. Se reclama en `main` **antes** de abrir el worktree — es lo único que evita que dos construyan lo mismo |
+| **Paralelo** | `./init.sh` permite una `in_progress` **por persona**, no una en total |
+| **Sesiones** | Cada quien escribe en `progress/current_<alias>.md`; nunca chocan en el merge |
+| **Cruce** | Con `require_peer_review`, ninguna rama entra a `main` sin que el otro lea la evidencia (checkpoint C7) |
+
+El cruce humano importa más de lo que parece: el `reviewer` es un LLM, así que
+sin él la aprobación es IA aprobando a IA. La segunda persona es la única
+verificación que no comparte los sesgos de la primera. Si los frena más de lo
+que los protege, `require_peer_review: false` y queda como recomendación.
+
 ## Antes de lanzar agentes: haz una feature a mano
 
 Necesitas al menos un ejemplo de "así se ve bien" en el repo antes de que el
@@ -120,7 +147,7 @@ Cada feature de una ola va en su propio worktree:
 git worktree add ../proyecto-feat-3 -b feat/3-nombre
 ```
 
-Reglas: una feature `in_progress` por worktree, y nunca dos features de la misma
+Reglas: una feature `in_progress` por persona, y nunca dos features de la misma
 ola tocando la misma ruta. Una ruta de `exclusive_paths` (migraciones, schema,
 tipos compartidos) solo puede estar en una feature por ola; el planner difiere
 las demás.
@@ -130,20 +157,26 @@ las demás.
 Cada tarea de emdash = **una feature**, en su propio worktree y rama.
 
 1. En `main`: `./init.sh --plan` y elige una ola.
+1b. **Reparte la ola**: pon el `owner` de cada feature y commitea a `main`
+   *antes* de abrir ningún worktree. Sin esto, dos personas pueden arrancar la
+   misma feature y no enterarse hasta el merge.
 2. Crea una tarea de emdash por feature de la ola, con rama `feat/<id>-<slug>`.
 3. Prompt de la tarea — el id **siempre explícito**:
 
    > Implementa la feature #<id> de feature_list.json. Actúa como leader
    > (CLAUDE.md): lanza implementer y reviewer. No elijas otra feature.
 
-4. Con `APPROVED` del reviewer, mergea a `main` una rama a la vez.
+4. Con `APPROVED` del reviewer, mergea a `main` una rama a la vez. Si
+   `require_peer_review` es `true`, el merge lo aprueba **otra persona** del
+   `team`, que lee la evidencia y no solo el veredicto (checkpoint C7).
 5. Mergeada la ola completa: lanza `bibliotecario` (chequeo de salud del
    conocimiento) y luego `./init.sh --plan` para planear la siguiente.
 
 Por qué los merges salen limpios (si se respetan las reglas):
 
-- Cada rama toca solo la línea `status` de **su** feature en `feature_list.json`.
-- `progress/current.md` vuelve a la plantilla antes del merge.
+- Cada rama toca solo las líneas `owner` y `status` de **su** feature en
+  `feature_list.json`.
+- Cada persona escribe en su propio `progress/current_<alias>.md`.
 - La bitácora es un archivo **por sesión** en `progress/history/`, nunca un
   archivo compartido.
 - Los informes van a `progress/impl_<name>.md` / `progress/review_<name>.md`,

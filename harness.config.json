@@ -3,6 +3,14 @@
   "description": "TODO-una-linea",
   "domain": "code",
 
+  "_ayuda_team": "Un alias por persona + el email de su 'git config user.email'. Con 0 o 1 miembros reales el arnes corre en modo solitario (maximo 1 feature in_progress en total). Con 2 o mas, exige que cada feature in_progress declare 'owner' y permite una por persona.",
+  "team": [
+    { "id": "TODO-tu-alias", "git_email": "TODO@ejemplo.com" }
+  ],
+
+  "_ayuda_peer_review": "true = ninguna rama entra a main sin que otra persona del team haya leido el veredicto del reviewer y la evidencia (checkpoint C7). Ponlo en false si trabajas solo o si el cruce los frena mas de lo que los protege.",
+  "require_peer_review": true,
+
   "verify": [
     {
       "name": "tests",

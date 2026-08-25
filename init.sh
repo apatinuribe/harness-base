@@ -77,14 +77,40 @@ feats = data["features"]
 valid = set(data.get("rules", {}).get("valid_status",
             ["pending", "in_progress", "done", "blocked"]))
 errors = []
+warns = []
+
+try:
+    cfg = json.load(open("harness.config.json", encoding="utf-8"))
+except Exception:
+    cfg = {}
+# Miembros reales del equipo: los TODO de la plantilla no cuentan.
+team = [t for t in cfg.get("team", [])
+        if t.get("id") and not str(t["id"]).startswith("TODO")]
+team_ids = set(t["id"] for t in team)
+# Con 0-1 personas el arnés corre en modo solitario y 'owner' es opcional:
+# nadie tiene con quién colisionar. Con 2+ la propiedad pasa a ser obligatoria.
+multi = len(team) > 1
 
 ids = [f["id"] for f in feats]
 if len(ids) != len(set(ids)):
     errors.append("Hay ids duplicados en feature_list.json")
 
 in_progress = [f for f in feats if f["status"] == "in_progress"]
-if len(in_progress) > 1:
-    errors.append(f"Hay {len(in_progress)} features en in_progress (máximo 1 por worktree)")
+if not multi:
+    if len(in_progress) > 1:
+        errors.append(f"Hay {len(in_progress)} features en in_progress (máximo 1; declara tu 'team' en harness.config.json para trabajar en paralelo)")
+else:
+    por_owner = {}
+    for f in in_progress:
+        por_owner.setdefault(f.get("owner"), []).append(f)
+    for own, fs in sorted(por_owner.items(), key=lambda kv: str(kv[0])):
+        lista = ", ".join("#%s" % f["id"] for f in fs)
+        if not own:
+            errors.append(f"Feature(s) {lista} en in_progress sin 'owner' — recláma(la)s en main antes de abrir el worktree")
+        elif own not in team_ids:
+            errors.append(f"Feature(s) {lista}: owner '{own}' no está en 'team' de harness.config.json")
+        elif len(fs) > 1:
+            errors.append(f"{own} tiene {len(fs)} features en in_progress ({lista}) — una por persona a la vez")
 
 by_id = {f["id"]: f for f in feats}
 for f in feats:
@@ -108,9 +134,11 @@ if not errors:
         counts[f["status"]] = counts.get(f["status"], 0) + 1
     print(f"[OK]    Backlog válido ({len(feats)} features: " +
           ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) + ")")
-    if in_progress:
-        f = in_progress[0]
-        print(f"[OK]    En curso: #{f['id']} {f['name']} -> {', '.join(f['touches'])}")
+    for f in in_progress:
+        quien = (" [" + f["owner"] + "]") if f.get("owner") else ""
+        print(f"[OK]    En curso:{quien} #{f['id']} {f['name']} -> {', '.join(f['touches'])}")
+for w in warns:
+    print("[WARN]  " + w)
 sys.exit(1 if errors else 0)
 PYCODE
 [ $? -ne 0 ] && EXIT_CODE=1

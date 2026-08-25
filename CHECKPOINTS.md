@@ -3,8 +3,8 @@
 > En sistemas multi-agente no se evalúa el camino, se evalúa el destino.
 > Un juez (humano o IA) usa estos checkpoints para decidir si el proyecto
 > está sano. El reviewer rechaza el cierre si queda algún box vacío **de C1 a
-> C5**. C6 es distinto: se evalúa entre olas, no al cerrar una feature — el
-> reviewer lo ignora.
+> C5**. C6 y C7 son distintos y el reviewer los ignora: C6 se evalúa entre olas,
+> y C7 en el momento del merge, que es después de su veredicto.
 
 ## C1 — El arnés está completo
 
@@ -22,11 +22,11 @@
 
 ## C2 — El estado es coherente
 
-- [ ] Como mucho una feature en `in_progress`.
+- [ ] Como mucho una feature en `in_progress` **por persona**, y cada una declara su `owner`.
 - [ ] Ninguna feature `in_progress` o `done` tiene dependencias sin cerrar.
 - [ ] Toda feature tiene `acceptance` y `touches` no vacíos.
 - [ ] Los criterios de `acceptance` están en DADO / CUANDO / ENTONCES y son observables.
-- [ ] `progress/current.md` describe la sesión activa, sin restos de sesiones previas.
+- [ ] `progress/current_<owner>.md` describe la sesión activa, sin restos de sesiones previas.
 
 ## C3 — El trabajo respeta la arquitectura
 
@@ -46,7 +46,7 @@
 
 - [ ] Sin archivos temporales o sin trackear sospechosos.
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
-- [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por sesión).
+- [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por sesión), y nombra a su `owner`.
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 - [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
 
@@ -59,6 +59,23 @@
 - [ ] Se corrió `bibliotecario` tras mergear la ola, o tras enmendar la constitución.
 - [ ] `docs/index.md` refleja los módulos y entidades que existen hoy.
 - [ ] Ningún hallazgo CRITICAL del último `progress/lint_*.md` sigue abierto.
+
+## C7 — El merge pasó por otra persona
+
+> **No lo evalúa el reviewer**: ocurre después de su veredicto, en el momento de
+> mergear a `main`. Aplica solo si `require_peer_review` es `true` en
+> `harness.config.json` y el `team` tiene 2 o más miembros.
+>
+> Por qué existe: cuando el reviewer es un LLM, la revisión sigue siendo IA
+> aprobando IA. La segunda persona es la única verificación del sistema que no
+> comparte los sesgos de la primera, y es gratis.
+
+- [ ] Alguien del `team` distinto del `owner` leyó `progress/review_<name>.md`
+      y comprobó la evidencia citada, no solo el veredicto.
+- [ ] Esa persona dejó constancia (aprobación del PR, o su alias en la entrada
+      de `progress/history/`).
+- [ ] Si se saltó el cruce (el otro no estaba disponible), la entrada de
+      `progress/history/` lo dice con su razón — no se omite en silencio.
 
 ---
 

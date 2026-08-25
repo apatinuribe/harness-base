@@ -54,7 +54,7 @@
 |---|---|
 | Qué reglas aplican a todo el producto | `docs/architecture.md` |
 | Qué hace un módulo y por qué | `docs/specs/<modulo>.md` |
-| Qué se está construyendo ahora | `feature_list.json` + `progress/current.md` |
+| Qué se está construyendo ahora | `feature_list.json` + `progress/current_*.md` (uno por persona) |
 | Qué pasó en una sesión concreta | `progress/history/` |
 | Si el conocimiento está sano | el último `progress/lint_*.md` |
 | Qué decidimos aplazar y por qué | `docs/futuro/` |
