@@ -13,6 +13,9 @@ proyecto (software, contenido, research, campañas).
 | Features sin dependencias ni rutas | `depends_on` y `touches` en cada feature |
 | Paralelismo a ojo | `./init.sh --plan` agrupa features en olas seguras |
 | Reviewer solo con checkpoints | Reviewer con acceptance citable + rúbrica 1-5 bloqueante |
+| Sin capa de especificación | `/constitucion` y `/especificar`: entrevistan y producen specs auditables |
+| Se construía sobre un titular | `init.sh` bloquea arrancar una feature sin spec resuelto |
+| Conocimiento que no se acumula | `docs/index.md` + `bibliotecario` cruzan los specs entre sí |
 | — | `exclusive_paths`: rutas que solo una feature puede tocar (migraciones, schema) |
 
 ## Instanciar el arnés (10 minutos)
@@ -23,24 +26,68 @@ proyecto (software, contenido, research, campañas).
 cp -r harness-base/. /ruta/a/mi-proyecto/
 cd /ruta/a/mi-proyecto
 
-# 2. Configura
+# 2. Configura lo mecánico
 #    - harness.config.json: project, verify[], protected_paths, exclusive_paths
-#    - docs/*.md: resuelve todos los TODO (esto es el 80% del valor)
+#    - docs/conventions.md y docs/verification.md: resuelve los TODO
 #    - CHECKPOINTS.md: añade la sección de tu dominio
 
 # 3. Comprueba que el arnés arranca en rojo por la razón correcta
 ./init.sh
 
-# 4. Vacía el backlog de ejemplo y mete features reales
+# 4. Define las reglas del producto (esto es el 80% del valor)
+claude
+#    /constitucion              → llena docs/architecture.md entrevistándote
+#    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
+
+# 5. Vacía el backlog de ejemplo y mete las features que salieron del paso 4
 ```
 
-**El paso 2 no es opcional.** Un `docs/architecture.md` con TODOs produce un
-reviewer que aprueba cualquier cosa. La rúbrica de §4 es lo que le da criterio.
+**Los pasos 2 y 4 no son opcionales.** Un `docs/architecture.md` con TODOs
+produce un reviewer que aprueba cualquier cosa: la rúbrica de §4 es lo que le da
+criterio, y §5-§6 son lo que impide que cada módulo invente sus propias reglas.
 
 ## Antes de lanzar agentes: haz una feature a mano
 
 Necesitas al menos un ejemplo de "así se ve bien" en el repo antes de que el
 reviewer tenga contra qué comparar. Sin referencia concreta, aprueba todo.
+
+## Antes de construir: especificar
+
+El arnés resuelve **la ejecución**. No resuelve **qué construir**. Sin esta capa,
+un «quiero un módulo de suscripciones con planes y cobros» llega al implementador
+como un titular, y el implementador rellena los huecos inventando reglas de
+negocio. Eso es lo que hace que un producto se sienta «hecho con IA».
+
+Dos comandos, ambos en la sesión principal (un subagente no puede preguntarte):
+
+```bash
+/constitucion            # una vez por proyecto
+/especificar suscripciones   # una vez por módulo
+```
+
+**Qué resuelve cada capa**
+
+| Capa | Preguntas que responde | Dónde vive |
+|---|---|---|
+| **Transversal** | ¿Quién entra? ¿Qué pasa cuando algo falla? ¿Qué se loguea? ¿En qué zona horaria? ¿Qué dato es sensible? | `/constitucion` → `docs/architecture.md` §5 |
+| **Alrededor** | ¿Qué entornos hay? ¿Cómo se revierte? ¿De qué terceros dependemos? ¿Quién lo opera? | `/constitucion` → `docs/architecture.md` §6 |
+| **Vertical** | ¿Cuál es el journey? ¿Qué entidades hay? ¿Qué reglas de negocio? ¿Qué ve cada rol? | `/especificar` → `docs/specs/<modulo>.md` §4 |
+| **Temporal** | ¿Qué estados tiene? ¿Qué pasa si la acción llega dos veces? ¿Qué corre solo? ¿Y los datos que ya existen? | `/especificar` → `docs/specs/<modulo>.md` §5 |
+| **Ejecución** | ¿Quién construye qué, en qué orden, sin pisarse, y cómo se demuestra? | El arnés (`feature_list.json`, `init.sh`, `reviewer`) |
+
+Regla de oro: si la respuesta es igual para todos los módulos, va a la
+constitución. Si cambia módulo a módulo, va al spec. Si es «quién lo hace y
+cuándo», va al backlog.
+
+**Cómo son las entrevistas.** Máximo 5 preguntas por módulo (8 para la
+constitución), **una a la vez**, cada una con su recomendación y una tabla de
+opciones con las consecuencias. Puedes responder solo con la letra. Lo que no
+sepas queda marcado como `[NEEDS CLARIFICATION]` — y `./init.sh` **bloquea
+arrancar** esa feature hasta resolverlo. Nada se inventa por ti.
+
+**Después de la entrevista** corre el subagente `analista`: audita el spec
+contra la constitución y clasifica los hallazgos (CRITICAL / HIGH / MEDIUM /
+LOW). Un CRITICAL impide crear las features.
 
 ## Correr una feature
 
@@ -49,7 +96,8 @@ reviewer tenga contra qué comparar. Sin referencia concreta, aprueba todo.
 claude                 # CLAUDE.md te pone en rol leader automáticamente
 ```
 
-Pídele: **«implementa la siguiente feature pendiente»**.
+Pídele: **«implementa la feature #N»** — siempre con el id explícito, nunca
+«la siguiente pendiente». El líder lanza `implementer` y luego `reviewer`.
 
 Por chat no pasa el entregable, solo referencias:
 `done -> progress/impl_<name>.md`. Abre `progress/` en el editor mientras
@@ -84,7 +132,8 @@ Cada tarea de emdash = **una feature**, en su propio worktree y rama.
    > (CLAUDE.md): lanza implementer y reviewer. No elijas otra feature.
 
 4. Con `APPROVED` del reviewer, mergea a `main` una rama a la vez.
-5. Mergeada la ola completa: `./init.sh --plan` para planear la siguiente.
+5. Mergeada la ola completa: lanza `bibliotecario` (chequeo de salud del
+   conocimiento) y luego `./init.sh --plan` para planear la siguiente.
 
 Por qué los merges salen limpios (si se respetan las reglas):
 
@@ -135,12 +184,31 @@ Por qué los merges salen limpios (si se respetan las reglas):
 ├── AGENTS.md               # Mapa para agentes (divulgación progresiva)
 ├── CLAUDE.md               # Fuerza el rol de leader
 ├── CHECKPOINTS.md          # Criterios de estado final correcto
-├── feature_list.json       # Backlog con depends_on / touches
+├── feature_list.json       # Backlog con spec / depends_on / touches
 ├── init.sh                 # Verificación (--plan, --quick)
 ├── scripts/                # plan_parallel.py + hooks.sh
-├── docs/                   # architecture / conventions / verification
+├── docs/
+│   ├── index.md            # Qué es el producto hoy (lo primero que se lee)
+│   ├── architecture.md     # LA CONSTITUCIÓN: políticas transversales + rúbrica
+│   ├── conventions.md      # Estilo, nombres, estructura
+│   ├── verification.md     # Cómo se demuestra que algo funciona
+│   ├── specs/              # Un spec por módulo (+ _plantilla.md)
+│   └── futuro/             # Decisiones aplazadas y su señal de activación
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
-    ├── agents/             # leader, implementer, reviewer, explorer
+    ├── agents/             # leader, implementer, reviewer, explorer,
+    │                       #   analista, bibliotecario
+    ├── commands/           # /constitucion, /especificar
     └── settings.json       # Hooks de verificación automática
 ```
+
+## Los seis subagentes
+
+| Agente | Qué hace | Cuándo |
+|---|---|---|
+| `leader` | Descompone y coordina. Nunca implementa | Siempre (rol por defecto) |
+| `implementer` | Construye **una** feature y su evidencia | Por feature |
+| `reviewer` | Aprueba o rechaza contra spec, constitución y checkpoints | Por feature, nunca se salta |
+| `explorer` | Responde **una** pregunta acotada sobre el repo | Cuando hace falta investigar |
+| `analista` | Audita **un** spec antes de volverlo features | Al final de `/especificar` |
+| `bibliotecario` | Cruza **todos** los specs, detecta contradicciones, mantiene el índice | Entre olas — no es un gate |

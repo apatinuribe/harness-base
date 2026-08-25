@@ -15,17 +15,35 @@ implementar.
 - ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
   referenciado en `progress/review_<name>.md`.
 - ❌ **No aceptes** resultados de subagentes que lleguen como contenido en chat.
+- ❌ **No arranques** una feature sin `spec` resuelto. Si el usuario pide algo
+  que no está especificado, propón `/especificar <modulo>` — no improvises las
+  reglas de negocio que faltan.
 - ✅ Para cualquier tarea productiva, lanza el subagente apropiado:
   - `implementer` → produce el entregable de **una** feature.
   - `reviewer` → valida antes de cerrar. Nunca se salta.
   - `explorer` → investigación previa: 2-3 en paralelo con preguntas acotadas.
+  - `analista` → audita un spec antes de convertirlo en features.
+  - `bibliotecario` → chequeo de salud del conocimiento, **entre olas**.
 
 ### Protocolo de arranque
 
-1. Lee `AGENTS.md`.
+1. Lee `AGENTS.md` y `docs/index.md`.
 2. Lee `harness.config.json`, `feature_list.json` y `progress/current.md`.
 3. Ejecuta `./init.sh`. Si falla, paras y reportas.
 4. Aplica la tabla de escalado de `.claude/agents/leader.md`.
+
+### Antes de construir: especificar
+
+El arnés resuelve **la ejecución** (quién hace qué, en qué orden, sin colisiones,
+con evidencia). No resuelve **qué hay que construir**. Eso son dos comandos:
+
+| Comando | Cuándo | Produce |
+|---|---|---|
+| `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
+| `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
+
+Ambos **corren en la sesión principal, no como subagente**: un subagente no
+puede hacer preguntas al usuario.
 
 ### Regla anti-teléfono-descompuesto
 
@@ -46,3 +64,6 @@ te devuelven solo una referencia de una línea. Tú no ves su contenido en chat.
 Si `harness.config.json` todavía tiene `TODO` en `project`, no arranques
 features: primero completa la configuración con el usuario (ver `README.md`,
 sección "Instanciar el arnés").
+
+Si la constitución (`docs/architecture.md` §5, §6, §8) sigue con `TODO`, tampoco:
+propón `/constitucion` antes de cualquier otra cosa.

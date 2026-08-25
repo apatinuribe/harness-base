@@ -31,8 +31,12 @@ import json, sys
 fp = json.load(sys.stdin).get("tool_input", {}).get("file_path", "")
 fp = fp.replace(chr(92), "/")
 protected = ("harness.config.json", "CHECKPOINTS.md",
-             "docs/architecture.md", "docs/conventions.md", "docs/verification.md")
-if not any(fp == p or fp.endswith("/" + p) for p in protected):
+             "docs/architecture.md", "docs/conventions.md",
+             "docs/verification.md", "docs/index.md")
+# Los specs tambien: el spec es el contrato de la feature. Ajustarlo a mitad de
+# camino para que el codigo pase es exactamente la trampa que esto evita.
+hit = any(fp == p or fp.endswith("/" + p) for p in protected) or "docs/specs/" in fp
+if not hit:
     sys.exit(0)
 try:
     feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]

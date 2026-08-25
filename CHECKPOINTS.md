@@ -10,11 +10,20 @@
 - [ ] Existen los archivos listados en `required_files`.
 - [ ] `./init.sh` termina con exit code 0.
 
+## C1b — El trabajo estaba especificado antes de empezar
+
+- [ ] La constitución (`docs/architecture.md` §5, §6, §8) está ratificada, sin TODOs.
+- [ ] La feature declara `spec`, y ese archivo existe.
+- [ ] El spec no tiene `[NEEDS CLARIFICATION]` sin resolver.
+- [ ] Existe `progress/audit_<modulo>.md` sin hallazgos CRITICAL abiertos.
+- [ ] Ninguna regla del spec contradice una política transversal de la constitución.
+
 ## C2 — El estado es coherente
 
 - [ ] Como mucho una feature en `in_progress`.
 - [ ] Ninguna feature `in_progress` o `done` tiene dependencias sin cerrar.
 - [ ] Toda feature tiene `acceptance` y `touches` no vacíos.
+- [ ] Los criterios de `acceptance` están en DADO / CUANDO / ENTONCES y son observables.
 - [ ] `progress/current.md` describe la sesión activa, sin restos de sesiones previas.
 
 ## C3 — El trabajo respeta la arquitectura
@@ -37,6 +46,13 @@
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
 - [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por sesión).
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
+- [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
+
+## C6 — El conocimiento sigue sano *(entre olas, no por feature)*
+
+- [ ] Se corrió `bibliotecario` tras mergear la ola, o tras enmendar la constitución.
+- [ ] `docs/index.md` refleja los módulos y entidades que existen hoy.
+- [ ] Ningún hallazgo CRITICAL del último `progress/lint_*.md` sigue abierto.
 
 ---
 

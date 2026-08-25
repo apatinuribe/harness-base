@@ -115,6 +115,53 @@ sys.exit(1 if errors else 0)
 PYCODE
 [ $? -ne 0 ] && EXIT_CODE=1
 
+echo ""
+echo "── 3b. Especificación ────────────────────────────────"
+
+$PY - <<'PYCODE'
+import json, os, sys
+try:
+    feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
+except Exception as e:
+    print("[FAIL]  feature_list.json ilegible: %s" % e); sys.exit(1)
+
+MARK = "[NEEDS CLARIFICATION"
+errors, warns, oks = [], [], 0
+
+# Una feature no puede ARRANCAR sin spec resuelto. Mientras esta 'pending'
+# solo se avisa: el backlog puede tener ideas todavia sin especificar.
+for f in feats:
+    fid, name, status = f.get("id"), f.get("name", "?"), f.get("status")
+    started = status in ("in_progress", "done")
+    bucket = errors if started else warns
+    spec = f.get("spec")
+    if not spec:
+        bucket.append("Feature %s (%s) no declara 'spec'%s"
+                      % (fid, name, " y ya esta %s" % status if started
+                         else " todavia -- corre /especificar"))
+        continue
+    if not os.path.exists(spec):
+        bucket.append("Feature %s (%s): no existe %s" % (fid, name, spec))
+        continue
+    pend = open(spec, encoding="utf-8").read().count(MARK)
+    if pend:
+        bucket.append("Feature %s (%s): %s tiene %d '%s ...]' sin resolver"
+                      % (fid, name, spec, pend, MARK))
+        continue
+    oks += 1
+
+for e in errors:
+    print("[FAIL]  " + e)
+for w in warns:
+    print("[WARN]  " + w)
+if oks:
+    print("[OK]    %d feature(s) con spec resuelto" % oks)
+if not errors and not warns and not oks:
+    print("[OK]    Sin features que especificar")
+sys.exit(1 if errors else 0)
+PYCODE
+[ $? -ne 0 ] && EXIT_CODE=1
+
 if [ "$MODE" = "--quick" ]; then
   echo ""
   echo "── Resumen (modo quick) ────────────────────────────────"

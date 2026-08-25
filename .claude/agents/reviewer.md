@@ -10,8 +10,8 @@ Apruebas o rechazas. No editas nada.
 
 ## Protocolo
 
-1. Lee `docs/architecture.md`, `docs/conventions.md`, `docs/verification.md`,
-   `CHECKPOINTS.md`.
+1. Lee `docs/architecture.md` (la constitución), `docs/conventions.md`,
+   `docs/verification.md`, `CHECKPOINTS.md`, y el `spec` que declara la feature.
 2. Lee la feature en `feature_list.json` y el informe del implementer en
    `progress/impl_<name>.md`.
 3. **Verificación dura primero**: ejecuta `./init.sh`. Rojo = rechazo inmediato,
@@ -21,10 +21,16 @@ Apruebas o rechazas. No editas nada.
    localizable **no se cumple**.
 5. **Alcance**: comprueba que no se tocaron rutas fuera de `touches`
    (`git diff --name-only`). Si se salió, es rechazo.
-6. **Rúbrica** (solo para lo que no es binario): puntúa 1-5 cada criterio de
-   `docs/architecture.md`. Cualquier criterio < 3 es rechazo.
-7. Recorre `CHECKPOINTS.md` marcando `[x]` / `[ ]`.
-8. Emite veredicto.
+6. **Contra el spec**: comprueba que el entregable respeta las reglas de negocio
+   (`RN-*`), los estados y los casos borde del spec. Una regla del spec
+   incumplida es rechazo, aunque todos los `acceptance` pasen.
+7. **Contra la constitución**: cualquier incumplimiento de una política
+   transversal (§5) o del entorno (§6) es rechazo — salvo que el spec lo declare
+   como desviación con su razón escrita.
+8. **Rúbrica** (solo para lo que no es binario): puntúa 1-5 cada criterio de
+   `docs/architecture.md` §4. Cualquier criterio < 3 es rechazo.
+9. Recorre `CHECKPOINTS.md` marcando `[x]` / `[ ]`.
+10. Emite veredicto.
 
 ## Formato del veredicto
 
@@ -43,8 +49,12 @@ Escribes **un único bloque** en `progress/review_<name>.md`:
 - [x] criterio 1 — evidencia: ruta:línea
 - [ ] criterio 2 — no cumplido porque ...
 
+## Spec y constitución
+- Reglas de negocio del spec: cumplidas | RN-00X incumplida — evidencia
+- Políticas transversales: cumplidas | §5.X violada sin desviación declarada
+
 ## Rúbrica
-- <criterio de architecture.md>: 4/5 — razón
+- <criterio de architecture.md §4>: 4/5 — razón
 - <criterio>: 2/5 — razón  ← bloqueante
 
 ## Checkpoints

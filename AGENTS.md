@@ -8,27 +8,40 @@
 ## 1. Antes de empezar (obligatorio)
 
 1. Ejecuta `./init.sh`. Si falla, **para** y resuelve el entorno.
-2. Lee `harness.config.json` — define qué se verifica y qué rutas están protegidas.
-3. Lee `progress/current.md` para saber en qué estado quedó la última sesión.
-4. Lee `feature_list.json` y elige **una** feature `pending`. Una a la vez.
+2. Lee `docs/index.md` — qué es este producto hoy, en una página.
+3. Lee `harness.config.json` — define qué se verifica y qué rutas están protegidas.
+4. Lee `progress/current.md` para saber en qué estado quedó la última sesión.
+5. Lee `feature_list.json` y elige **una** feature `pending`. Una a la vez.
+6. Lee el `spec` de esa feature. **Si no tiene, no se arranca**: se especifica
+   primero con `/especificar`.
 
 ## 2. Mapa del repositorio
 
 | Archivo / carpeta            | Qué contiene                                           | Cuándo leerlo |
 |------------------------------|--------------------------------------------------------|---------------|
+| `docs/index.md`              | Qué existe hoy: módulos, entidades, decisiones           | Siempre, lo primero |
 | `harness.config.json`        | Comandos de verificación, rutas protegidas y exclusivas | Siempre |
 | `feature_list.json`          | Backlog con estado, dependencias y rutas afectadas      | Siempre |
 | `progress/current.md`        | Estado de la sesión activa                              | Siempre |
 | `progress/history/`          | Bitácora append-only (un archivo por sesión)            | Si necesitas contexto histórico |
-| `docs/architecture.md`       | Qué significa "hacer un buen trabajo" aquí              | Antes de implementar |
+| `docs/architecture.md`       | **Constitución**: políticas transversales + rúbrica      | Antes de implementar |
+| `docs/specs/<modulo>.md`     | Qué hace un módulo, sus reglas y sus casos borde         | Antes de implementar |
+| `docs/futuro/`               | Decisiones aplazadas y con qué señal se retoman          | Al plantear algo nuevo |
 | `docs/conventions.md`        | Estilo, nombres, estructura, errores                    | Antes de producir |
 | `docs/verification.md`       | Cómo demostrar que el trabajo funciona                  | Antes de declarar `done` |
 | `CHECKPOINTS.md`             | Criterios objetivos de estado final correcto            | Para auto-evaluarte |
-| `.claude/agents/`            | Definiciones de líder, implementador y revisor          | Si orquestas |
+| `.claude/agents/`            | Líder, implementador, revisor, explorador, analista, bibliotecario | Si orquestas |
+| `.claude/commands/`          | `/constitucion` y `/especificar` (entrevistas)           | Antes de construir algo nuevo |
 | `scripts/plan_parallel.py`   | Qué features pueden correr en paralelo sin colisionar   | Al planear una ola |
 
 ## 3. Reglas duras (no negociables)
 
+- **No se arranca una feature sin spec resuelto.** `./init.sh` rechaza pasar a
+  `in_progress` sin `spec`, con un `spec` inexistente, o con
+  `[NEEDS CLARIFICATION]` sin responder. Construir a ciegas es lo que produce
+  «otro producto hecho con IA».
+- **La constitución (`docs/architecture.md` §5-§6) no se negocia desde una
+  feature.** Si estorba, se enmienda con `/constitucion`; no se ignora.
 - **Una sola feature en `in_progress` por worktree.** `./init.sh` lo rechaza.
 - **No declares `done` sin verificación verde.** Los comandos salen de
   `harness.config.json`, no de tu criterio.
@@ -66,7 +79,8 @@ En ambos casos:
 1. `./init.sh` — todo verde.
 2. Si la feature está aprobada por el reviewer: `status: "done"`.
 3. Copia el resumen de `progress/current.md` a una entrada nueva
-   `progress/history/YYYY-MM-DD-f<id>-<slug>.md` (formato en `progress/history.md`).
+   `progress/history/YYYY-MM-DD-f<id>-<slug>.md` (formato en `progress/history.md`;
+   respeta el prefijo `## [fecha] feature #id | slug`, se consulta con `grep`).
 4. Vacía `progress/current.md` dejando la plantilla **antes del merge**:
    así los worktrees paralelos nunca chocan en este archivo.
 5. Sin archivos temporales, sin debug suelto, sin TODOs sin contexto.

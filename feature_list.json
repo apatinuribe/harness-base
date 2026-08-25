@@ -1,8 +1,14 @@
 {
   "project": "TODO-nombre-del-proyecto",
   "description": "TODO",
+  "_ayuda": {
+    "spec": "Ruta al spec que define esta feature. Obligatorio para arrancar: init.sh bloquea pasar a in_progress sin un spec existente y sin [NEEDS CLARIFICATION] pendientes. Se genera con /especificar.",
+    "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión.",
+    "touches": "Lo más estrecho posible: es lo que permite el paralelismo entre worktrees."
+  },
   "rules": {
     "one_feature_at_a_time": true,
+    "require_spec_to_start": true,
     "require_verification_to_close": true,
     "valid_status": ["pending", "in_progress", "done", "blocked"]
   },
@@ -12,9 +18,10 @@
       "name": "ejemplo_slug",
       "title": "Título corto y accionable",
       "description": "Qué hace, en una o dos frases. Si no cabe, la feature es demasiado grande.",
+      "spec": "docs/specs/ejemplo.md",
       "acceptance": [
-        "Criterio observable 1 (algo que un script o un humano puede comprobar)",
-        "Criterio observable 2",
+        "DADO <situación de partida> CUANDO <acción> ENTONCES <resultado observable>",
+        "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>",
         "Existe test/evidencia que cubre los criterios anteriores"
       ],
       "touches": ["src/ejemplo/"],

@@ -24,6 +24,8 @@
     "AGENTS.md",
     "CHECKPOINTS.md",
     "docs/architecture.md",
+    "docs/index.md",
+    "docs/specs/_plantilla.md",
     "docs/conventions.md",
     "docs/verification.md",
     "feature_list.json",

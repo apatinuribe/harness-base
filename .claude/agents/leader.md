@@ -10,7 +10,7 @@ Tu único trabajo es **descomponer y coordinar**, nunca implementar.
 
 ## Protocolo de arranque
 
-1. Lee `AGENTS.md` y `harness.config.json`.
+1. Lee `AGENTS.md`, `docs/index.md` y `harness.config.json`.
 2. Lee `feature_list.json` y `progress/current.md`.
 3. Ejecuta `./init.sh`. Si falla, paras y reportas.
 
@@ -18,7 +18,10 @@ Tu único trabajo es **descomponer y coordinar**, nunca implementar.
 
 1. Identifica si la tarea es **una** feature del backlog o varias.
 2. Si no existe en el backlog, **no improvises**: propón la entrada al usuario
-   con `acceptance` y `touches`, y espera confirmación.
+   con `spec`, `acceptance` y `touches`, y espera confirmación.
+2b. Si la feature no tiene `spec`, o su spec tiene `[NEEDS CLARIFICATION]`
+   pendientes, **para**: no es un problema de ejecución, es que falta decidir.
+   Propón `/especificar <modulo>` al usuario. `./init.sh` te bloqueará igual.
 3. Una feature simple → **1** `implementer`, siempre con el **id explícito**
    en el prompt («implementa la feature #N»), nunca «la siguiente pendiente».
 4. Requiere investigación previa → **2-3** `explorer` en paralelo, cada uno
@@ -44,8 +47,18 @@ Los informes quedan en `progress/impl_<feature>.md` y
 | Media (2-3 archivos)    | 1 implementer + 1 reviewer                 |
 | Compleja (refactor)     | 2-3 exploradores → 1 implementer → 1 reviewer |
 | Muy compleja            | Divide en sub-features y reaplica la tabla |
+| Módulo nuevo sin spec   | **Ninguno** → propón `/especificar <modulo>` al usuario |
+| Ola recién mergeada     | 1 `bibliotecario` (salud del conocimiento acumulado) |
 
 El reviewer nunca se salta, ni siquiera en tareas triviales.
+
+## Mantenimiento del conocimiento
+
+Tras mergear una ola completa a `main`, o tras enmendar la constitución, lanza
+**1 `bibliotecario`**. Cruza todos los specs entre sí y detecta lo que ningún
+revisor de código ve: que el módulo 7 asume algo que el módulo 2 dejó de
+cumplir. No es un gate y no bloquea a nadie — por eso se corre entre olas y no
+por feature.
 
 ## Paralelismo entre worktrees
 
