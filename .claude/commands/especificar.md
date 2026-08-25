@@ -43,9 +43,11 @@ sistema) todavía tienen `TODO`, **detente** y responde:
 
 - Si `docs/specs/$ARGUMENTS.md` ya existe → modo continuación: léelo, identifica
   qué falta y qué `[NEEDS CLARIFICATION]` siguen abiertos. No empieces de cero.
-- Si no existe → copia `docs/specs/_plantilla.md` y rellena todo lo que ya
-  puedas deducir de lo que el usuario dijo, del resto de `docs/specs/` y del
-  código existente.
+- Si no existe → copia `docs/specs/_plantilla.md`, **borra el bloque de
+  instrucciones de la cabecera** (el que empieza con «Plantilla usada por
+  `/especificar`»: si se queda, `init.sh` leerá su mención del marcador de
+  pendiente como un pendiente real) y rellena todo lo que ya puedas deducir de
+  lo que el usuario dijo, del resto de `docs/specs/` y del código existente.
 
 ### 3. Escaneo de cobertura
 

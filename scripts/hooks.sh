@@ -33,21 +33,35 @@ fp = fp.replace(chr(92), "/")
 protected = ("harness.config.json", "CHECKPOINTS.md",
              "docs/architecture.md", "docs/conventions.md",
              "docs/verification.md", "docs/index.md")
-# Los specs tambien: el spec es el contrato de la feature. Ajustarlo a mitad de
-# camino para que el codigo pase es exactamente la trampa que esto evita.
-hit = any(fp == p or fp.endswith("/" + p) for p in protected) or "docs/specs/" in fp
-if not hit:
+is_spec = "docs/specs/" in fp
+if not (any(fp == p or fp.endswith("/" + p) for p in protected) or is_spec):
     sys.exit(0)
 try:
     feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
 except Exception:
     sys.exit(0)
-if any(f.get("status") == "in_progress" for f in feats):
+activas = [f for f in feats if f.get("status") == "in_progress"]
+if not activas:
+    sys.exit(0)
+
+if is_spec:
+    # Solo se protege el spec de la feature EN CURSO: es su contrato, y
+    # ajustarlo a mitad de camino para que el codigo pase es la trampa que
+    # esto evita. Especificar OTRO modulo mientras tanto es legitimo.
+    suyos = [(f.get("spec") or "").replace(chr(92), "/") for f in activas]
+    if not any(sp and (fp == sp or fp.endswith("/" + sp)) for sp in suyos):
+        sys.exit(0)
     sys.stderr.write(
-        "[harness] BLOQUEADO: " + fp + " es inmutable mientras hay una feature "
-        "in_progress. El estandar no se ajusta para que el trabajo pase. "
-        "Cierra (done/blocked) la feature antes de tocar el arnes.\n")
+        "[harness] BLOQUEADO: " + fp + " es el spec de la feature en curso. "
+        "El contrato no se ajusta al codigo a mitad de camino: si el spec esta "
+        "mal, marca la feature blocked y corrigelo con /especificar.\n")
     sys.exit(2)
+
+sys.stderr.write(
+    "[harness] BLOQUEADO: " + fp + " es inmutable mientras hay una feature "
+    "in_progress. El estandar no se ajusta para que el trabajo pase. "
+    "Cierra (done/blocked) la feature antes de tocar el arnes.\n")
+sys.exit(2)
 '
     exit $?
     ;;

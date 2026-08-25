@@ -5,9 +5,12 @@
 **Última actualización:** YYYY-MM-DD
 
 > Plantilla usada por `/especificar`. No la edites a mano para un módulo:
-> copia este archivo a `docs/specs/<modulo>.md`.
+> copia este archivo a `docs/specs/<modulo>.md` y **borra este bloque de
+> instrucciones** — si se queda, el marcador de pendiente que menciona hace que
+> `init.sh` considere el spec eternamente sin resolver.
 >
-> Todo lo que no se sepa se marca `[NEEDS CLARIFICATION: <pregunta concreta>]`.
+> Todo lo que no se sepa se marca como pendiente: la etiqueta NEEDS
+> CLARIFICATION entre corchetes, seguida de dos puntos y la pregunta concreta.
 > **No se inventa.** Mientras quede uno sin resolver, `./init.sh` bloquea el
 > arranque de las features que referencien este spec.
 

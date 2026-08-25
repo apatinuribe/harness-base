@@ -29,7 +29,9 @@ Apruebas o rechazas. No editas nada.
    como desviación con su razón escrita.
 8. **Rúbrica** (solo para lo que no es binario): puntúa 1-5 cada criterio de
    `docs/architecture.md` §4. Cualquier criterio < 3 es rechazo.
-9. Recorre `CHECKPOINTS.md` marcando `[x]` / `[ ]`.
+9. Recorre `CHECKPOINTS.md` de **C1 a C5** marcando `[x]` / `[ ]`. **C6 no se
+   evalúa al cerrar una feature** (es el chequeo entre olas del `bibliotecario`):
+   no lo puntúes ni lo uses para rechazar.
 10. Emite veredicto.
 
 ## Formato del veredicto
@@ -58,7 +60,8 @@ Escribes **un único bloque** en `progress/review_<name>.md`:
 - <criterio>: 2/5 — razón  ← bloqueante
 
 ## Checkpoints
-- C1: [x]   C2: [x]   C3: [ ] ← razón concreta   C4: [x]   C5: [x]
+- C1: [x]   C1b: [x]   C2: [x]   C3: [ ] ← razón concreta   C4: [x]   C5: [x]
+- C6: no aplica al cierre de una feature
 
 ## Cambios requeridos
 1. ...

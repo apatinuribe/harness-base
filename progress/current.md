@@ -1,6 +1,7 @@
 # Sesión actual
 
 **Feature en curso:** _(ninguna)_
+**Spec:** _(ninguno)_
 **Inicio:** —
 **Estado:** idle
 

@@ -2,7 +2,9 @@
 
 > En sistemas multi-agente no se evalúa el camino, se evalúa el destino.
 > Un juez (humano o IA) usa estos checkpoints para decidir si el proyecto
-> está sano. El reviewer rechaza el cierre si queda algún box vacío.
+> está sano. El reviewer rechaza el cierre si queda algún box vacío **de C1 a
+> C5**. C6 es distinto: se evalúa entre olas, no al cerrar una feature — el
+> reviewer lo ignora.
 
 ## C1 — El arnés está completo
 
@@ -48,7 +50,11 @@
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 - [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
 
-## C6 — El conocimiento sigue sano *(entre olas, no por feature)*
+## C6 — El conocimiento sigue sano
+
+> **No lo evalúa el reviewer al cerrar una feature.** Es el chequeo periódico
+> que se corre tras mergear una ola completa o tras enmendar la constitución.
+> Un box vacío aquí no bloquea a nadie: abre una tarea de mantenimiento.
 
 - [ ] Se corrió `bibliotecario` tras mergear la ola, o tras enmendar la constitución.
 - [ ] `docs/index.md` refleja los módulos y entidades que existen hoy.
