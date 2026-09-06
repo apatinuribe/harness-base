@@ -48,6 +48,7 @@ con evidencia). No resuelve **qué hay que construir**. Eso son dos comandos:
 | `/configurar` | Una vez al instanciar | `harness.config.json` + `docs/conventions.md` — qué comando verifica, qué rutas se protegen, qué está prohibido |
 | `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
 | `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
+| `/especificar <modulo> --desde <ruta>` | Igual, pero el usuario ya escribió el módulo a mano | Lo mismo, partiendo de `docs/borradores/<modulo>.md`: mapea lo cubierto y pregunta solo por los huecos |
 
 Los tres **corren en la sesión principal, no como subagente**: un subagente no
 puede hacer preguntas al usuario.

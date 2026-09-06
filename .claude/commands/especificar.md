@@ -1,12 +1,22 @@
 ---
 description: Entrevista por módulo. Convierte "quiero un módulo de X" en un spec ejecutable en docs/specs/<modulo>.md y propone las features.
-argument-hint: <nombre-del-modulo>
+argument-hint: <nombre-del-modulo> [--desde <ruta-al-borrador>]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent
 ---
 
 # /especificar — Convertir una idea en un spec ejecutable
 
-Módulo a especificar: **$ARGUMENTS**
+Argumentos recibidos: **$ARGUMENTS**
+
+**Léelos así antes de nada:** el **primer token** es el nombre del módulo —lo
+que abajo se escribe `<modulo>`, y lo que va en `docs/specs/<modulo>.md`—. Si
+aparece `--desde`, lo que le sigue es la **ruta al borrador**. Nunca uses
+`$ARGUMENTS` entero para construir una ruta: con `--desde` incluiría la bandera.
+
+```
+/especificar suscripciones                                    → modo entrevista
+/especificar suscripciones --desde docs/borradores/subs.md    → modo borrador (§2b)
+```
 
 Este comando existe porque decir *«quiero un módulo de suscripciones con planes
 y cobros»* no es una especificación: es un titular. Aquí se convierte en algo
@@ -41,13 +51,89 @@ sistema) todavía tienen `TODO`, **detente** y responde:
 
 ### 2. Estado actual
 
-- Si `docs/specs/$ARGUMENTS.md` ya existe → modo continuación: léelo, identifica
+- Si `docs/specs/<modulo>.md` ya existe → modo continuación: léelo, identifica
   qué falta y qué `[NEEDS CLARIFICATION]` siguen abiertos. No empieces de cero.
 - Si no existe → copia `docs/specs/_plantilla.md`, **borra el bloque de
   instrucciones de la cabecera** (el que empieza con «Plantilla usada por
   `/especificar`»: si se queda, `init.sh` leerá su mención del marcador de
   pendiente como un pendiente real) y rellena todo lo que ya puedas deducir de
   lo que el usuario dijo, del resto de `docs/specs/` y del código existente.
+
+### 2b. Borrador (solo con `--desde <ruta>`)
+
+Existe porque el caso más común no es «quiero un módulo de X»: es que el usuario
+**ya escribió** la lógica, los casos y hasta las features, en sus propias notas.
+Sin este modo, la entrevista le vuelve a preguntar lo que ya respondió — y la
+gente contesta peor la segunda vez.
+
+Si `$ARGUMENTS` **no** incluye `--desde`, sáltate esta sección entera.
+
+**1. Comprueba la ruta.** Si no existe, **para** y responde:
+
+```
+blocked -> no existe <ruta>
+```
+
+**2. Mapea el borrador.** Lanza el subagente `explorer` con esta pregunta
+acotada —una sola, y no le pidas que opine:
+
+> Lee `<ruta>`. Mapea su contenido a las secciones 1-10 de
+> `docs/specs/_plantilla.md`. Para cada sección responde: qué frases del borrador
+> la cubren (cita literal), qué queda Parcial y qué Ausente. Convierte a
+> DADO/CUANDO/ENTONCES cualquier caso o comportamiento que el borrador describa
+> en prosa o en otra sintaxis (Given/When/Then, tablas, listas). Cierra con dos
+> apartados aparte: **Features declaradas** —si el borrador enumera features,
+> cítalas literalmente, una por línea; si no enumera ninguna, escribe que no
+> hay— y **Sin sección clara**, para lo que no encaje en 1-10. Escribe el
+> resultado en `progress/mapa_<modulo>.md`. Devuélveme solo la ruta.
+
+Los dos apartados del final no son un extra: las features que el usuario ya
+escribió **no tienen sección en la plantilla**, y sin recogerlas explícitamente
+se pierden entre el mapa y el paso 7, que es justo donde hay que decir qué pasó
+con cada una.
+
+**3. Rellena el spec desde el mapa.** Lee `progress/mapa_<modulo>.md` y escribe
+`docs/specs/<modulo>.md` con lo que el borrador ya cubre.
+
+**Conserva la redacción del usuario** donde sea precisa: si su frase ya dice qué
+pasa y cuándo, reescribirla solo introduce ruido y le obliga a releer para
+comprobar que no cambiaste el sentido. Cada fragmento tomado del borrador cierra
+con su procedencia:
+
+```markdown
+- RN-003: un pedido sin dirección no entra a la cola de reparto. (borrador §Reglas)
+```
+
+La marca `(borrador §<referencia>)` no es decorativa: es lo que permite, cuando
+algo salga mal en producción, distinguir lo que decidió el usuario de lo que
+dedujo la entrevista.
+
+**4. El escaneo de cobertura arranca del mapa, no de cero.** En el paso 3, todo
+lo que el mapa marca como Cubierto ya está resuelto: solo priorizas y preguntas
+por lo **Parcial** y lo **Ausente**. Siguen siendo 5 preguntas como máximo, y
+ahora se gastan donde hacen falta.
+
+**5. Al cierre (paso 8)**, deja la procedencia registrada en `## Clarificaciones`
+del spec:
+
+```markdown
+### Sesión 2026-09-06 — spec inicializado desde docs/borradores/<modulo>.md
+(7 secciones cubiertas, 2 parciales, 1 ausente)
+```
+
+#### El borrador es fuente, no verdad
+
+Lo que el usuario escribió antes de la entrevista es material de entrada, no una
+decisión ya tomada. Dos consecuencias, y ninguna es negociable:
+
+- **Si el borrador contradice la constitución, se pregunta.** No se copia, y
+  tampoco se corrige por tu cuenta: se lleva al usuario como cualquier otra
+  decisión, con su recomendación y su tabla de consecuencias (paso 4). La
+  constitución no se enmienda desde un borrador.
+- **Si el borrador declara features, son una propuesta.** Entran al paso 6a
+  como candidatas y el `estratega` las audita igual que a las demás — puede
+  cortarlas, fusionarlas o reordenarlas. Que el usuario ya las haya escrito
+  en una lista no las convierte en backlog decidido.
 
 ### 3. Escaneo de cobertura
 
@@ -116,7 +202,7 @@ Responde con la letra, o descríbeme la tuya.
 
 ### 5. Escritura incremental
 
-**Después de CADA respuesta aceptada**, actualiza `docs/specs/$ARGUMENTS.md`
+**Después de CADA respuesta aceptada**, actualiza `docs/specs/<modulo>.md`
 antes de preguntar lo siguiente. Añade la entrada al log:
 
 ```markdown
@@ -134,8 +220,8 @@ Agotadas las preguntas, el spec pasa por **dos auditorías, en este orden**:
 
 | | Agente | Pregunta que responde | Informe |
 |---|---|---|---|
-| 6a | `estratega` | ¿Debería existir cada feature, en este orden, con este alcance? | `progress/estrategia_$ARGUMENTS.md` |
-| 6b | `analista` | ¿Se puede construir sin adivinar, y respeta la constitución? | `progress/audit_$ARGUMENTS.md` |
+| 6a | `estratega` | ¿Debería existir cada feature, en este orden, con este alcance? | `progress/estrategia_<modulo>.md` |
+| 6b | `analista` | ¿Se puede construir sin adivinar, y respeta la constitución? | `progress/audit_<modulo>.md` |
 
 **El orden no es negociable, y la razón es económica:** no vale la pena auditar
 la consistencia de una feature que se va a cortar. Si el `analista` corriera
@@ -146,9 +232,9 @@ historias que el `estratega` va a mandar a `docs/futuro/` diez minutos después.
 
 Lanza el subagente `estratega`:
 
-> Audita `docs/specs/$ARGUMENTS.md`: si cada feature propuesta debería existir,
+> Audita `docs/specs/<modulo>.md`: si cada feature propuesta debería existir,
 > en este orden y con este alcance. Escribe el informe en
-> `progress/estrategia_$ARGUMENTS.md`. Respóndeme solo con la línea de veredicto.
+> `progress/estrategia_<modulo>.md`. Respóndeme solo con la línea de veredicto.
 
 Antes de seguir, **el usuario decide** sobre cada hallazgo **CRITICAL** y
 **HIGH**: cortar, diferir, recortar, reordenar o mantener. Pregúntaselos uno a
@@ -169,8 +255,8 @@ Lo que se decide se **escribe en el spec antes de pasar a 6b**:
 
 Con el spec ya recortado, lanza el subagente `analista`:
 
-> Audita `docs/specs/$ARGUMENTS.md` contra la constitución. Escribe el informe
-> en `progress/audit_$ARGUMENTS.md`. Respóndeme solo con la línea de veredicto.
+> Audita `docs/specs/<modulo>.md` contra la constitución. Escribe el informe
+> en `progress/audit_<modulo>.md`. Respóndeme solo con la línea de veredicto.
 
 Si vuelve con hallazgos **CRITICAL**, resuélvelos —preguntando si hace falta—
 antes de seguir. No propongas features sobre un spec con CRITICAL abiertos.
@@ -179,6 +265,22 @@ antes de seguir. No propongas features sobre un spec con CRITICAL abiertos.
 
 Con el spec limpio, **propón** las entradas para `feature_list.json`. No las
 escribas sin confirmación del usuario.
+
+**Si vino de un borrador con features declaradas**, la propuesta dice de dónde
+sale cada una. El usuario tiene que poder ver qué pasó con su lista sin
+compararla a mano:
+
+| Feature | Origen | Qué pasó |
+|---|---|---|
+| `alta_suscripcion` | borrador | Se mantiene tal cual |
+| `cobro_recurrente` | borrador | **Recortada**: sin reintentos, que el estratega mandó a `docs/futuro/` |
+| `panel_admin_planes` | borrador | **Cortada** — H-002: nada visible cambia en 90 días |
+| `exportar_datos` | borrador + `historial_pagos` | **Fusionadas**: la misma hipótesis y la misma señal |
+| `aviso_de_vencimiento` | spec | Añadida: el caso borde §3 no lo cubría ninguna |
+
+Una feature del borrador que se cae **siempre** cita el hallazgo del estratega
+que la tumbó. «No la incluí» no es una respuesta: el usuario la escribió por una
+razón y merece saber cuál la venció.
 
 Cada feature propuesta lleva:
 
@@ -214,9 +316,14 @@ Reglas de troceo:
 
 ### 8. Cierre
 
-Reporta en cuatro líneas:
+Si el spec vino de un borrador, escribe **primero** la línea de procedencia en
+su sección `## Clarificaciones` (paso 2b.5). Es lo único que queda, meses
+después, para saber que ese spec no salió de una entrevista en blanco.
+
+Reporta en cuatro líneas —cinco si hubo borrador:
 
 ```
+Borrador: docs/borradores/<modulo>.md (7 secciones cubiertas, 2 parciales, 1 ausente)
 Spec: docs/specs/<modulo>.md (N requisitos, M pendientes de aclarar)
 Estrategia: progress/estrategia_<modulo>.md — X CRITICAL, Y HIGH (N cortadas, N diferidas)
 Auditoría: progress/audit_<modulo>.md — X CRITICAL, Y HIGH

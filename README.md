@@ -32,6 +32,8 @@ claude
 #                                 escribe harness.config.json y conventions.md
 #    /constitucion              → llena docs/architecture.md entrevistándote
 #    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
+#      ...o, si ya lo escribiste por tu cuenta:
+#    /especificar <modulo> --desde docs/borradores/<modulo>.md
 
 # 3. Comprueba que el arnés está en verde
 ./init.sh
@@ -131,7 +133,18 @@ preguntarte):
 /configurar              # una vez al instanciar el arnés
 /constitucion            # una vez por proyecto
 /especificar suscripciones   # una vez por módulo
+/especificar suscripciones --desde docs/borradores/suscripciones.md   # partiendo de lo tuyo
 ```
+
+**Si ya tienes la lógica pensada, no empieces en blanco.** Guarda tus notas en
+`docs/borradores/<modulo>.md` —prosa, viñetas, Given/When/Then, lo que sea— y
+pásalas con `--desde`. El comando mapea lo que ya cubriste contra las secciones
+del spec, conserva tu redacción donde ya es precisa (marcada con su
+procedencia), y gasta sus 5 preguntas **solo en lo que falta**. Sin eso, la
+entrevista te vuelve a preguntar lo que ya habías decidido — y a la segunda se
+contesta peor. Lo que escribiste es fuente, no verdad: si contradice la
+constitución te lo pregunta igual, y si trae features, las audita el `estratega`
+como a cualquier otra.
 
 **Qué resuelve cada capa**
 
@@ -274,6 +287,7 @@ Por qué los merges salen limpios (si se respetan las reglas):
 │   ├── conventions.md      # Estilo, nombres, estructura
 │   ├── verification.md     # Cómo se demuestra que algo funciona
 │   ├── specs/              # Un spec por módulo (+ _plantilla.md)
+│   ├── borradores/         # Tus notas antes de la entrevista (entrada de --desde)
 │   └── futuro/             # Decisiones aplazadas y su señal de activación
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/

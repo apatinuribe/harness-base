@@ -9,6 +9,11 @@
 > instrucciones** — si se queda, el marcador de pendiente que menciona hace que
 > `init.sh` considere el spec eternamente sin resolver.
 >
+> **Si ya escribiste el módulo por tu cuenta, no lo pegues aquí:** guárdalo en
+> `docs/borradores/<modulo>.md` y corre
+> `/especificar <modulo> --desde docs/borradores/<modulo>.md`. La entrevista
+> mapea lo que ya cubriste y pregunta solo por los huecos.
+>
 > Todo lo que no se sepa se marca como pendiente: la etiqueta NEEDS
 > CLARIFICATION entre corchetes, seguida de dos puntos y la pregunta concreta.
 > **No se inventa.** Mientras quede uno sin resolver, `./init.sh` bloquea el

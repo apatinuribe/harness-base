@@ -37,7 +37,8 @@
 | `docs/verification.md`       | Cómo demostrar que el trabajo funciona                  | Antes de declarar `done` |
 | `CHECKPOINTS.md`             | Criterios objetivos de estado final correcto            | Para auto-evaluarte |
 | `.claude/agents/`            | Líder, implementador, revisor, explorador, estratega, analista, bibliotecario | Si orquestas |
-| `.claude/commands/`          | `/configurar`, `/constitucion` y `/especificar` (entrevistas) | Al instanciar y antes de construir algo nuevo |
+| `.claude/commands/`          | `/configurar`, `/constitucion` y `/especificar` (entrevistas; `--desde <ruta>` parte de un borrador tuyo) | Al instanciar y antes de construir algo nuevo |
+| `docs/borradores/`           | Notas propias antes de la entrevista — entrada de `/especificar --desde` | Solo si vas a especificar un módulo |
 | `scripts/plan_parallel.py`   | Qué features pueden correr en paralelo sin colisionar   | Al planear una ola |
 
 ## 3. Reglas duras (no negociables)
