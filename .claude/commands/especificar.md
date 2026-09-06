@@ -130,7 +130,44 @@ Lo que el usuario no sepa responder **no se inventa**: queda como
 
 ### 6. Auditoría
 
-Agotadas las preguntas, lanza el subagente `analista` sobre el spec:
+Agotadas las preguntas, el spec pasa por **dos auditorías, en este orden**:
+
+| | Agente | Pregunta que responde | Informe |
+|---|---|---|---|
+| 6a | `estratega` | ¿Debería existir cada feature, en este orden, con este alcance? | `progress/estrategia_$ARGUMENTS.md` |
+| 6b | `analista` | ¿Se puede construir sin adivinar, y respeta la constitución? | `progress/audit_$ARGUMENTS.md` |
+
+**El orden no es negociable, y la razón es económica:** no vale la pena auditar
+la consistencia de una feature que se va a cortar. Si el `analista` corriera
+primero, gastaría sus siete pasadas —y tu tiempo resolviendo sus hallazgos— en
+historias que el `estratega` va a mandar a `docs/futuro/` diez minutos después.
+
+#### 6a. El porqué
+
+Lanza el subagente `estratega`:
+
+> Audita `docs/specs/$ARGUMENTS.md`: si cada feature propuesta debería existir,
+> en este orden y con este alcance. Escribe el informe en
+> `progress/estrategia_$ARGUMENTS.md`. Respóndeme solo con la línea de veredicto.
+
+Antes de seguir, **el usuario decide** sobre cada hallazgo **CRITICAL** y
+**HIGH**: cortar, diferir, recortar, reordenar o mantener. Pregúntaselos uno a
+uno, con la misma forma del paso 4 —recomendación y tabla de consecuencias.
+
+Lo que se decide se **escribe en el spec antes de pasar a 6b**:
+
+- **CORTAR** → la historia sale del spec; su alternativa va a `docs/futuro/`
+  con la señal que la retomaría.
+- **DIFERIR** → igual, pero se nombra en el spec como aplazada.
+- **RECORTAR** → la historia se reescribe en su versión reducida.
+- **REORDENAR** → cambia el orden de las historias, no su contenido.
+- **MANTENER** → queda la línea en el spec:
+  «se mantiene pese a \<hallazgo\> porque \<razón\>». Sin esa línea, la decisión
+  se olvida y el hallazgo vuelve a aparecer en la siguiente auditoría.
+
+#### 6b. El cómo
+
+Con el spec ya recortado, lanza el subagente `analista`:
 
 > Audita `docs/specs/$ARGUMENTS.md` contra la constitución. Escribe el informe
 > en `progress/audit_$ARGUMENTS.md`. Respóndeme solo con la línea de veredicto.
@@ -165,6 +202,8 @@ Cada feature propuesta lleva:
 
 Reglas de troceo:
 
+- **El orden de las features es el que aprobó el `estratega`** en el paso 6a, no
+  el orden en que están escritas en el spec. Si el usuario decidió otro, ese.
 - Cada feature corresponde a **una historia de usuario** del spec (P1 antes que
   P2 antes que P3), no a una capa técnica. «El backend de suscripciones» no es
   una feature; «alta de suscripción de punta a punta» sí.
@@ -175,10 +214,11 @@ Reglas de troceo:
 
 ### 8. Cierre
 
-Reporta en tres líneas:
+Reporta en cuatro líneas:
 
 ```
 Spec: docs/specs/<modulo>.md (N requisitos, M pendientes de aclarar)
+Estrategia: progress/estrategia_<modulo>.md — X CRITICAL, Y HIGH (N cortadas, N diferidas)
 Auditoría: progress/audit_<modulo>.md — X CRITICAL, Y HIGH
 Features propuestas: N (pendientes de tu confirmación para entrar al backlog)
 ```

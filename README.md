@@ -154,9 +154,15 @@ opciones con las consecuencias. Puedes responder solo con la letra. Lo que no
 sepas queda marcado como `[NEEDS CLARIFICATION]` — y `./init.sh` **bloquea
 arrancar** esa feature hasta resolverlo. Nada se inventa por ti.
 
-**Después de la entrevista** corre el subagente `analista`: audita el spec
-contra la constitución y clasifica los hallazgos (CRITICAL / HIGH / MEDIUM /
-LOW). Un CRITICAL impide crear las features.
+**Después de la entrevista** corren dos auditorías, en este orden. Primero el
+`estratega`: si cada feature **debería existir**, en ese orden y con ese alcance
+— una feature sin hipótesis, o cuya ausencia no cuesta nada en 90 días, se corta
+o se aplaza aquí. Después el `analista`: si el spec **se puede construir sin
+adivinar** y respeta la constitución. Ambos clasifican en CRITICAL / HIGH /
+MEDIUM / LOW, y un CRITICAL impide crear las features.
+
+El orden es económico: no vale la pena auditar la consistencia de una feature
+que se va a cortar.
 
 ## Correr una feature
 
@@ -272,12 +278,12 @@ Por qué los merges salen limpios (si se respetan las reglas):
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
-    │                       #   analista, bibliotecario
+    │                       #   estratega, analista, bibliotecario
     ├── commands/           # /configurar, /constitucion, /especificar
     └── settings.json       # Hooks de verificación automática
 ```
 
-## Los seis subagentes
+## Los siete subagentes
 
 | Agente | Qué hace | Cuándo |
 |---|---|---|
@@ -285,5 +291,6 @@ Por qué los merges salen limpios (si se respetan las reglas):
 | `implementer` | Construye **una** feature y su evidencia | Por feature |
 | `reviewer` | Aprueba o rechaza contra spec, constitución y checkpoints | Por feature, nunca se salta |
 | `explorer` | Responde **una** pregunta acotada sobre el repo | Cuando hace falta investigar |
-| `analista` | Audita **un** spec antes de volverlo features | Al final de `/especificar` |
+| `estratega` | Audita el **porqué**: si cada feature debería existir, en ese orden y con ese alcance | Al final de `/especificar`, **antes** del analista |
+| `analista` | Audita el **cómo**: si **un** spec se puede construir sin adivinar | Al final de `/especificar`, después del estratega |
 | `bibliotecario` | Cruza **todos** los specs, detecta contradicciones, mantiene el índice | Entre olas — no es un gate |

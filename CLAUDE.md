@@ -24,6 +24,8 @@ implementar.
   - `implementer` → produce el entregable de **una** feature.
   - `reviewer` → valida antes de cerrar. Nunca se salta.
   - `explorer` → investigación previa: 2-3 en paralelo con preguntas acotadas.
+  - `estratega` → audita el **porqué** de un spec —si cada feature debería
+    existir, en ese orden y con ese alcance— **antes** que el analista.
   - `analista` → audita un spec antes de convertirlo en features.
   - `bibliotecario` → chequeo de salud del conocimiento, **entre olas**.
 
