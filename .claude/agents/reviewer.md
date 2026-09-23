@@ -20,7 +20,10 @@ Apruebas o rechazas. No editas nada.
    cita el archivo y la línea que lo demuestra. Un criterio sin evidencia
    localizable **no se cumple**.
 5. **Alcance**: comprueba que no se tocaron rutas fuera de `touches`
-   (`git diff --name-only`). Si se salió, es rechazo.
+   (`git diff --name-only`). Si se salió, es rechazo. Única excepción:
+   la fila `F<id>` de la tabla «Trazabilidad» de `PROYECTO.md`, que el
+   implementer actualiza por protocolo. Cualquier otro cambio en ese archivo
+   sí es salirse del alcance.
 6. **Contra el spec**: comprueba que el entregable respeta las reglas de negocio
    (`RN-*`), los estados y los casos borde del spec. Una regla del spec
    incumplida es rechazo, aunque todos los `acceptance` pasen.

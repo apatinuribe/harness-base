@@ -34,6 +34,28 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
 6. **Verifica** con `./init.sh`. Si falla → vuelve al paso 4.
 7. **Escribe** tu informe en `progress/impl_<name>.md`: archivos tocados,
    decisiones, salida de la verificación.
+7b. **Trazabilidad con el OS** — solo si existe `PROYECTO.md` en la raíz.
+   Su tabla «Trazabilidad» es lo que conecta los objetivos del proyecto con lo
+   que de verdad llegó a producción; si no la actualizas tú, nadie lo hace:
+
+   ```markdown
+   | KR | Actividad | Feature / spec | Estado | Evidencia |
+   |---|---|---|---|---|
+   | KR1 | Alta de suscripción | F7 · docs/specs/suscripciones.md | en producción | dpl_8f3a · evento suscripcion_creada |
+   ```
+
+   - Busca la fila por `F<id>` en la columna «Feature / spec» — el mismo
+     `F<id>` que llevan tus tests, para que todo se cruce con un `grep`.
+   - Si no está, **agrégala bajo su KR** (el `kr` de la feature), con
+     «Feature / spec» = `F<id> · <ruta del spec>`.
+   - **Estado** es uno de: `pendiente` · `en curso` · `en producción` · `hecho`.
+     Una feature de cara al usuario se cierra en `en producción`, con el id del
+     despliegue y el evento de su métrica en «Evidencia». Una de
+     infraestructura (`infra` declarado) se cierra en `hecho`, con la razón de
+     la exención en «Evidencia».
+   - Si `PROYECTO.md` existe pero **no tiene la tabla**, no la crees:
+     repórtalo en tu informe. El formato lo decide el OS, no tú.
+   - Toca solo tu fila. `PROYECTO.md` queda fuera de `touches` por diseño.
 8. **No marques `done` tú mismo.** El veredicto es del `reviewer`.
 
 ## Reglas duras

@@ -282,6 +282,34 @@ Una feature del borrador que se cae **siempre** cita el hallazgo del estratega
 que la tumbó. «No la incluí» no es una respuesta: el usuario la escribió por una
 razón y merece saber cuál la venció.
 
+#### A qué KR sirve cada feature
+
+Si existe `PROYECTO.md` en la raíz, el proyecto tiene un OS por encima: unos
+resultados clave (KRs) que justifican que se esté construyendo algo. Léelos
+antes de proponer, y **pregunta a cuál sirve cada feature** — una sola pregunta
+con la tabla completa, no una por feature:
+
+```markdown
+**P.** ¿A qué resultado clave de PROYECTO.md sirve cada feature?
+
+Por qué importa: es lo que permite saber, cuando algo llegue a producción, qué
+objetivo movió. Una feature que no sirve a ninguno es trabajo que nadie pidió.
+
+| Feature | KR recomendado | Razón |
+|---|---|---|
+| `suscripciones_alta` | KR1 — 50 clientes pagando | Es la puerta de entrada del cobro |
+| `aviso_de_vencimiento` | KR2 — churn < 5% | Evita la baja por olvido |
+| `exportar_datos` | ninguno | No mueve ningún KR: candidata a cortar |
+
+Confirma la tabla, o dime qué cambiarías.
+```
+
+La respuesta va al campo `kr` de cada feature. **No asignes un KR por
+aproximación** para que la feature pase: si el usuario dice que no sirve a
+ninguno, la feature queda sin `kr`, y el `estratega` la va a señalar — es
+exactamente la conversación que tiene que ocurrir. Sin `PROYECTO.md`, sáltate
+esta pregunta: `kr` es opcional.
+
 Cada feature propuesta lleva:
 
 ```json
@@ -291,6 +319,7 @@ Cada feature propuesta lleva:
   "title": "Alta de suscripción con plan mensual",
   "description": "Una o dos frases. Si no cabe, la feature es demasiado grande.",
   "spec": "docs/specs/suscripciones.md",
+  "kr": "KR1",
   "acceptance": [
     "DADO un cliente sin plan CUANDO elige el plan mensual y paga ENTONCES queda activo y ve su fecha de renovación",
     "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones",
