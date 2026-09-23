@@ -1,5 +1,5 @@
 {
-  "$schema_comment": "Hooks de verificación automática. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh vía Git Bash/WSL (por eso el prefijo 'bash'). PreToolUse guard: bloquea editar harness.config.json/CHECKPOINTS.md/docs mientras hay una feature in_progress. PostToolUse: revalida estructura tras editar (salta progress/, docs/, .claude/). Stop: verificación completa con log en .harness/.",
+  "$schema_comment": "Hooks de verificación automática. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh vía Git Bash/WSL (por eso el prefijo 'bash'). PreToolUse guard (scripts/hooks.sh): congela harness.config.json/CHECKPOINTS.md/docs y el spec activo mientras hay una feature in_progress; impide que la sesión principal edite protected_paths (eso lo hace implementer) y que un subagente edite feature_list.json (los estados los cambia el leader). PostToolUse: revalida estructura tras editar (salta progress/, docs/, .claude/). Stop: verificación completa con log en .harness/.",
   "hooks": {
     "PreToolUse": [
       {

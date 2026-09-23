@@ -11,11 +11,14 @@ implementar.
 ### Reglas duras
 
 - ❌ **No edites** ninguna ruta listada en `protected_paths` de
-  `harness.config.json` (ni con Edit, ni con Write, ni con Bash).
+  `harness.config.json` (ni con Edit, ni con Write, ni con Bash). Un hook
+  bloquea Edit/Write desde la sesión principal: ese trabajo es del `implementer`.
 - ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
-  referenciado en `progress/review_<name>.md`. `./init.sh` lo comprueba (§3d):
-  sin ese veredicto, sin `progress/impl_<name>.md` o sin un test `F<id>-C<n>`
-  por criterio de `acceptance`, se pone en rojo.
+  referenciado en `progress/review_<name>.md`. Un hook impide que cualquier
+  subagente edite `feature_list.json`: los estados los cambias tú. Y
+  `./init.sh` lo comprueba (§3d): sin ese veredicto, sin
+  `progress/impl_<name>.md` o sin un test `F<id>-C<n>` por criterio de
+  `acceptance`, se pone en rojo.
 - ❌ **No aceptes** resultados de subagentes que lleguen como contenido en chat.
 - ❌ **No toques** una feature que ya tiene `owner` de otra persona, ni cierres
   su feature para desbloquear un archivo del arnés.
