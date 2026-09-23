@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Gate de revisión cruzada (checkpoint C7).
+# Gate de merge: corre ./init.sh --merge antes de que main cambie.
 #
 # Se dispara solo al empujar la rama principal: es el momento en que el trabajo
 # deja de ser tuyo y pasa a ser del proyecto. En ramas de feature no molesta.
+# ./init.sh --merge es la suite completa: estructura, backlog, cierre de
+# features (§3d), revisión cruzada (§3c, checkpoint C7) y los comandos de
+# verify[] del proyecto.
 #
 # Lo activa init.sh con `git config core.hooksPath .githooks`.
 # Si de verdad tienes que saltártelo: git push --no-verify (y déjalo escrito
@@ -25,7 +28,7 @@ done
 [ "$toca_principal" -eq 0 ] && exit 0
 
 raiz=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
-[ -f "$raiz/scripts/check_peer_review.py" ] || exit 0
+[ -f "$raiz/init.sh" ] || exit 0
 
 PY=""
 for c in "python" "python3" "py -3"; do
@@ -33,15 +36,21 @@ for c in "python" "python3" "py -3"; do
   case "$r" in *WindowsApps*) continue ;; esac
   if $c -c "import sys" >/dev/null 2>&1; then PY="$c"; break; fi
 done
-[ -z "$PY" ] && exit 0   # sin Python no bloqueamos el push; ya avisa init.sh
+if [ -z "$PY" ]; then
+  # Sin Python no se puede comprobar nada, y un gate que no puede comprobar
+  # no deja pasar: falla cerrado, no abierto.
+  echo "[harness] Push a '$principal' BLOQUEADO: no hay Python y sin él no se puede correr ./init.sh --merge."
+  echo "          Instálalo (python3) y vuelve a empujar. Si de verdad tiene que salir ahora: git push --no-verify"
+  exit 1
+fi
 
 # En silencio si todo está en orden: un push limpio no tiene que decir nada.
-salida=$($PY "$raiz/scripts/check_peer_review.py" 2>&1) || {
-  printf '%s
-' "$salida"
+mkdir -p "$raiz/.harness"
+if ! (cd "$raiz" && bash ./init.sh --merge > .harness/prepush.log 2>&1); then
+  cat "$raiz/.harness/prepush.log"
   echo ""
-  echo "[harness] Push a '$principal' BLOQUEADO: falta la revisión cruzada."
-  echo "          Si de verdad tiene que salir ahora: git push --no-verify"
+  echo "[harness] Push a '$principal' BLOQUEADO: ./init.sh --merge está en rojo (log en .harness/prepush.log)."
+  echo "          Arregla lo que marca [FAIL] y vuelve a empujar. Si de verdad tiene que salir ahora: git push --no-verify"
   exit 1
-}
+fi
 exit 0

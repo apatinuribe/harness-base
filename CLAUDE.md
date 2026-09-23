@@ -12,7 +12,8 @@ implementar.
 
 - ❌ **No edites** ninguna ruta listada en `protected_paths` de
   `harness.config.json` (ni con Edit, ni con Write, ni con Bash). Un hook
-  bloquea Edit/Write desde la sesión principal: ese trabajo es del `implementer`.
+  bloquea Edit, Write, MultiEdit y NotebookEdit, y también `>`, `tee` y
+  `sed -i` en Bash, desde la sesión principal: ese trabajo es del `implementer`.
 - ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
   referenciado en `progress/review_<name>.md`. Un hook impide que cualquier
   subagente edite `feature_list.json`: los estados los cambias tú. Y

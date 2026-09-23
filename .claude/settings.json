@@ -1,20 +1,29 @@
 {
-  "$schema_comment": "Hooks de verificación automática. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh vía Git Bash/WSL (por eso el prefijo 'bash'). PreToolUse guard (scripts/hooks.sh): congela harness.config.json/CHECKPOINTS.md/docs y el spec activo mientras hay una feature in_progress; impide que la sesión principal edite protected_paths (eso lo hace implementer) y que un subagente edite feature_list.json (los estados los cambia el leader). PostToolUse: revalida estructura tras editar (salta progress/, docs/, .claude/). Stop: verificación completa con log en .harness/.",
+  "$schema_comment": "Hooks de verificación automática. Los ejecuta el harness, no el agente, así que no se pueden saltar. Comandos POSIX sh vía Git Bash/WSL (por eso el prefijo 'bash'). PreToolUse guard (scripts/hooks.sh) sobre Edit/Write/MultiEdit/NotebookEdit y, vía guard-bash, sobre los destinos de escritura de un comando Bash (>, >>, tee, sed -i): congela harness.config.json/CHECKPOINTS.md/docs y el spec activo mientras hay una feature in_progress; impide que la sesión principal edite protected_paths (eso lo hace implementer) y que un subagente edite feature_list.json (los estados los cambia el leader). PostToolUse: revalida estructura con ./init.sh --quick tras editar (salta progress/, docs/, .claude/). Stop: ./init.sh --quick con log en .harness/; la verificación completa del proyecto corre en ./init.sh --merge y en .githooks/pre-push, que es donde se decide mergear.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           {
             "type": "command",
             "command": "bash scripts/hooks.sh guard"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks.sh guard-bash"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           {
             "type": "command",
@@ -28,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "mkdir -p .harness && (bash ./init.sh > .harness/init.log 2>&1 && echo '[harness] init.sh OK' || (echo '[harness] init.sh FALLÓ — revisa .harness/init.log antes de cerrar' && tail -20 .harness/init.log))"
+            "command": "mkdir -p .harness && (bash ./init.sh --quick > .harness/init.log 2>&1 && echo '[harness] init.sh --quick OK' || (echo '[harness] init.sh --quick FALLÓ — revisa .harness/init.log antes de cerrar' && tail -20 .harness/init.log))"
           }
         ]
       }
