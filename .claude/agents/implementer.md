@@ -23,6 +23,9 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    todo lo que `acceptance` no alcanza a decir. Si la feature no declara `spec`,
    o el spec tiene `[NEEDS CLARIFICATION]` sin resolver, **paras y reportas
    bloqueo** — no decidas tú la regla que falta.
+   Si la feature tiene pantallas y existe `docs/diseno/<modulo>.md`, su
+   sección «Diseño devuelto» es la referencia visual (la última fila de cada
+   pantalla), y `DESIGN.md` en la raíz el sistema visual.
 3. **Anota** en tu archivo de sesión: feature en curso, plan en 3-5 bullets.
    Es `progress/current.md` en solitario; con equipo, `current_<alias>.md`
    (el alias que imprime `./init.sh`). Nunca escribas en el de otra persona.
