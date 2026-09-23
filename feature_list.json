@@ -6,7 +6,8 @@
     "spec": "Ruta al spec que define esta feature. Obligatorio para arrancar: init.sh bloquea pasar a in_progress sin un spec existente y sin [NEEDS CLARIFICATION] pendientes. Se genera con /especificar.",
     "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión.",
     "touches": "Lo más estrecho posible: es lo que permite el paralelismo entre worktrees.",
-    "kr": "Opcional. El resultado clave de PROYECTO.md (ej. \"KR1\") al que sirve esta feature. Si PROYECTO.md existe en la raíz, es obligatorio: una feature que no sirve a ningún KR es alcance que se coló. Es lo que cruza el backlog con el OS del proyecto."
+    "kr": "Opcional. El resultado clave de PROYECTO.md (ej. \"KR1\") al que sirve esta feature. Si PROYECTO.md existe en la raíz, es obligatorio: una feature que no sirve a ningún KR es alcance que se coló. Es lo que cruza el backlog con el OS del proyecto.",
+    "corrige": "Solo en features de corrección (fix_<name>), que crea /feedback cuando un bug afecta a una feature ya done: el id de la feature que corrige. Una done no se reabre. La corrección hereda su spec, su kr y su evento (o infra)."
   },
   "rules": {
     "one_feature_at_a_time_per_owner": true,
