@@ -12,6 +12,9 @@
 #   ./init.sh --quick  salta el bloque de verificación (solo estructura y estado)
 #   ./init.sh --merge  todo lo anterior + exige la revisión cruzada (antes de
 #                      mergear a main; es lo que comprueba el hook de pre-push)
+#
+# En todos los modos, §3d audita las features `done`: review APPROVED, informe
+# del implementer, un test por criterio (F<id>-C<n>) y evento/infra coherente.
 
 set -u
 export PYTHONIOENCODING=utf-8
@@ -170,16 +173,18 @@ for f in feats:
 
 # Al arrancar, la feature ya tiene que saber como se va a dar por hecha:
 # con un evento emitido en produccion, o exenta por infra. Descubrirlo al
-# cerrar es tarde. Solo in_progress: las done anteriores a la regla no rompen.
+# cerrar es tarde. Se exige a las in_progress y a las done: una done sin
+# evento ni infra nunca demostro que llego a produccion.
 proyecto = os.path.exists("PROYECTO.md")
-for f in in_progress:
+for f in in_progress + [f for f in feats if f["status"] == "done"]:
+    estado = "en in_progress" if f["status"] == "in_progress" else "done"
     tiene_evento, tiene_infra = bool(f.get("evento")), bool(f.get("infra"))
     if tiene_evento == tiene_infra:
-        errors.append(f"Feature {f['id']} ({f['name']}) en in_progress "
+        errors.append(f"Feature {f['id']} ({f['name']}) {estado} "
                       f"{'declara evento e infra a la vez' if tiene_evento else 'no declara evento ni infra'}"
                       " — exactamente uno (ver docs/verification.md)")
     if proyecto and not f.get("kr"):
-        errors.append(f"Feature {f['id']} ({f['name']}) en in_progress sin 'kr' — "
+        errors.append(f"Feature {f['id']} ({f['name']}) {estado} sin 'kr' — "
                       "existe PROYECTO.md: ¿a qué resultado clave sirve?")
 
 for e in errors:
@@ -242,6 +247,142 @@ if oks:
     print("[OK]    %d feature(s) con spec resuelto" % oks)
 if not errors and not warns and not oks:
     print("[OK]    Sin features que especificar")
+sys.exit(1 if errors else 0)
+PYCODE
+[ $? -ne 0 ] && EXIT_CODE=1
+
+echo ""
+echo "── 3d. Cierre de features (done) ─────────────────────"
+
+# Una feature 'done' tiene que poder demostrarlo: veredicto APPROVED del
+# reviewer, informe del implementer, un test por criterio de acceptance y,
+# si emite evento, depender de despliegue_inicial. Sin eso, 'done' es una
+# palabra en un JSON. Corre en todos los modos: el post-edit hook lanza
+# --quick al tocar feature_list.json, y ahi es donde se marca done.
+$PY - <<'PYCODE'
+import io, os, re, subprocess, sys, json
+try:
+    feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
+except Exception as e:
+    print("[FAIL]  feature_list.json ilegible: %s" % e); sys.exit(1)
+
+cerradas = [f for f in feats if f.get("status") == "done"]
+if not cerradas:
+    print("[OK]    Sin features done que auditar"); sys.exit(0)
+
+def leer(ruta):
+    try:
+        with io.open(ruta, encoding="utf-8", errors="ignore") as fh:
+            return fh.read()
+    except Exception:
+        return ""
+
+# Archivos donde puede vivir un test. Se excluye lo que HABLA de los tests
+# pero no lo es: progress/ (los informes citan F<id>-C<n>), docs/ (ejemplos),
+# .claude/ (agentes), scripts/ e init.sh (este codigo), feature_list.json y
+# los .md de la raiz (PROYECTO.md lleva F<id> en su trazabilidad).
+EXCL_DIRS = ("progress/", "docs/", ".claude/", ".githooks/", "scripts/")
+EXCL_FILES = ("feature_list.json", "init.sh")
+SKIP_WALK = {".git", "node_modules", ".worktrees", ".harness", "__pycache__",
+             ".venv", "venv", "dist", "build"}
+def candidatos():
+    try:
+        out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "-z"],
+                             capture_output=True, check=True).stdout
+        rutas = [r.decode("utf-8", "ignore") for r in out.split(b"\0") if r]
+    except Exception:
+        rutas = []
+        for raiz, dirs, archivos in os.walk("."):
+            dirs[:] = [d for d in dirs if d not in SKIP_WALK]
+            for a in archivos:
+                rutas.append(os.path.relpath(os.path.join(raiz, a), ".").replace(os.sep, "/"))
+    for r in rutas:
+        if r.startswith(EXCL_DIRS) or r in EXCL_FILES:
+            continue
+        if "/" not in r and r.lower().endswith(".md"):
+            continue
+        try:
+            if os.path.getsize(r) > 2 * 1024 * 1024:
+                continue
+        except OSError:
+            continue
+        yield r
+
+# Un solo barrido: que ids F<id>-C<n> aparecen en el proyecto.
+ID_RE = re.compile(r"\bF(\d+)-C(\d+)\b")
+vistos = set()
+for ruta in candidatos():
+    for m in ID_RE.finditer(leer(ruta)):
+        vistos.add((int(m.group(1)), int(m.group(2))))
+
+# El formato del reviewer (.claude/agents/reviewer.md) es una linea
+# '**Veredicto:** APPROVED | CHANGES_REQUESTED'. Si no esta, vale la palabra.
+VEREDICTO = re.compile(r"^\s*\*\*Veredicto:\*\*\s*(\S+)", re.MULTILINE | re.IGNORECASE)
+def veredicto_de(texto):
+    m = VEREDICTO.search(texto)
+    if m:
+        return m.group(1).strip().upper()
+    return "APPROVED" if re.search(r"\bAPPROVED\b", texto) else None
+
+despliegue = next((f for f in feats if f.get("name") == "despliegue_inicial"), None)
+errors = []
+for f in cerradas:
+    fid, name = f["id"], f.get("name", "?")
+    quien = "Feature #%s (%s) está done pero" % (fid, name)
+    review = "progress/review_%s.md" % name
+    impl = "progress/impl_%s.md" % name
+
+    # D1 - veredicto del reviewer
+    if not os.path.exists(review):
+        errors.append("%s no existe %s.\n        Sin un APPROVED del reviewer no se cierra: "
+                      "lanza `reviewer` y vuelve a in_progress mientras tanto." % (quien, review))
+    else:
+        v = veredicto_de(leer(review))
+        if v != "APPROVED":
+            errors.append("%s el veredicto de %s es %s, no APPROVED.\n        "
+                          "Atiende los cambios requeridos y vuelve a pasar `reviewer`."
+                          % (quien, review, v or "ilegible (no hay línea '**Veredicto:**')"))
+
+    # D2 - informe del implementer
+    texto_impl = ""
+    if not os.path.exists(impl):
+        errors.append("%s no existe %s.\n        El implementer tiene que dejar ahí su "
+                      "informe con la evidencia por criterio." % (quien, impl))
+    else:
+        texto_impl = leer(impl)
+
+    # D4 - un test por criterio (o 'manual' justificado en el informe)
+    criterios = f.get("acceptance") or []
+    for n, texto in enumerate(criterios, start=1):
+        cid = "F%s-C%s" % (fid, n)
+        if (fid, n) in vistos:
+            continue
+        bloque = re.search(r"criterio:\s*[\"']?%s\b.*?(?=\n\s*-\s*criterio:|\n\s*-\s*producci|\Z)"
+                           % re.escape(cid), texto_impl, re.DOTALL | re.IGNORECASE)
+        if bloque and re.search(r"^\s*manual:\s*\S", bloque.group(0), re.MULTILINE):
+            continue
+        resumen = texto if len(texto) <= 70 else texto[:67] + "..."
+        errors.append("%s el criterio %d de %d no tiene test: ningún archivo menciona %s y %s "
+                      "no lo declara manual.\n        Criterio: \"%s\"\n        Escribe el test "
+                      "con %s en su nombre (docs/verification.md)."
+                      % (quien, n, len(criterios), cid, impl, resumen, cid))
+
+    # D5 - con evento, depende de despliegue_inicial
+    if f.get("evento") and f is not despliegue:
+        if despliegue is None:
+            errors.append("%s declara evento \"%s\" y el backlog no tiene la feature "
+                          "despliegue_inicial.\n        Créala primero: sin despliegue no hay "
+                          "evento en producción (CLAUDE.md §Antes de construir)." % (quien, f["evento"]))
+        elif despliegue["id"] not in (f.get("depends_on") or []):
+            errors.append("%s declara evento \"%s\" y no depende de despliegue_inicial (#%s).\n"
+                          "        Sin despliegue no hay evento en producción: añade %s a depends_on."
+                          % (quien, f["evento"], despliegue["id"], despliegue["id"]))
+
+for e in errors:
+    print("[FAIL]  " + e)
+if not errors:
+    print("[OK]    %d feature(s) done con review APPROVED, informe, test por criterio y evento/infra"
+          % len(cerradas))
 sys.exit(1 if errors else 0)
 PYCODE
 [ $? -ne 0 ] && EXIT_CODE=1
