@@ -80,8 +80,26 @@ recomendación explícita, tabla de opciones con su consecuencia, y
    más variantes, más sombras, más decoración, más soluciones locales. Lo que
    se prohíbe aquí es lo que protege al producto de eso.
 
-Escribe `DESIGN.md` en la raíz con sus dos capas —tokens legibles por máquina
-arriba, el porqué legible por humanos abajo:
+Escribe `DESIGN.md` en la raíz con sus dos capas. Arriba, un bloque YAML entre
+`---` que una herramienta puede leer sin interpretar prosa: los **tokens**.
+Abajo, markdown para personas: **por qué** cada token es como es y cuándo se
+usa. Las dos capas se necesitan: los tokens sin el porqué se aplican mal, y el
+porqué sin tokens se interpreta distinto en cada pantalla.
+
+Qué lleva el bloque de tokens:
+
+- `version`, `name` y `description` (una línea con la dirección visual).
+- Grupos de tokens: `colors`, `typography`, `rounded`, `spacing` y
+  `components`. Los nombres dentro de cada grupo los eliges tú; que describan
+  el **rol** (`accent`, `surface`), no el valor (`teal`, `gris-claro`).
+- Un color es cualquier valor CSS válido (hex, `rgb()`, `oklch()`). Una
+  dimensión es número más unidad (`px`, `rem`, `em`). Un estilo tipográfico
+  agrupa familia, tamaño, peso y, si hace falta, interlineado.
+- Un componente no repite valores: **apunta** a tokens con `{grupo.token}` y
+  solo declara propiedades de presentación (fondo, texto, tipografía, radio,
+  relleno, tamaño).
+
+Un ejemplo de la forma —los valores son ilustrativos, no una recomendación:
 
 ```markdown
 ---
@@ -89,26 +107,34 @@ version: alpha
 name: <nombre del sistema>
 description: <una línea: la dirección visual>
 colors:
-  primary: "#1A1C1E"
-  secondary: "#6C7278"
-  tertiary: "#B8422E"
-  neutral: "#F7F5F2"
+  ink: "#20242B"
+  ink-muted: "#5B6470"
+  accent: "#0F766E"
+  accent-strong: "#115E59"
+  surface: "#FBFAF8"
+  line: "#E4E1DB"
 typography:
-  h1: { fontFamily: <familia>, fontSize: 2.25rem, fontWeight: 700 }
-  body-md: { fontFamily: <familia>, fontSize: 1rem, fontWeight: 400 }
-  label-sm: { fontFamily: <familia>, fontSize: 0.8125rem, fontWeight: 500 }
+  title: { fontFamily: <familia>, fontSize: 1.75rem, fontWeight: 650, lineHeight: 1.2 }
+  body: { fontFamily: <familia>, fontSize: 0.9375rem, fontWeight: 400, lineHeight: 1.5 }
+  caption: { fontFamily: <familia>, fontSize: 0.75rem, fontWeight: 500 }
 rounded:
-  sm: 4px
-  md: 8px
+  control: 6px
+  panel: 12px
 spacing:
-  sm: 8px
-  md: 16px
+  tight: 6px
+  base: 12px
+  loose: 24px
 components:
-  button-primary:
-    backgroundColor: "{colors.tertiary}"
-    textColor: "{colors.neutral}"
-    rounded: "{rounded.sm}"
-    padding: 12px
+  card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.panel}"
+    padding: "{spacing.loose}"
+  link-action:
+    textColor: "{colors.accent}"
+    typography: "{typography.body}"
+  link-action-hover:
+    textColor: "{colors.accent-strong}"
 ---
 
 ## Overview
@@ -125,10 +151,11 @@ Reglas del formato:
 
 - **Las secciones van en ese orden** y ninguna se repite. Se pueden omitir,
   salvo **Do's and Don'ts**, que es obligatoria por lo dicho en la pregunta 4.
-- Cada token tiene su **porqué** en la prosa: no basta con que `tertiary` sea
-  `#B8422E`, hay que decir que es el único color reservado para la interacción.
-- Los componentes se refieren a tokens con `{ruta.al.token}`, no con valores
-  sueltos; las variantes (hover, disabled) van como entradas separadas.
+- Cada token tiene su **porqué** en la prosa: no basta con que `accent` sea
+  `#0F766E`, hay que decir que es el único color reservado para lo que se
+  puede pulsar.
+- Las variantes de un componente (hover, disabled) son entradas propias con
+  sufijo, como `link-action-hover`, no propiedades anidadas.
 - Accesibilidad: el contraste texto/fondo de cada par de tokens que se use
   junto cumple WCAG AA. Si uno no cumple, dilo y propón el ajuste.
 - Si el proyecto ya tiene el linter de DESIGN.md instalado, córrelo y deja el
