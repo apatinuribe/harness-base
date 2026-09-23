@@ -52,6 +52,9 @@
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
 - [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por
       sesión). Con `team` de 2+, nombra a su `owner`.
+- [ ] Si la feature declara `evento`: hay evidencia de despliegue (URL o id) y
+      de ese evento emitido desde producción. Si declara `infra`: la razón
+      explica por qué no hay nada que medir. Nunca ambos, nunca ninguno.
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 - [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
 

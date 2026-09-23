@@ -74,6 +74,44 @@ como `manual`, con **por qué** no se automatiza —«es difícil» no es una ra
 «depende de un cliente de correo real» sí— y con evidencia que muestre el
 resultado: captura, grabación o los pasos seguidos y lo observado.
 
+## «Hecho» es en producción, con su evento
+
+Una feature de cara al usuario no está hecha cuando los tests pasan: está hecha
+cuando **corre en producción** y **emite el evento de la métrica** que la
+justifica.
+
+**Por qué:** los tests prueban que el código hace lo que dice el criterio. No
+prueban que llegó a quien lo usa, ni que se puede saber si sirvió. Una feature
+en verde que nunca se desplegó, o que se desplegó sin instrumentar, no mueve
+ningún KR y nadie se entera: el backlog dice `done` y el producto no cambió.
+
+Cada feature declara **exactamente uno** de estos dos campos en
+`feature_list.json`:
+
+| Campo | Cuándo | Qué exige al cerrar |
+|---|---|---|
+| `"evento": "<nombre>"` | La feature cambia algo que el usuario ve o hace | Evidencia de despliegue (URL o id) **y** evidencia de que `<nombre>` se emitió desde ese despliegue |
+| `"infra": "<razón>"` | No tiene superficie de usuario propia: esquema, CI, refactor, tooling | La razón escrita. Queda exenta de despliegue y evento |
+
+- **El `evento`** sale del spec: §5.3 (eventos) o el criterio de éxito (§8,
+  `CE-*`) que la feature mueve. Si el spec no nombra ninguno, es un hueco del
+  spec, no una exención.
+- **La razón de `infra`** tiene que explicar por qué no hay nada que medir.
+  «Es backend» no lo es: un endpoint que el usuario dispara tiene evento.
+  «Migración de esquema; la aplican las features que la usan» sí.
+- **La evidencia de despliegue** es la que dé el stack declarado en
+  `docs/architecture.md` §6: un id de despliegue, una URL de producción, un tag
+  de release, un número de build publicado. No tiene que ser de ninguna
+  plataforma en concreto; tiene que poder comprobarse.
+- **La evidencia del evento** muestra el evento emitido **por ese despliegue**:
+  una consulta a la herramienta de analítica, una línea de log, una fila en la
+  tabla de eventos. Un test que llama a `track()` no basta — prueba el código,
+  no la producción.
+
+Si el entorno no permite desplegar desde la sesión (permisos, ventana de
+despliegue), la feature no se cierra: queda `blocked` con esa razón hasta que
+alguien despliega y aporta la evidencia.
+
 ## Cómo se presenta la evidencia
 
 Cada criterio de `acceptance` se responde en `progress/impl_<name>.md` así:
@@ -86,6 +124,12 @@ Cada criterio de `acceptance` se responde en `progress/impl_<name>.md` así:
 - criterio: "F7-C3 · <texto literal del acceptance>"
   manual: <por qué no se puede automatizar>
   evidencia: <ruta a la captura / pasos seguidos y resultado observado>
+
+- producción:
+    despliegue: <id o URL del despliegue>
+    evento: <nombre> — <consulta / log / fila que lo muestra emitido desde ese despliegue>
+  # o, si la feature declara infra:
+- producción: exenta — infra: <razón>
 ```
 
 El `reviewer` comprueba el mapeo en las dos direcciones: cada criterio tiene su
@@ -98,6 +142,9 @@ corresponde a un criterio que existe. Si falta uno, no cierra.
 - ❌ Evidencia que solo prueba que no hubo error → tiene que probar el resultado.
 - ❌ Un criterio sin test `F<id>-C<n>` ni `manual` justificado → no está verificado,
   aunque la suite esté en verde.
+- ❌ Cerrar una feature de cara al usuario con los tests en verde pero sin
+  despliegue o sin su evento emitido → no está hecha, solo está programada.
+- ❌ Declarar `infra` para saltarse el despliegue de algo que el usuario usa.
 - ❌ Ajustar `CHECKPOINTS.md` o `docs/` para que el trabajo pase.
 - ❌ Marcar `done` sin `./init.sh` en verde.
 

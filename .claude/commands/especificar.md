@@ -320,6 +320,7 @@ Cada feature propuesta lleva:
   "description": "Una o dos frases. Si no cabe, la feature es demasiado grande.",
   "spec": "docs/specs/suscripciones.md",
   "kr": "KR1",
+  "evento": "suscripcion_creada",
   "acceptance": [
     "DADO un cliente sin plan CUANDO elige el plan mensual y paga ENTONCES queda activo y ve su fecha de renovación",
     "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones"
@@ -346,6 +347,13 @@ Reglas de troceo:
   cubre lo anterior»: sobra, y además no se puede probar con un test propio.
   Si un criterio no se deja convertir en test ni en evidencia observable, está
   mal escrito.
+- **Cada feature declara `evento` o `infra`, nunca ambos ni ninguno** (ver
+  `docs/verification.md` §«Hecho»). Una feature de cara al usuario lleva el
+  `evento` que emite en producción: sácalo de §5.3 del spec o del criterio de
+  éxito (§8, `CE-*`) que mueve. Si ninguno lo nombra, es un hueco del spec —
+  pregúntalo, no lo inventes. Solo lo que no tiene superficie de usuario
+  (esquema, CI, tooling) lleva `"infra": "<razón>"`, y la razón explica por
+  qué no hay nada que medir.
 
 ### 8. Cierre
 

@@ -39,8 +39,14 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    Si un criterio no es automatizable, decláralo `manual` con la razón y deja
    la evidencia del resultado observado. No reordenes `acceptance`.
 6. **Verifica** con `./init.sh`. Si falla → vuelve al paso 4.
+6b. **Lleva a producción** si la feature declara `evento`
+   (`docs/verification.md` §«Hecho»): despliega por el camino que declara
+   `docs/architecture.md` §6 y comprueba que el evento se emite desde ese
+   despliegue. Si no puedes desplegar desde la sesión, marca `blocked` con la
+   razón — no la entregues como terminada. Con `infra`, este paso no aplica.
 7. **Escribe** tu informe en `progress/impl_<name>.md`: archivos tocados,
-   decisiones, salida de la verificación.
+   decisiones, salida de la verificación y el bloque `producción`
+   (despliegue + evento, o la exención `infra`).
 7b. **Trazabilidad con el OS** — solo si existe `PROYECTO.md` en la raíz.
    Su tabla «Trazabilidad» es lo que conecta los objetivos del proyecto con lo
    que de verdad llegó a producción; si no la actualizas tú, nadie lo hace:

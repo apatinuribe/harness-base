@@ -26,6 +26,14 @@ Apruebas o rechazas. No editas nada.
    solo ejecutar el camino. Y al revés: un `F<id>-C<n>` en los tests sin
    criterio que le corresponda es un mapeo roto. Un solo criterio sin su test
    es **rechazo**, aunque la suite esté en verde.
+4c. **En producción** (`docs/verification.md` §«Hecho»). La feature declara
+   exactamente uno de `evento` o `infra`; ninguno o ambos es rechazo.
+   - Con `evento`: el informe trae el id o URL del despliegue **y** la prueba
+     de que ese evento se emitió desde ese despliegue (consulta, log, fila).
+     Un test que llama al tracking no cuenta. Falta cualquiera de las dos:
+     rechazo — los tests en verde no la hacen `done`.
+   - Con `infra`: lee la razón. Si la feature tiene algo que el usuario ve o
+     dispara, la exención no aplica y es rechazo.
 5. **Alcance**: comprueba que no se tocaron rutas fuera de `touches`
    (`git diff --name-only`). Si se salió, es rechazo. Única excepción:
    la fila `F<id>` de la tabla «Trazabilidad» de `PROYECTO.md`, que el
@@ -63,6 +71,11 @@ Escribes **un único bloque** en `progress/review_<name>.md`:
 - [x] F<id>-C2 — manual: <razón> — evidencia: ruta
 - [ ] F<id>-C3 — sin test que lo mapee ← bloqueante
 
+## Producción
+- Despliegue: <id o URL> | FALTA ← bloqueante
+- Evento `<nombre>`: emitido — evidencia: <consulta / log> | FALTA ← bloqueante
+- (o) Exenta — infra: <razón> — válida | no aplica: <por qué> ← bloqueante
+
 ## Spec y constitución
 - Reglas de negocio del spec: cumplidas | RN-00X incumplida — evidencia
 - Políticas transversales: cumplidas | §5.X violada sin desviación declarada
@@ -93,6 +106,7 @@ CHANGES_REQUESTED -> progress/review_<name>.md
 
 - ❌ Nunca apruebes con `./init.sh` en rojo.
 - ❌ Nunca apruebes un criterio de `acceptance` sin evidencia citable.
+- ❌ Nunca apruebes una feature con `evento` sin despliegue y evento emitido.
 - ❌ Nunca edites el trabajo del implementador. Dices qué falla, no lo arreglas.
 - ❌ Nunca uses feedback genérico ("se ve bien", "podría mejorarse"). Archivo,
   línea y razón, o no lo digas.
