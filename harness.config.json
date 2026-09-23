@@ -24,6 +24,7 @@
     }
   ],
 
+  "_ayuda_protected_paths": "Rutas del producto que la sesion principal (leader) no edita por su cuenta: las toca el subagente implementer. Un hook lo bloquea (scripts/hooks.sh guard). Las carpetas terminan en '/'. El estandar del arnes (docs/*.md, CHECKPOINTS.md, este archivo) y feature_list.json se protegen aparte, con reglas fijas que no se configuran aqui.",
   "protected_paths": ["src/", "tests/"],
 
   "exclusive_paths": [],
