@@ -4,7 +4,7 @@
   "_ayuda": {
     "owner": "Alias (de 'team' en harness.config.json) de quien reclamo la feature. Se reclama en main ANTES de abrir el worktree: es lo unico que impide que dos personas construyan lo mismo. Obligatorio para pasar a in_progress cuando el team tiene 2 o mas miembros.",
     "spec": "Ruta al spec que define esta feature. Obligatorio para arrancar: init.sh bloquea pasar a in_progress sin un spec existente y sin [NEEDS CLARIFICATION] pendientes. Se genera con /especificar.",
-    "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión.",
+    "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión. Cada criterio tiene su test, identificado F<id>-C<n> (n = su posición, desde 1): por eso el orden no se cambia una vez arrancada la feature. Ver docs/verification.md.",
     "touches": "Lo más estrecho posible: es lo que permite el paralelismo entre worktrees.",
     "kr": "Opcional. El resultado clave de PROYECTO.md (ej. \"KR1\") al que sirve esta feature. Si PROYECTO.md existe en la raíz, es obligatorio: una feature que no sirve a ningún KR es alcance que se coló. Es lo que cruza el backlog con el OS del proyecto.",
     "corrige": "Solo en features de corrección (fix_<name>), que crea /feedback cuando un bug afecta a una feature ya done: el id de la feature que corrige. Una done no se reabre. La corrección hereda su spec, su kr y su evento (o infra)."
@@ -26,8 +26,7 @@
       "kr": "KR1",
       "acceptance": [
         "DADO <situación de partida> CUANDO <acción> ENTONCES <resultado observable>",
-        "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>",
-        "Existe test/evidencia que cubre los criterios anteriores"
+        "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>"
       ],
       "touches": ["src/ejemplo/"],
       "depends_on": [],

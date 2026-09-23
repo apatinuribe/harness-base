@@ -33,7 +33,11 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    scope de `acceptance`. No toques rutas fuera de `touches`: si necesitas
    hacerlo, es señal de que la feature está mal acotada → repórtalo como bloqueo.
 5. **Crea la evidencia** que valida cada criterio de `acceptance`, según
-   `docs/verification.md`.
+   `docs/verification.md`: **un test por criterio**, con `F<id>-C<n>` en su
+   nombre o descripción (`<n>` = posición del criterio, desde 1). Es lo que
+   permite al reviewer comprobar que se probó lo prometido y no solo lo fácil.
+   Si un criterio no es automatizable, decláralo `manual` con la razón y deja
+   la evidencia del resultado observado. No reordenes `acceptance`.
 6. **Verifica** con `./init.sh`. Si falla → vuelve al paso 4.
 7. **Escribe** tu informe en `progress/impl_<name>.md`: archivos tocados,
    decisiones, salida de la verificación.

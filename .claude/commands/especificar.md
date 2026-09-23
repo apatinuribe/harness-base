@@ -322,8 +322,7 @@ Cada feature propuesta lleva:
   "kr": "KR1",
   "acceptance": [
     "DADO un cliente sin plan CUANDO elige el plan mensual y paga ENTONCES queda activo y ve su fecha de renovación",
-    "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones",
-    "Existe test/evidencia que cubre los criterios anteriores"
+    "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones"
   ],
   "touches": ["src/suscripciones/"],
   "depends_on": [],
@@ -342,6 +341,11 @@ Reglas de troceo:
   features de la misma ola no pueden compartir ruta.
 - `spec` es **obligatorio**: `init.sh` bloquea arrancar una feature sin él.
 - La aceptación va en **DADO / CUANDO / ENTONCES** — observable, no una opinión.
+- **Cada criterio va a tener su propio test** (`F<id>-C<n>`, ver
+  `docs/verification.md`). No añadas un criterio del tipo «existe test que
+  cubre lo anterior»: sobra, y además no se puede probar con un test propio.
+  Si un criterio no se deja convertir en test ni en evidencia observable, está
+  mal escrito.
 
 ### 8. Cierre
 

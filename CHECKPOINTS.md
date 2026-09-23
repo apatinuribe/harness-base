@@ -40,6 +40,8 @@
 ## C4 — La verificación es real
 
 - [ ] Cada criterio de `acceptance` tiene evidencia citable (archivo:línea).
+- [ ] Cada criterio tiene su test identificado `F<id>-C<n>`, o está declarado
+      `manual` con la razón y la evidencia del resultado. Ningún criterio sin mapear.
 - [ ] Los comandos `required` de `harness.config.json` pasan al 100%.
 - [ ] La evidencia prueba el resultado concreto, no solo la ausencia de error.
 - [ ] Ningún criterio de la rúbrica del reviewer quedó por debajo de 3/5.
