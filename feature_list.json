@@ -20,6 +20,23 @@
   "features": [
     {
       "id": 1,
+      "name": "despliegue_inicial",
+      "title": "Despliegue inicial a producción",
+      "description": "Primera feature de todo proyecto: deja el camino a producción de docs/architecture.md §6 funcionando, con la analítica recibiendo eventos. Sin ella, ninguna feature de usuario puede cerrarse.",
+      "owner": null,
+      "spec": "docs/architecture.md",
+      "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
+      "acceptance": [
+        "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
+        "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+        "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
+      ],
+      "touches": ["<config de despliegue y CI del stack>"],
+      "depends_on": [],
+      "status": "pending"
+    },
+    {
+      "id": 2,
       "name": "ejemplo_slug",
       "title": "Título corto y accionable",
       "description": "Qué hace, en una o dos frases. Si no cabe, la feature es demasiado grande.",
@@ -32,7 +49,7 @@
         "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>"
       ],
       "touches": ["src/ejemplo/"],
-      "depends_on": [],
+      "depends_on": [1],
       "status": "pending"
     }
   ]

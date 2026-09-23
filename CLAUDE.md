@@ -44,7 +44,7 @@ El arnés resuelve **la ejecución** (quién hace qué, en qué orden, sin colis
 con evidencia). No resuelve **qué hay que construir**, ni cómo se ve, ni qué
 pasó cuando llegó a los usuarios. Eso son estos comandos, en este orden:
 
-`/configurar → /constitucion → /especificar → /esquema → features (con /diseno por módulo) → /feedback`
+`/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback`
 
 | Comando | Cuándo | Produce |
 |---|---|---|
@@ -61,7 +61,10 @@ puede hacer preguntas al usuario.
 
 Una feature de cara al usuario declara `evento` y no está hecha hasta que
 corre en producción y ese evento se emite; una de infraestructura declara
-`infra` con la razón (`docs/verification.md` §«Hecho»).
+`infra` con la razón (`docs/verification.md` §«Hecho»). Por eso **la primera
+feature de todo proyecto es `despliegue_inicial`** (`infra`): deja el
+despliegue funcionando, y toda feature de usuario la lleva en `depends_on`.
+Si el backlog no la tiene, lánzala antes que cualquier feature de usuario.
 
 ### Regla anti-teléfono-descompuesto
 

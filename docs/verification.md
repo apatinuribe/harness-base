@@ -108,9 +108,15 @@ Cada feature declara **exactamente uno** de estos dos campos en
   tabla de eventos. Un test que llama a `track()` no basta — prueba el código,
   no la producción.
 
-Si el entorno no permite desplegar desde la sesión (permisos, ventana de
-despliegue), la feature no se cierra: queda `blocked` con esa razón hasta que
-alguien despliega y aporta la evidencia.
+Para que esto no bloquee la primera feature de un proyecto nuevo, **la
+primera feature de todo proyecto es `despliegue_inicial`**, con `"infra":
+"deja el despliegue funcionando para que las features de usuario puedan
+cerrarse"`. Las features de usuario la llevan en `depends_on`: cuando
+arrancan, ya hay a dónde desplegar y dónde ver el evento.
+
+Si aun así el entorno no permite desplegar desde la sesión (permisos, ventana
+de despliegue), la feature no se cierra: queda `blocked` con esa razón hasta
+que alguien despliega y aporta la evidencia.
 
 ## Cómo se presenta la evidencia
 

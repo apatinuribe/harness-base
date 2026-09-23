@@ -310,6 +310,51 @@ ninguno, la feature queda sin `kr`, y el `estratega` la va a señalar — es
 exactamente la conversación que tiene que ocurrir. Sin `PROYECTO.md`, sáltate
 esta pregunta: `kr` es opcional.
 
+#### La primera feature del proyecto: `despliegue_inicial`
+
+Una feature de cara al usuario solo se cierra con evidencia de despliegue
+(`docs/verification.md` §«Hecho»). En un proyecto nuevo todavía no hay a dónde
+desplegar, así que la primera feature de usuario quedaría `blocked` por algo
+que no es suyo. Por eso **la primera feature de todo proyecto es
+`despliegue_inicial`**: deja el camino a producción funcionando antes de que
+haga falta.
+
+Si `feature_list.json` no tiene todavía una feature `despliegue_inicial` (o
+solo tiene el ejemplo de la plantilla), propónla **antes** que las del módulo,
+con el id más bajo:
+
+```json
+{
+  "id": 1,
+  "name": "despliegue_inicial",
+  "title": "Despliegue inicial a producción",
+  "description": "Deja el camino a producción de docs/architecture.md §6 funcionando de punta a punta, con la analítica recibiendo eventos.",
+  "spec": "docs/architecture.md",
+  "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
+  "acceptance": [
+    "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
+    "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+    "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
+  ],
+  "touches": ["<config de despliegue y CI del stack>"],
+  "depends_on": [],
+  "status": "pending"
+}
+```
+
+- Su `spec` es la constitución: el camino a producción, la analítica y la
+  reversión se deciden en §6, no en un módulo. Si §6 no los define, es un
+  hueco de `/constitucion` — no los inventes aquí.
+- `touches` son los archivos que el stack declarado usa para desplegar; no
+  asumas una plataforma.
+- **Toda feature de cara al usuario pone su id en `depends_on`.** Así
+  `./init.sh` no la deja arrancar hasta que el despliegue esté `done`, en vez
+  de descubrir al cerrarla que no hay dónde desplegarla.
+- Con `PROYECTO.md`, lleva el `kr` de la primera feature de usuario que
+  desbloquea.
+- Si ya existe, no la propongas otra vez: solo añade su id al `depends_on` de
+  las features nuevas de cara al usuario.
+
 Cada feature propuesta lleva:
 
 ```json
@@ -326,7 +371,7 @@ Cada feature propuesta lleva:
     "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones"
   ],
   "touches": ["src/suscripciones/"],
-  "depends_on": [],
+  "depends_on": [1],
   "status": "pending"
 }
 ```

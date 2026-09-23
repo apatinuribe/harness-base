@@ -55,12 +55,13 @@ tiene verificación determinista, y el reviewer queda aprobando por opinión. Si
 Después vienen tres más, cada uno en su momento. El orden completo es:
 
 ```
-/configurar → /constitucion → /especificar → /esquema → features (con /diseno por módulo) → /feedback
+/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback
 ```
 
-`/esquema` en cuanto haya specs con datos; `/diseno` por cada módulo con
-pantallas, antes de construirlas; `/feedback` cada vez que los usuarios digan
-algo.
+`/esquema` en cuanto haya specs con datos; `despliegue_inicial`, la primera
+feature de todo proyecto, deja el camino a producción listo; `/diseno` por cada
+módulo con pantallas, antes de construirlas; `/feedback` cada vez que los
+usuarios digan algo.
 
 También puedes editar `harness.config.json`, `docs/conventions.md` y
 `docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
@@ -226,6 +227,11 @@ referencia.
   `evento` y solo cierra con evidencia del despliegue (URL o id) y del evento
   de su métrica emitido desde ahí. Las de infraestructura declaran `infra` con
   la razón y quedan exentas. `./init.sh` exige uno de los dos al arrancar.
+- **Primero, `despliegue_inicial`.** En un proyecto nuevo no hay a dónde
+  desplegar, y la primera feature de usuario quedaría bloqueada. Por eso la
+  primera feature de todo proyecto es `despliegue_inicial` (`infra`): deja el
+  camino a producción y la analítica funcionando, y las features de usuario la
+  llevan en `depends_on`. `/especificar` la propone si el backlog no la tiene.
 
 ## Después de lanzar: feedback
 

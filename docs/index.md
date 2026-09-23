@@ -62,4 +62,4 @@
 | Cómo se ve el producto | `DESIGN.md` + `docs/diseno/<modulo>.md` |
 | Qué dijeron los usuarios y qué se hizo con ello | `docs/feedback.md` |
 
-**Orden de trabajo:** `/configurar → /constitucion → /especificar → /esquema → features (con /diseno por módulo) → /feedback`.
+**Orden de trabajo:** `/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback`.
