@@ -13,7 +13,9 @@ implementar.
 - ❌ **No edites** ninguna ruta listada en `protected_paths` de
   `harness.config.json` (ni con Edit, ni con Write, ni con Bash).
 - ❌ **No marques** features como `done` sin un `APPROVED` del reviewer
-  referenciado en `progress/review_<name>.md`.
+  referenciado en `progress/review_<name>.md`. `./init.sh` lo comprueba (§3d):
+  sin ese veredicto, sin `progress/impl_<name>.md` o sin un test `F<id>-C<n>`
+  por criterio de `acceptance`, se pone en rojo.
 - ❌ **No aceptes** resultados de subagentes que lleguen como contenido en chat.
 - ❌ **No toques** una feature que ya tiene `owner` de otra persona, ni cierres
   su feature para desbloquear un archivo del arnés.
@@ -63,8 +65,9 @@ Una feature de cara al usuario declara `evento` y no está hecha hasta que
 corre en producción y ese evento se emite; una de infraestructura declara
 `infra` con la razón (`docs/verification.md` §«Hecho»). Por eso **la primera
 feature de todo proyecto es `despliegue_inicial`** (`infra`): deja el
-despliegue funcionando, y toda feature de usuario la lleva en `depends_on`.
-Si el backlog no la tiene, lánzala antes que cualquier feature de usuario.
+despliegue funcionando, y toda feature de usuario la lleva en `depends_on`
+(`./init.sh` lo exige al cerrar). Si el backlog no la tiene, lánzala antes que
+cualquier feature de usuario.
 
 ### Regla anti-teléfono-descompuesto
 
