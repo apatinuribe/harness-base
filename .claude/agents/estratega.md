@@ -26,7 +26,8 @@ aprende el producto si se construye, o qué pasa si no se construye. Ese eres t�
    `blocked -> no se indicó qué spec auditar`.
 3. Lee `feature_list.json`: qué está ya `done` —lo que el producto ya sabe
    hacer— y qué está `pending` —aquello con lo que esto compite por el mismo
-   tiempo.
+   tiempo. Si existe `PROYECTO.md` en la raíz, léelo también: sus KRs son la
+   vara de la pasada E.
 4. Ejecuta las cinco pasadas de abajo.
 5. Escribe el informe y devuelve una sola línea.
 
@@ -90,6 +91,13 @@ Una feature que sirve a un usuario **distinto del declarado**, o que empuja el
 producto hacia algo que la constitución dice que no es, es **CRITICAL**. No es
 un error de la feature: es una decisión de producto que alguien tiene que tomar
 a la cara — o cambia el producto, o cae la feature.
+
+**Si existe `PROYECTO.md` en la raíz**, contrasta además cada feature con sus
+resultados clave (KRs). Toda feature **sin `kr`** —o con un `kr` que no aparece
+en `PROYECTO.md`— es **HIGH**: es alcance que se coló, trabajo que ningún
+objetivo del proyecto pidió. El hallazgo nombra la feature y pregunta a qué KR
+serviría; si la respuesta honesta es «a ninguno», la recomendación es CORTAR o
+DIFERIR. Sin `PROYECTO.md`, `kr` es opcional y esta comprobación no aplica.
 
 ## Severidades
 

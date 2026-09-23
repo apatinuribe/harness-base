@@ -41,7 +41,10 @@ implementar.
 ### Antes de construir: especificar
 
 El arnés resuelve **la ejecución** (quién hace qué, en qué orden, sin colisiones,
-con evidencia). No resuelve **qué hay que construir**. Eso son dos comandos:
+con evidencia). No resuelve **qué hay que construir**, ni cómo se ve, ni qué
+pasó cuando llegó a los usuarios. Eso son estos comandos, en este orden:
+
+`/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback`
 
 | Comando | Cuándo | Produce |
 |---|---|---|
@@ -49,9 +52,19 @@ con evidencia). No resuelve **qué hay que construir**. Eso son dos comandos:
 | `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
 | `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
 | `/especificar <modulo> --desde <ruta>` | Igual, pero el usuario ya escribió el módulo a mano | Lo mismo, partiendo de `docs/borradores/<modulo>.md`: mapea lo cubierto y pregunta solo por los huecos |
+| `/esquema` | Tras especificar, antes de la primera tabla; y cada vez que un spec nuevo añade entidades | `docs/esquema.md` (entidades, estados y permisos de todos los specs, con sus conflictos) + una migración borrador en `docs/esquema/migraciones/` + la feature `infra` que la aplica |
+| `/diseno <modulo>` | Por módulo con pantallas, antes de sus features | `DESIGN.md` en la raíz (una vez) + `docs/diseno/<modulo>.md`: un brief por pantalla para Claude Design |
+| `/feedback` | Cuando llega lo que dicen los usuarios | `docs/feedback.md` + cada punto en su destino: `fix_<name>`, clarificación del spec, borrador o `docs/futuro/` |
 
-Los tres **corren en la sesión principal, no como subagente**: un subagente no
+Todos **corren en la sesión principal, no como subagente**: un subagente no
 puede hacer preguntas al usuario.
+
+Una feature de cara al usuario declara `evento` y no está hecha hasta que
+corre en producción y ese evento se emite; una de infraestructura declara
+`infra` con la razón (`docs/verification.md` §«Hecho»). Por eso **la primera
+feature de todo proyecto es `despliegue_inicial`** (`infra`): deja el
+despliegue funcionando, y toda feature de usuario la lleva en `depends_on`.
+Si el backlog no la tiene, lánzala antes que cualquier feature de usuario.
 
 ### Regla anti-teléfono-descompuesto
 

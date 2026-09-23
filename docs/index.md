@@ -58,3 +58,8 @@
 | Qué pasó en una sesión concreta | `progress/history/` |
 | Si el conocimiento está sano | el último `progress/lint_*.md` |
 | Qué decidimos aplazar y por qué | `docs/futuro/` |
+| Qué entidades, estados y permisos existen en total | `docs/esquema.md` |
+| Cómo se ve el producto | `DESIGN.md` + `docs/diseno/<modulo>.md` |
+| Qué dijeron los usuarios y qué se hizo con ello | `docs/feedback.md` |
+
+**Orden de trabajo:** `/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback`.

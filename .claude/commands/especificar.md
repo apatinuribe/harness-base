@@ -282,6 +282,79 @@ Una feature del borrador que se cae **siempre** cita el hallazgo del estratega
 que la tumbó. «No la incluí» no es una respuesta: el usuario la escribió por una
 razón y merece saber cuál la venció.
 
+#### A qué KR sirve cada feature
+
+Si existe `PROYECTO.md` en la raíz, el proyecto tiene un OS por encima: unos
+resultados clave (KRs) que justifican que se esté construyendo algo. Léelos
+antes de proponer, y **pregunta a cuál sirve cada feature** — una sola pregunta
+con la tabla completa, no una por feature:
+
+```markdown
+**P.** ¿A qué resultado clave de PROYECTO.md sirve cada feature?
+
+Por qué importa: es lo que permite saber, cuando algo llegue a producción, qué
+objetivo movió. Una feature que no sirve a ninguno es trabajo que nadie pidió.
+
+| Feature | KR recomendado | Razón |
+|---|---|---|
+| `suscripciones_alta` | KR1 — 50 clientes pagando | Es la puerta de entrada del cobro |
+| `aviso_de_vencimiento` | KR2 — churn < 5% | Evita la baja por olvido |
+| `exportar_datos` | ninguno | No mueve ningún KR: candidata a cortar |
+
+Confirma la tabla, o dime qué cambiarías.
+```
+
+La respuesta va al campo `kr` de cada feature. **No asignes un KR por
+aproximación** para que la feature pase: si el usuario dice que no sirve a
+ninguno, la feature queda sin `kr`, y el `estratega` la va a señalar — es
+exactamente la conversación que tiene que ocurrir. Sin `PROYECTO.md`, sáltate
+esta pregunta: `kr` es opcional.
+
+#### La primera feature del proyecto: `despliegue_inicial`
+
+Una feature de cara al usuario solo se cierra con evidencia de despliegue
+(`docs/verification.md` §«Hecho»). En un proyecto nuevo todavía no hay a dónde
+desplegar, así que la primera feature de usuario quedaría `blocked` por algo
+que no es suyo. Por eso **la primera feature de todo proyecto es
+`despliegue_inicial`**: deja el camino a producción funcionando antes de que
+haga falta.
+
+Si `feature_list.json` no tiene todavía una feature `despliegue_inicial` (o
+solo tiene el ejemplo de la plantilla), propónla **antes** que las del módulo,
+con el id más bajo:
+
+```json
+{
+  "id": 1,
+  "name": "despliegue_inicial",
+  "title": "Despliegue inicial a producción",
+  "description": "Deja el camino a producción de docs/architecture.md §6 funcionando de punta a punta, con la analítica recibiendo eventos.",
+  "spec": "docs/architecture.md",
+  "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
+  "acceptance": [
+    "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
+    "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+    "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
+  ],
+  "touches": ["<config de despliegue y CI del stack>"],
+  "depends_on": [],
+  "status": "pending"
+}
+```
+
+- Su `spec` es la constitución: el camino a producción, la analítica y la
+  reversión se deciden en §6, no en un módulo. Si §6 no los define, es un
+  hueco de `/constitucion` — no los inventes aquí.
+- `touches` son los archivos que el stack declarado usa para desplegar; no
+  asumas una plataforma.
+- **Toda feature de cara al usuario pone su id en `depends_on`.** Así
+  `./init.sh` no la deja arrancar hasta que el despliegue esté `done`, en vez
+  de descubrir al cerrarla que no hay dónde desplegarla.
+- Con `PROYECTO.md`, lleva el `kr` de la primera feature de usuario que
+  desbloquea.
+- Si ya existe, no la propongas otra vez: solo añade su id al `depends_on` de
+  las features nuevas de cara al usuario.
+
 Cada feature propuesta lleva:
 
 ```json
@@ -291,13 +364,14 @@ Cada feature propuesta lleva:
   "title": "Alta de suscripción con plan mensual",
   "description": "Una o dos frases. Si no cabe, la feature es demasiado grande.",
   "spec": "docs/specs/suscripciones.md",
+  "kr": "KR1",
+  "evento": "suscripcion_creada",
   "acceptance": [
     "DADO un cliente sin plan CUANDO elige el plan mensual y paga ENTONCES queda activo y ve su fecha de renovación",
-    "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones",
-    "Existe test/evidencia que cubre los criterios anteriores"
+    "DADO un pago rechazado CUANDO se reintenta ENTONCES no se crean dos suscripciones"
   ],
   "touches": ["src/suscripciones/"],
-  "depends_on": [],
+  "depends_on": [1],
   "status": "pending"
 }
 ```
@@ -313,6 +387,18 @@ Reglas de troceo:
   features de la misma ola no pueden compartir ruta.
 - `spec` es **obligatorio**: `init.sh` bloquea arrancar una feature sin él.
 - La aceptación va en **DADO / CUANDO / ENTONCES** — observable, no una opinión.
+- **Cada criterio va a tener su propio test** (`F<id>-C<n>`, ver
+  `docs/verification.md`). No añadas un criterio del tipo «existe test que
+  cubre lo anterior»: sobra, y además no se puede probar con un test propio.
+  Si un criterio no se deja convertir en test ni en evidencia observable, está
+  mal escrito.
+- **Cada feature declara `evento` o `infra`, nunca ambos ni ninguno** (ver
+  `docs/verification.md` §«Hecho»). Una feature de cara al usuario lleva el
+  `evento` que emite en producción: sácalo de §5.3 del spec o del criterio de
+  éxito (§8, `CE-*`) que mueve. Si ninguno lo nombra, es un hueco del spec —
+  pregúntalo, no lo inventes. Solo lo que no tiene superficie de usuario
+  (esquema, CI, tooling) lleva `"infra": "<razón>"`, y la razón explica por
+  qué no hay nada que medir.
 
 ### 8. Cierre
 

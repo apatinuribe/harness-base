@@ -19,8 +19,26 @@ Apruebas o rechazas. No editas nada.
 4. **Criterio por criterio**: para cada ítem de `acceptance`, di si se cumple y
    cita el archivo y la línea que lo demuestra. Un criterio sin evidencia
    localizable **no se cumple**.
+4b. **Mapeo uno a uno** (`docs/verification.md` §Un test por criterio). Para
+   cada criterio `n`, `grep -rn "F<id>-C<n>"` tiene que encontrar su test —o el
+   informe tiene que declararlo `manual` con una razón real y evidencia del
+   resultado—. Lee el test: tiene que **afirmar** lo que dice el ENTONCES, no
+   solo ejecutar el camino. Y al revés: un `F<id>-C<n>` en los tests sin
+   criterio que le corresponda es un mapeo roto. Un solo criterio sin su test
+   es **rechazo**, aunque la suite esté en verde.
+4c. **En producción** (`docs/verification.md` §«Hecho»). La feature declara
+   exactamente uno de `evento` o `infra`; ninguno o ambos es rechazo.
+   - Con `evento`: el informe trae el id o URL del despliegue **y** la prueba
+     de que ese evento se emitió desde ese despliegue (consulta, log, fila).
+     Un test que llama al tracking no cuenta. Falta cualquiera de las dos:
+     rechazo — los tests en verde no la hacen `done`.
+   - Con `infra`: lee la razón. Si la feature tiene algo que el usuario ve o
+     dispara, la exención no aplica y es rechazo.
 5. **Alcance**: comprueba que no se tocaron rutas fuera de `touches`
-   (`git diff --name-only`). Si se salió, es rechazo.
+   (`git diff --name-only`). Si se salió, es rechazo. Única excepción:
+   la fila `F<id>` de la tabla «Trazabilidad» de `PROYECTO.md`, que el
+   implementer actualiza por protocolo. Cualquier otro cambio en ese archivo
+   sí es salirse del alcance.
 6. **Contra el spec**: comprueba que el entregable respeta las reglas de negocio
    (`RN-*`), los estados y los casos borde del spec. Una regla del spec
    incumplida es rechazo, aunque todos los `acceptance` pasen.
@@ -49,8 +67,14 @@ Escribes **un único bloque** en `progress/review_<name>.md`:
 - Alcance: solo tocó las rutas de `touches`: SÍ | NO (listar extras)
 
 ## Acceptance
-- [x] criterio 1 — evidencia: ruta:línea
-- [ ] criterio 2 — no cumplido porque ...
+- [x] F<id>-C1 — test: ruta:línea — pasa
+- [x] F<id>-C2 — manual: <razón> — evidencia: ruta
+- [ ] F<id>-C3 — sin test que lo mapee ← bloqueante
+
+## Producción
+- Despliegue: <id o URL> | FALTA ← bloqueante
+- Evento `<nombre>`: emitido — evidencia: <consulta / log> | FALTA ← bloqueante
+- (o) Exenta — infra: <razón> — válida | no aplica: <por qué> ← bloqueante
 
 ## Spec y constitución
 - Reglas de negocio del spec: cumplidas | RN-00X incumplida — evidencia
@@ -82,6 +106,7 @@ CHANGES_REQUESTED -> progress/review_<name>.md
 
 - ❌ Nunca apruebes con `./init.sh` en rojo.
 - ❌ Nunca apruebes un criterio de `acceptance` sin evidencia citable.
+- ❌ Nunca apruebes una feature con `evento` sin despliegue y evento emitido.
 - ❌ Nunca edites el trabajo del implementador. Dices qué falla, no lo arreglas.
 - ❌ Nunca uses feedback genérico ("se ve bien", "podría mejorarse"). Archivo,
   línea y razón, o no lo digas.

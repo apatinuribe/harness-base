@@ -43,19 +43,114 @@ comprueba:
 `scripts/check_peer_review.py` avisa en cada `./init.sh` y bloquea en
 `./init.sh --merge` y al empujar a `main`.
 
+## Un test por criterio
+
+Cada criterio DADO/CUANDO/ENTONCES de `acceptance` tiene **su** test. No «los
+tests de la feature cubren los criterios»: uno por criterio, y rastreable.
+
+**Por qué:** una suite en verde dice que lo que se probó funciona, no que se
+probó lo que se prometió. Sin un mapeo uno a uno, el criterio más difícil —el
+caso borde, el permiso denegado— es justo el que se queda sin test, y nadie lo
+nota porque todo está en verde.
+
+**El identificador es `F<id>-C<n>`**: feature `<id>`, criterio número `<n>`
+de su `acceptance` (empezando en 1, en el orden en que están escritos). Va en
+el nombre o la descripción del test, sea cual sea el framework:
+
+```
+test("F7-C2 no crea dos suscripciones si se reintenta el pago", ...)
+def test_F7_C2_no_duplica_suscripcion_en_reintento(): ...
+```
+
+Así, `grep -rn "F7-C2"` encuentra el test desde el criterio, y el criterio
+desde el test. Es el mismo `F<id>` que usa la tabla «Trazabilidad» de
+`PROYECTO.md`: un solo `grep` cruza objetivo, feature y prueba. Por eso **el
+orden de `acceptance` no se cambia** una vez que la feature arrancó — renumera
+todos sus tests.
+
+**Criterios no automatizables.** Algunos no se pueden probar con código: «el
+email llega a la bandeja de entrada», «el PDF se imprime legible». Se declaran
+como `manual`, con **por qué** no se automatiza —«es difícil» no es una razón;
+«depende de un cliente de correo real» sí— y con evidencia que muestre el
+resultado: captura, grabación o los pasos seguidos y lo observado.
+
+## «Hecho» es en producción, con su evento
+
+Una feature de cara al usuario no está hecha cuando los tests pasan: está hecha
+cuando **corre en producción** y **emite el evento de la métrica** que la
+justifica.
+
+**Por qué:** los tests prueban que el código hace lo que dice el criterio. No
+prueban que llegó a quien lo usa, ni que se puede saber si sirvió. Una feature
+en verde que nunca se desplegó, o que se desplegó sin instrumentar, no mueve
+ningún KR y nadie se entera: el backlog dice `done` y el producto no cambió.
+
+Cada feature declara **exactamente uno** de estos dos campos en
+`feature_list.json`:
+
+| Campo | Cuándo | Qué exige al cerrar |
+|---|---|---|
+| `"evento": "<nombre>"` | La feature cambia algo que el usuario ve o hace | Evidencia de despliegue (URL o id) **y** evidencia de que `<nombre>` se emitió desde ese despliegue |
+| `"infra": "<razón>"` | No tiene superficie de usuario propia: esquema, CI, refactor, tooling | La razón escrita. Queda exenta de despliegue y evento |
+
+- **El `evento`** sale del spec: §5.3 (eventos) o el criterio de éxito (§8,
+  `CE-*`) que la feature mueve. Si el spec no nombra ninguno, es un hueco del
+  spec, no una exención.
+- **La razón de `infra`** tiene que explicar por qué no hay nada que medir.
+  «Es backend» no lo es: un endpoint que el usuario dispara tiene evento.
+  «Migración de esquema; la aplican las features que la usan» sí.
+- **La evidencia de despliegue** es la que dé el stack declarado en
+  `docs/architecture.md` §6: un id de despliegue, una URL de producción, un tag
+  de release, un número de build publicado. No tiene que ser de ninguna
+  plataforma en concreto; tiene que poder comprobarse.
+- **La evidencia del evento** muestra el evento emitido **por ese despliegue**:
+  una consulta a la herramienta de analítica, una línea de log, una fila en la
+  tabla de eventos. Un test que llama a `track()` no basta — prueba el código,
+  no la producción.
+
+Para que esto no bloquee la primera feature de un proyecto nuevo, **la
+primera feature de todo proyecto es `despliegue_inicial`**, con `"infra":
+"deja el despliegue funcionando para que las features de usuario puedan
+cerrarse"`. Las features de usuario la llevan en `depends_on`: cuando
+arrancan, ya hay a dónde desplegar y dónde ver el evento.
+
+Si aun así el entorno no permite desplegar desde la sesión (permisos, ventana
+de despliegue), la feature no se cierra: queda `blocked` con esa razón hasta
+que alguien despliega y aporta la evidencia.
+
 ## Cómo se presenta la evidencia
 
 Cada criterio de `acceptance` se responde en `progress/impl_<name>.md` así:
 
 ```
-- criterio: "<texto literal del acceptance>"
-  evidencia: <ruta:línea o comando + salida>
+- criterio: "F7-C1 · <texto literal del acceptance>"
+  test: tests/suscripciones/alta.test.ts:42 — "F7-C1 alta con plan mensual"
+  resultado: <comando + salida que muestra el test pasando>
+
+- criterio: "F7-C3 · <texto literal del acceptance>"
+  manual: <por qué no se puede automatizar>
+  evidencia: <ruta a la captura / pasos seguidos y resultado observado>
+
+- producción:
+    despliegue: <id o URL del despliegue>
+    evento: <nombre> — <consulta / log / fila que lo muestra emitido desde ese despliegue>
+  # o, si la feature declara infra:
+- producción: exenta — infra: <razón>
 ```
+
+El `reviewer` comprueba el mapeo en las dos direcciones: cada criterio tiene su
+test (o su `manual` justificado), y cada `F<id>-C<n>` que aparece en los tests
+corresponde a un criterio que existe. Si falta uno, no cierra.
 
 ## Anti-patrones
 
 - ❌ "Lo implementé, debería funcionar." → falta evidencia ejecutable.
 - ❌ Evidencia que solo prueba que no hubo error → tiene que probar el resultado.
+- ❌ Un criterio sin test `F<id>-C<n>` ni `manual` justificado → no está verificado,
+  aunque la suite esté en verde.
+- ❌ Cerrar una feature de cara al usuario con los tests en verde pero sin
+  despliegue o sin su evento emitido → no está hecha, solo está programada.
+- ❌ Declarar `infra` para saltarse el despliegue de algo que el usuario usa.
 - ❌ Ajustar `CHECKPOINTS.md` o `docs/` para que el trabajo pase.
 - ❌ Marcar `done` sin `./init.sh` en verde.
 

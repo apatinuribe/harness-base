@@ -14,6 +14,10 @@ proyecto (software, contenido, research, campañas).
 | Paralelismo a ojo | `./init.sh --plan` agrupa features en olas seguras |
 | Reviewer solo con checkpoints | Reviewer con acceptance citable + rúbrica 1-5 bloqueante |
 | Sin capa de especificación | `/configurar`, `/constitucion` y `/especificar`: entrevistan y producen configuración y specs auditables |
+| Cada feature decide su tabla | `/esquema` consolida entidades, estados y permisos de todos los specs antes de la primera migración |
+| La IA elige el aspecto | `/diseno <modulo>`: `DESIGN.md` como sistema visual + un brief por pantalla para Claude Design |
+| El feedback entra como tareas sueltas | `/feedback` lo clasifica y lo manda a su destino antes de que se vuelva trabajo |
+| «Tests en verde» = hecho | Un test por criterio (`F<id>-C<n>`); «hecho» es en producción con el evento de su métrica |
 | Se construía sobre un titular | `init.sh` bloquea arrancar una feature sin spec resuelto |
 | Conocimiento que no se acumula | `docs/index.md` + `bibliotecario` cruzan los specs entre sí |
 | — | `exclusive_paths`: rutas que solo una feature puede tocar (migraciones, schema) |
@@ -34,6 +38,8 @@ claude
 #    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
 #      ...o, si ya lo escribiste por tu cuenta:
 #    /especificar <modulo> --desde docs/borradores/<modulo>.md
+#    /esquema                   → consolida los datos de todos los specs
+#                                 y propone la migración inicial
 
 # 3. Comprueba que el arnés está en verde
 ./init.sh
@@ -45,6 +51,17 @@ claude
 tiene verificación determinista, y el reviewer queda aprobando por opinión. Sin
 `/constitucion` cada módulo inventa sus propias reglas transversales. Sin
 `/especificar` el implementador rellena los huecos del negocio a su criterio.
+
+Después vienen tres más, cada uno en su momento. El orden completo es:
+
+```
+/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback
+```
+
+`/esquema` en cuanto haya specs con datos; `despliegue_inicial`, la primera
+feature de todo proyecto, deja el camino a producción listo; `/diseno` por cada
+módulo con pantallas, antes de construirlas; `/feedback` cada vez que los
+usuarios digan algo.
 
 También puedes editar `harness.config.json`, `docs/conventions.md` y
 `docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
@@ -126,14 +143,16 @@ un «quiero un módulo de suscripciones con planes y cobros» llega al implement
 como un titular, y el implementador rellena los huecos inventando reglas de
 negocio. Eso es lo que hace que un producto se sienta «hecho con IA».
 
-Tres comandos, los tres en la sesión principal (un subagente no puede
-preguntarte):
+Todos corren en la sesión principal (un subagente no puede preguntarte):
 
 ```bash
 /configurar              # una vez al instanciar el arnés
 /constitucion            # una vez por proyecto
 /especificar suscripciones   # una vez por módulo
 /especificar suscripciones --desde docs/borradores/suscripciones.md   # partiendo de lo tuyo
+/esquema                 # tras especificar: un solo modelo de datos para todos los specs
+/diseno suscripciones    # por módulo con pantallas, antes de sus features
+/feedback                # cuando llega lo que dicen los usuarios
 ```
 
 **Si ya tienes la lógica pensada, no empieces en blanco.** Guarda tus notas en
@@ -176,6 +195,52 @@ MEDIUM / LOW, y un CRITICAL impide crear las features.
 
 El orden es económico: no vale la pena auditar la consistencia de una feature
 que se va a cortar.
+
+Si existe `PROYECTO.md` (el OS del proyecto, con sus KR), cada feature declara
+el `kr` al que sirve: `/especificar` lo pregunta, el `estratega` señala las que
+no sirven a ninguno, y el implementer actualiza la tabla «Trazabilidad».
+
+## Entre el spec y el código: esquema y diseño
+
+**`/esquema`** lee §4.3 (entidades), §4.6 (permisos) y §5.1 (estados) de
+**todos** los specs y los consolida en `docs/esquema.md`. Dos specs que definen
+«cliente» de forma distinta se detectan aquí, no en la tercera migración. Lee
+el stack de `docs/architecture.md` y `harness.config.json` —tablas con
+políticas de acceso, un ORM, colecciones de documentos— y escribe una migración
+borrador en `docs/esquema/migraciones/`. La aplica una feature `infra`
+(`esquema_NNN`), que no arranca mientras haya conflictos abiertos.
+
+**`/diseno <modulo>`** separa el sistema visual de las pantallas. `DESIGN.md`,
+en la raíz, se escribe una vez: tokens (color, tipografía, espaciado, forma) y
+sus reglas de uso. `docs/diseno/<modulo>.md` es un brief por pantalla —objetivo,
+contenido, los estados vacío / cargando / error / éxito / sin permiso— para
+llevar a Claude Design. Lo que el spec no define queda marcado, no inventado.
+`--devuelto <url>` registra el diseño que vuelve, y el implementer lo usa como
+referencia.
+
+## Qué significa «hecho»
+
+- **Un test por criterio.** Cada DADO/CUANDO/ENTONCES tiene su test,
+  identificado `F<id>-C<n>`. El reviewer lo comprueba con un `grep` en las dos
+  direcciones: una suite en verde con un criterio sin test es rechazo.
+- **En producción, con su evento.** Una feature de cara al usuario declara
+  `evento` y solo cierra con evidencia del despliegue (URL o id) y del evento
+  de su métrica emitido desde ahí. Las de infraestructura declaran `infra` con
+  la razón y quedan exentas. `./init.sh` exige uno de los dos al arrancar.
+- **Primero, `despliegue_inicial`.** En un proyecto nuevo no hay a dónde
+  desplegar, y la primera feature de usuario quedaría bloqueada. Por eso la
+  primera feature de todo proyecto es `despliegue_inicial` (`infra`): deja el
+  camino a producción y la analítica funcionando, y las features de usuario la
+  llevan en `depends_on`. `/especificar` la propone si el backlog no la tiene.
+
+## Después de lanzar: feedback
+
+**`/feedback`** recibe lo que dicen los usuarios —pegado o en un archivo— y lo
+parte en puntos. Cada uno es un bug, una clarificación, una feature nueva, algo
+para el futuro o se descarta, y va a su destino: un bug en una feature `done`
+crea `fix_<name>` (que hereda su `kr` y su `evento`), una duda del negocio va al
+spec, una idea nueva a `docs/borradores/`. Te muestra la tabla antes de escribir
+nada, y deja todo en `docs/feedback.md`.
 
 ## Correr una feature
 
@@ -278,7 +343,8 @@ Por qué los merges salen limpios (si se respetan las reglas):
 ├── AGENTS.md               # Mapa para agentes (divulgación progresiva)
 ├── CLAUDE.md               # Fuerza el rol de leader
 ├── CHECKPOINTS.md          # Criterios de estado final correcto
-├── feature_list.json       # Backlog con spec / depends_on / touches
+├── DESIGN.md               # Sistema visual (lo crea /diseno la primera vez)
+├── feature_list.json       # Backlog con spec / kr / evento|infra / depends_on / touches
 ├── init.sh                 # Verificación (--plan, --quick)
 ├── scripts/                # plan_parallel.py + hooks.sh
 ├── docs/
@@ -288,12 +354,17 @@ Por qué los merges salen limpios (si se respetan las reglas):
 │   ├── verification.md     # Cómo se demuestra que algo funciona
 │   ├── specs/              # Un spec por módulo (+ _plantilla.md)
 │   ├── borradores/         # Tus notas antes de la entrevista (entrada de --desde)
+│   ├── esquema.md          # Modelo de datos consolidado (/esquema)
+│   ├── esquema/migraciones/  # Migraciones borrador, aplicadas por features infra
+│   ├── diseno/             # Un brief por módulo para Claude Design (/diseno)
+│   ├── feedback.md         # Registro de feedback y su destino (/feedback)
 │   └── futuro/             # Decisiones aplazadas y su señal de activación
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   estratega, analista, bibliotecario
-    ├── commands/           # /configurar, /constitucion, /especificar
+    ├── commands/           # /configurar, /constitucion, /especificar,
+    │                       #   /esquema, /diseno, /feedback
     └── settings.json       # Hooks de verificación automática
 ```
 

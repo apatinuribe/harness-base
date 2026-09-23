@@ -168,6 +168,20 @@ for f in feats:
         elif f["status"] in ("in_progress", "done") and by_id[dep]["status"] != "done":
             errors.append(f"Feature {f['id']} avanzó pero su dependencia {dep} no está done")
 
+# Al arrancar, la feature ya tiene que saber como se va a dar por hecha:
+# con un evento emitido en produccion, o exenta por infra. Descubrirlo al
+# cerrar es tarde. Solo in_progress: las done anteriores a la regla no rompen.
+proyecto = os.path.exists("PROYECTO.md")
+for f in in_progress:
+    tiene_evento, tiene_infra = bool(f.get("evento")), bool(f.get("infra"))
+    if tiene_evento == tiene_infra:
+        errors.append(f"Feature {f['id']} ({f['name']}) en in_progress "
+                      f"{'declara evento e infra a la vez' if tiene_evento else 'no declara evento ni infra'}"
+                      " — exactamente uno (ver docs/verification.md)")
+    if proyecto and not f.get("kr"):
+        errors.append(f"Feature {f['id']} ({f['name']}) en in_progress sin 'kr' — "
+                      "existe PROYECTO.md: ¿a qué resultado clave sirve?")
+
 for e in errors:
     print("[FAIL]  " + e)
 if not errors:

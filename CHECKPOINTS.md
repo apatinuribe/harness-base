@@ -40,6 +40,8 @@
 ## C4 — La verificación es real
 
 - [ ] Cada criterio de `acceptance` tiene evidencia citable (archivo:línea).
+- [ ] Cada criterio tiene su test identificado `F<id>-C<n>`, o está declarado
+      `manual` con la razón y la evidencia del resultado. Ningún criterio sin mapear.
 - [ ] Los comandos `required` de `harness.config.json` pasan al 100%.
 - [ ] La evidencia prueba el resultado concreto, no solo la ausencia de error.
 - [ ] Ningún criterio de la rúbrica del reviewer quedó por debajo de 3/5.
@@ -50,6 +52,9 @@
 - [ ] `progress/impl_<name>.md` y `progress/review_<name>.md` existen.
 - [ ] Existe la entrada de esta sesión en `progress/history/` (un archivo por
       sesión). Con `team` de 2+, nombra a su `owner`.
+- [ ] Si la feature declara `evento`: hay evidencia de despliegue (URL o id) y
+      de ese evento emitido desde producción. Si declara `infra`: la razón
+      explica por qué no hay nada que medir. Nunca ambos, nunca ninguno.
 - [ ] La feature quedó en su estado correcto (`done` o `blocked` con razón).
 - [ ] Si el spec cambió durante la sesión, quedó registrado en su log de Clarificaciones.
 

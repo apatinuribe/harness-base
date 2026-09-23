@@ -4,8 +4,12 @@
   "_ayuda": {
     "owner": "Alias (de 'team' en harness.config.json) de quien reclamo la feature. Se reclama en main ANTES de abrir el worktree: es lo unico que impide que dos personas construyan lo mismo. Obligatorio para pasar a in_progress cuando el team tiene 2 o mas miembros.",
     "spec": "Ruta al spec que define esta feature. Obligatorio para arrancar: init.sh bloquea pasar a in_progress sin un spec existente y sin [NEEDS CLARIFICATION] pendientes. Se genera con /especificar.",
-    "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión.",
-    "touches": "Lo más estrecho posible: es lo que permite el paralelismo entre worktrees."
+    "acceptance": "En DADO / CUANDO / ENTONCES. Observable desde fuera, no una opinión. Cada criterio tiene su test, identificado F<id>-C<n> (n = su posición, desde 1): por eso el orden no se cambia una vez arrancada la feature. Ver docs/verification.md.",
+    "touches": "Lo más estrecho posible: es lo que permite el paralelismo entre worktrees.",
+    "kr": "Opcional. El resultado clave de PROYECTO.md (ej. \"KR1\") al que sirve esta feature. Si PROYECTO.md existe en la raíz, es obligatorio: una feature que no sirve a ningún KR es alcance que se coló. Es lo que cruza el backlog con el OS del proyecto.",
+    "corrige": "Solo en features de corrección (fix_<name>), que crea /feedback cuando un bug afecta a una feature ya done: el id de la feature que corrige. Una done no se reabre. La corrección hereda su spec, su kr y su evento (o infra).",
+    "evento": "Nombre del evento de la métrica que la feature emite en producción (sale de §5.3 o §8 de su spec). Para features de cara al usuario. Declara exactamente uno de evento o infra: sin despliegue y sin ese evento emitido, no hay done. Ver docs/verification.md.",
+    "infra": "Razón por la que la feature no tiene nada que medir (esquema, CI, tooling). La exime de despliegue y evento. Exactamente uno de evento o infra."
   },
   "rules": {
     "one_feature_at_a_time_per_owner": true,
@@ -16,18 +20,36 @@
   "features": [
     {
       "id": 1,
+      "name": "despliegue_inicial",
+      "title": "Despliegue inicial a producción",
+      "description": "Primera feature de todo proyecto: deja el camino a producción de docs/architecture.md §6 funcionando, con la analítica recibiendo eventos. Sin ella, ninguna feature de usuario puede cerrarse.",
+      "owner": null,
+      "spec": "docs/architecture.md",
+      "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
+      "acceptance": [
+        "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
+        "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+        "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
+      ],
+      "touches": ["<config de despliegue y CI del stack>"],
+      "depends_on": [],
+      "status": "pending"
+    },
+    {
+      "id": 2,
       "name": "ejemplo_slug",
       "title": "Título corto y accionable",
       "description": "Qué hace, en una o dos frases. Si no cabe, la feature es demasiado grande.",
       "owner": null,
       "spec": "docs/specs/ejemplo.md",
+      "kr": "KR1",
+      "evento": "ejemplo_completado",
       "acceptance": [
         "DADO <situación de partida> CUANDO <acción> ENTONCES <resultado observable>",
-        "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>",
-        "Existe test/evidencia que cubre los criterios anteriores"
+        "DADO <caso borde> CUANDO <acción> ENTONCES <resultado observable>"
       ],
       "touches": ["src/ejemplo/"],
-      "depends_on": [],
+      "depends_on": [1],
       "status": "pending"
     }
   ]
