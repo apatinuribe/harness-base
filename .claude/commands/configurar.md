@@ -153,6 +153,11 @@ Si el `team` queda con 2+ miembros, dilo explícitamente al cerrar: a partir de
 ahí toda feature necesita `owner` para arrancar, y cada persona trabaja en su
 `progress/current_<alias>.md`.
 
+**`feature_list.json`** — `project` y `description` (los mismos de la config).
+**Elimina la feature de ejemplo `ejemplo_slug`** (la que apunta a
+`docs/specs/ejemplo.md`) y deja `despliegue_inicial`, que es la primera de todo
+proyecto. No añadas features aquí: salen de `/especificar`.
+
 **`docs/conventions.md`** — resuelve los TODO con reglas **comprobables**. Si una
 convención no se puede verificar leyendo el entregable, no es una convención: es
 una opinión, y no entra. La «Lista de prohibidos» es la sección que más usa el
@@ -176,11 +181,12 @@ Reporta el resultado tal cual, sin maquillar:
 - **Rojo por TODOs en `docs/architecture.md`** → esperado, lo resuelve
   `/constitucion`. Acláralo para que no parezca un fallo tuyo.
 
-Cierra con tres líneas:
+Cierra con cuatro líneas:
 
 ```
 Verificación: N comandos, M obligatorios (todos probados)
 Convenciones: docs/conventions.md sin TODOs
+Backlog: ejemplo_slug eliminado, despliegue_inicial pendiente
 Siguiente: /constitucion
 ```
 
