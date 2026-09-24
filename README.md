@@ -108,22 +108,24 @@ git merge --allow-unrelated-histories molde/main
 #    (las siguientes veces basta con: git merge molde/main)
 ```
 
-El merge deja conflictos `add/add` en lo que las dos partes tienen. Cómo
-resolverlos (probado sobre una instancia recién instalada):
+Solo entran en conflicto (`add/add`) los archivos que las dos partes cambiaron.
+En una instancia recién instalada con `project` y `README.md` propios son dos:
+`README.md` y `harness.config.json`; el resto se mezcla solo. Cómo resolverlos:
 
 | Archivo | Qué hacer |
 |---|---|
 | `README.md` | Quédate con el tuyo; el del molde va a `HARNESS.md`: `git show molde/main:README.md > HARNESS.md` |
 | `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `docs/*.md` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos) |
-| `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde: `git checkout --theirs -- init.sh scripts .claude .githooks` |
+| `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde (solo chocan si los editaste): `git checkout --theirs -- init.sh scripts .claude .githooks` |
 | `.gitignore`, `.gitattributes` | Quédate con las dos partes |
 
-Después del merge:
+El merge también trae lo que `instalar.sh` excluye: `docs-molde/` y los
+archivos del molde en `docs/futuro/` (hoy `wiki-de-conocimiento.md`). Son
+decisiones del molde sobre sí mismo, no tuyas: bórralos. Después:
 
 ```bash
-rm -rf docs-molde                    # documentación del molde sobre sí mismo
-git rm -rq --cached docs/futuro/*.md 2>/dev/null; git status docs/futuro
-#    ↑ lo que el merge añadió ahí son decisiones del molde, no tuyas: bórralo
+rm -rf docs-molde docs/futuro/wiki-de-conocimiento.md
+git add -A && git commit -m "Arnés vX.Y.Z"
 ./init.sh --quick                    # verde, y con la versión nueva
 bash scripts/test_guard.sh && bash scripts/test_cierre.sh
 ```

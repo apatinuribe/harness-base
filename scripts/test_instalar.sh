@@ -127,6 +127,17 @@ caso "raíz instanciada Y copia anidada: aborta y señala la que sobra" 1 "harne
   '[ -d "$D/harness-base" ] && [ -f "$D/init.sh" ]' \
   -- "$D" --si
 
+# El caso real: el instalador corre DESDE la copia anidada (bash harness-base/scripts/instalar.sh .)
+D="$TMP/13"; mkdir -p "$D"; git -C "$D" init -q; echo '{}' > "$D/package.json"; copia_molde "$D/harness-base"
+INSTALAR_ORIG="$INSTALAR"; INSTALAR="$D/harness-base/scripts/instalar.sh"
+caso "instalador corrido desde la copia anidada sin configurar: reinstala y borra su propio origen" 0 "eliminado"   '[ ! -e "$D/harness-base" ] && [ -f "$D/init.sh" ] && [ -f "$D/scripts/instalar.sh" ] && [ -f "$D/package.json" ]    && [ "$(git -C "$D" ls-files --stage scripts/instalar.sh | cut -c1-6)" = 100755 ] && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)'   -- "$D" --si
+INSTALAR="$INSTALAR_ORIG"
+
+D="$TMP/14"; mkdir -p "$D"; git -C "$D" init -q; copia_molde "$D/harness-base"; configurada "$D/harness-base"
+INSTALAR="$D/harness-base/scripts/instalar.sh"
+caso "instalador corrido desde la copia anidada con trabajo: se mueve a sí mismo a la raíz" 0 "Movidos"   '[ ! -e "$D/harness-base" ] && [ -f "$D/scripts/instalar.sh" ] && grep -q "\"project\": \"tienda\"" "$D/harness.config.json"    && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)'   -- "$D" --si
+INSTALAR="$INSTALAR_ORIG"
+
 caso "sin argumentos: uso" 1 "Uso:" "" --
 caso "flag desconocido: uso" 1 "Opción desconocida" "" -- "$TMP/x" --nope
 

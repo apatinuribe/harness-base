@@ -15,7 +15,7 @@
 #      CLAUDE.md ni los hooks de .claude/settings.json. Entonces:
 #        - si la copia no está configurada (project en TODO y constitución
 #          con TODOs, sin features en curso): ofrece REINSTALAR LIMPIO,
-#          borra la carpeta anidada y sigue con la instalación normal;
+#          instala el molde en la raíz y borra la carpeta anidada;
 #        - si tiene trabajo: ofrece MOVERLA a la raíz tal cual. Si algún
 #          archivo del proyecto ya existe en la raíz, los lista y se detiene
 #          sin mover nada. Después remite al flujo de actualización.
@@ -43,7 +43,11 @@ uso() {
   echo "  --si      confirma sin preguntar   --forzar  sobrescribe colisiones (solo instalación limpia)" >&2
 }
 
-DEST=""; SI=0; FORZAR=0; LISTA=""
+DEST=""; SI=0; FORZAR=0; LISTA=""; BORRAR_ANIDADO=""
+if [ ! -f "$RAIZ/harness.config.json" ] || [ ! -f "$RAIZ/init.sh" ]; then
+  echo "[harness] No encuentro el molde en $RAIZ (falta harness.config.json o init.sh). Corre este script desde un clon de harness-base." >&2
+  exit 1
+fi
 for arg in "$@"; do
   case "$arg" in
     --si) SI=1 ;;
@@ -295,11 +299,13 @@ if [ -n "$ANIDADO_REL" ]; then
   if [ "$ESTADO" = "sin_configurar" ]; then
     echo "[harness] La copia no está configurada (project en TODO, constitución con TODOs, sin features"
     echo "          empezadas): no hay trabajo que conservar. Propongo REINSTALAR LIMPIO:"
-    echo "            1. borrar $ANIDADO_REL/ (incluido su .git, que es el clon del molde)"
-    echo "            2. instalar el molde actual (v$(py version "$RAIZ/harness.config.json")) en la raíz"
-    confirmar "¿Borrar $ANIDADO_REL/ y reinstalar limpio?" || exit 1
-    rm -rf "$ANIDADO" || { echo "[harness] No se pudo borrar $ANIDADO" >&2; exit 1; }
-    echo "[harness] $ANIDADO_REL/ eliminado. Sigo con la instalación limpia."
+    echo "            1. instalar el molde actual (v$(py version "$RAIZ/harness.config.json")) en la raíz"
+    echo "            2. borrar $ANIDADO_REL/ (incluido su .git, que es el clon del molde)"
+    confirmar "¿Reinstalar limpio y borrar $ANIDADO_REL/?" || exit 1
+    # Primero copiar, después borrar: la copia anidada suele ser el mismo clon
+    # desde el que corre este script (bash harness-base/scripts/instalar.sh .),
+    # y borrarla antes dejaría el molde sin origen.
+    BORRAR_ANIDADO="$ANIDADO"
     # cae a la instalación limpia de abajo
   else
     COL=$(py colisiones "$ANIDADO" "$DEST")
@@ -314,10 +320,10 @@ if [ -n "$ANIDADO_REL" ]; then
     echo "            - se descartan .git, .harness, .worktrees y docs/futuro/ de la copia (son del molde)"
     echo "            - ningún archivo del proyecto se sobrescribe (ya comprobado: sin colisiones)"
     confirmar "¿Mover $ANIDADO_REL/ a la raíz?" || exit 1
+    V_MOLDE=$(py version "$RAIZ/harness.config.json")  # antes de mover: la copia puede ser este mismo clon
     LISTA=$(py lista "$ANIDADO")
     py mover "$ANIDADO" "$DEST" || exit 1
     V_MOVIDA=$(py version "$DEST/harness.config.json")
-    V_MOLDE=$(py version "$RAIZ/harness.config.json")
     if [ -z "$V_MOVIDA" ]; then
       echo "[harness] La copia movida no tiene harness_version (anterior a 1.0.0); el molde va en v$V_MOLDE."
       echo "          Tráete los cambios con README §Actualizar una instancia."
@@ -348,4 +354,8 @@ echo "[harness] Instalando el molde v$(py version "$RAIZ/harness.config.json") e
 LISTA=$(py lista "$RAIZ")
 if [ "$FORZAR" = 1 ]; then py copiar "$RAIZ" "$DEST" forzar; else py copiar "$RAIZ" "$DEST"; fi || exit 1
 echo "[harness] El README del molde quedó como HARNESS.md."
+if [ -n "$BORRAR_ANIDADO" ]; then
+  rm -rf "$BORRAR_ANIDADO" || { echo "[harness] No se pudo borrar $BORRAR_ANIDADO: bórralo a mano." >&2; exit 1; }
+  echo "[harness] $ANIDADO_REL/ eliminado (era la copia anidada sin trabajo)."
+fi
 cerrar; exit $?
