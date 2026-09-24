@@ -55,6 +55,14 @@ if [ ! -f harness.config.json ]; then
 fi
 ok "harness.config.json presente"
 
+# La versión del molde: es lo que se compara con la plantilla al actualizar.
+HARNESS_VERSION=$($PY -c "import json; print(json.load(open('harness.config.json', encoding='utf-8')).get('harness_version') or '')" 2>/dev/null)
+if [ -n "$HARNESS_VERSION" ]; then
+  ok "Arnés v$HARNESS_VERSION"
+else
+  warn "harness.config.json sin harness_version (instancia anterior a 1.0.0): sigue README §Actualizar una instancia"
+fi
+
 # El gate de revisión cruzada vive en .githooks/pre-push, y git no mira ahí
 # hasta que se le dice. Se activa una vez, y nunca por encima de hooks ajenos.
 if [ -d .githooks ] && git rev-parse --git-dir >/dev/null 2>&1; then

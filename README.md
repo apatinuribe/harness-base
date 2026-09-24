@@ -25,15 +25,18 @@ proyecto (software, contenido, research, campañas).
 ## Instanciar el arnés (10 minutos)
 
 ```bash
-# 1. Copia el andamiaje dentro de tu repo real (NO al revés)
-#    Ojo: sobreescribe CLAUDE.md y README.md si el destino ya los tiene.
-cp -r harness-base/. /ruta/a/mi-proyecto/
+# 1. Clona el molde al lado de tu repo y corre el instalador apuntando a la
+#    RAÍZ de tu proyecto. No copies la carpeta dentro: el arnés tiene que quedar
+#    en la raíz para que Claude cargue CLAUDE.md y los hooks.
+git clone https://github.com/apatinuribe/harness-base.git
+bash harness-base/scripts/instalar.sh /ruta/a/mi-proyecto
 cd /ruta/a/mi-proyecto
 
 # 2. Abre Claude y corre las tres entrevistas, en este orden
 claude
 #    /configurar                → detecta tu stack, prueba los comandos de test,
-#                                 escribe harness.config.json y conventions.md
+#                                 escribe harness.config.json y conventions.md,
+#                                 y saca la feature de ejemplo del backlog
 #    /constitucion              → llena docs/architecture.md entrevistándote
 #    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
 #      ...o, si ya lo escribiste por tu cuenta:
@@ -43,9 +46,26 @@ claude
 
 # 3. Comprueba que el arnés está en verde
 ./init.sh
-
-# 4. Vacía el backlog de ejemplo y mete las features que salieron del paso 2
 ```
+
+`instalar.sh` copia el molde a la raíz del destino (sin `.git`, `.harness`,
+`.worktrees`, `docs/futuro/` ni `docs-molde/`), guarda este README como
+`HARNESS.md`, hace `git init` si el destino no es un repo, deja los archivos del
+arnés en el índice, añade el remoto `molde` (para actualizar después) y corre
+`./init.sh --quick`. Sus reglas:
+
+- **Colisiones.** Si un archivo del molde ya existe en el destino (un `CLAUDE.md`
+  propio, por ejemplo) lo lista y no escribe nada; con `--forzar` lo sobrescribe.
+  `.gitignore` y `.gitattributes` no se pisan: se fusionan añadiendo las líneas
+  que falten.
+- **Ya instanciado.** Si el destino tiene `harness.config.json`, aborta: eso es
+  «Actualizar una instancia», más abajo.
+- **Arnés en subcarpeta.** Si el molde quedó copiado dentro del proyecto
+  (`mi-proyecto/harness-base/`, el error clásico: desde ahí Claude nunca carga
+  `CLAUDE.md` ni los hooks), el mismo comando lo detecta. Si esa copia no tiene
+  trabajo (`project` en `TODO`), la borra e instala limpio; si lo tiene, la mueve
+  a la raíz sin pisar archivos del proyecto (si algo colisiona, lo lista y para) y
+  te remite a actualizar. Pide confirmación; `--si` responde que sí sin terminal.
 
 **Ninguno de los tres comandos es opcional.** Sin `/configurar` el arnés no
 tiene verificación determinista, y el reviewer queda aprobando por opinión. Sin
@@ -66,6 +86,55 @@ usuarios digan algo.
 También puedes editar `harness.config.json`, `docs/conventions.md` y
 `docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
 comprueba que los comandos que escribe realmente corren.
+
+## Actualizar una instancia
+
+El molde cambia y tu proyecto tiene su copia. `harness_version` en
+`harness.config.json` (y `[OK] Arnés vX` en `./init.sh`) dice cuál llevas; el
+`CHANGELOG.md` del molde dice qué cambió entre esa y la actual.
+
+```bash
+# 1. Trae el molde (instalar.sh dejó el remoto; si no está:
+#    git remote add molde https://github.com/apatinuribe/harness-base.git)
+git fetch molde
+
+# 2. Compara versiones y lee el CHANGELOG entre las dos
+grep harness_version harness.config.json
+git show molde/main:harness.config.json | grep harness_version
+git show molde/main:CHANGELOG.md
+
+# 3. Mezcla. La primera vez las historias no están relacionadas:
+git merge --allow-unrelated-histories molde/main
+#    (las siguientes veces basta con: git merge molde/main)
+```
+
+Solo entran en conflicto (`add/add`) los archivos que las dos partes cambiaron.
+En una instancia recién instalada con `project` y `README.md` propios son dos:
+`README.md` y `harness.config.json`; el resto se mezcla solo. Cómo resolverlos:
+
+| Archivo | Qué hacer |
+|---|---|
+| `README.md` | Quédate con el tuyo; el del molde va a `HARNESS.md`: `git show molde/main:README.md > HARNESS.md` |
+| `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `docs/*.md` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos) |
+| `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde (solo chocan si los editaste): `git checkout --theirs -- init.sh scripts .claude .githooks` |
+| `.gitignore`, `.gitattributes` | Quédate con las dos partes |
+
+El merge también trae lo que `instalar.sh` excluye: `docs-molde/` y los
+archivos del molde en `docs/futuro/` (hoy `wiki-de-conocimiento.md`). Son
+decisiones del molde sobre sí mismo, no tuyas: bórralos. Después:
+
+```bash
+rm -rf docs-molde docs/futuro/wiki-de-conocimiento.md
+git add -A && git commit -m "Arnés vX.Y.Z"
+./init.sh --quick                    # verde, y con la versión nueva
+bash scripts/test_guard.sh && bash scripts/test_cierre.sh
+```
+
+Y lee las «Notas de migración» del `CHANGELOG.md` entre tu versión y la nueva:
+ahí está lo que cambia de comportamiento (por ejemplo, 1.0.0 exige `evento` o
+`infra` en toda feature `done` y bloquea el push directo a `main` hasta que
+`verify[]` tenga comandos reales). Si `./init.sh` se pone en rojo por
+`required_files`, es que falta un archivo nuevo del arnés: tómalo del molde.
 
 ## Varias personas en el mismo proyecto
 
@@ -345,8 +414,12 @@ Por qué los merges salen limpios (si se respetan las reglas):
 ├── CHECKPOINTS.md          # Criterios de estado final correcto
 ├── DESIGN.md               # Sistema visual (lo crea /diseno la primera vez)
 ├── feature_list.json       # Backlog con spec / kr / evento|infra / depends_on / touches
-├── init.sh                 # Verificación (--plan, --quick)
-├── scripts/                # plan_parallel.py + hooks.sh
+├── init.sh                 # Verificación (--plan, --quick, --merge); muestra harness_version
+├── CHANGELOG.md            # Qué cambió en cada versión del molde + notas de migración
+├── HARNESS.md              # En la instancia: este README, guardado por instalar.sh
+├── scripts/                # instalar.sh, hooks.sh, plan_parallel.py,
+│                           #   check_peer_review.py, test_guard/cierre/instalar.sh
+├── .githooks/pre-push      # Gate de merge: ./init.sh --merge antes de tocar main
 ├── docs/
 │   ├── index.md            # Qué es el producto hoy (lo primero que se lee)
 │   ├── architecture.md     # LA CONSTITUCIÓN: políticas transversales + rúbrica

@@ -1,4 +1,6 @@
 {
+  "_ayuda_harness_version": "Versión del molde (semver). No la edites a mano: la sube cada release del molde y sirve para comparar con la plantilla al actualizar (README §Actualizar una instancia).",
+  "harness_version": "1.0.0",
   "project": "TODO-nombre-del-proyecto",
   "description": "TODO-una-linea",
   "domain": "code",
@@ -39,6 +41,12 @@
     "docs/verification.md",
     "feature_list.json",
     "progress/current.md",
-    "progress/history.md"
+    "progress/history.md",
+    "scripts/hooks.sh",
+    "scripts/check_peer_review.py",
+    ".claude/settings.json",
+    ".githooks/pre-push",
+    "scripts/test_guard.sh",
+    "scripts/test_cierre.sh"
   ]
 }
