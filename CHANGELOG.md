@@ -4,6 +4,47 @@ Versión del molde: `harness_version` en `harness.config.json`. Una instancia
 compara la suya con la del molde y lee aquí qué cambió entre las dos
 (README §«Actualizar una instancia»). Formato: [Keep a Changelog](https://keepachangelog.com/es/).
 
+## [1.1.0] — 2026-09-24
+
+Deduplicación: una fuente por cosa, y el resto apunta a ella.
+
+### Cambiado
+
+- **Formato de entrevista** en un solo sitio: `.claude/formato-preguntas.md`.
+  `/configurar`, `/constitucion`, `/especificar`, `/esquema` y `/diseno` lo
+  cargan con `@.claude/formato-preguntas.md` y conservan solo su máximo de
+  preguntas y sus prioridades. Entra en `required_files`.
+- **Orden de comandos** solo en `docs/index.md` §Orden de trabajo (con la tabla
+  Cuándo/Produce que estaba en `CLAUDE.md`). `CLAUDE.md`, `README.md`,
+  `AGENTS.md`, `/configurar` y `/esquema` apuntan ahí.
+- **Protocolo de sesión** solo en `AGENTS.md` §1 (arranque) y §5 (cierre).
+  `CLAUDE.md` y `leader.md` apuntan ahí.
+- **Ejemplos por dominio** solo en README §«Ejemplos de configuración» (ahora
+  también Campañas). `/configurar` §4 y `docs/verification.md` apuntan ahí.
+- `docs/futuro/wiki-de-conocimiento.md` pasa a `docs-molde/`: el molde ya no
+  tiene `docs/futuro/` (es carpeta de la instancia, la crea `/feedback`) e
+  `instalar.sh` deja de excluirla — al mover una copia anidada con trabajo ya
+  no se pierde el `docs/futuro/` propio de la instancia.
+
+### Eliminado
+
+- README §«Qué cambia respecto al repo original».
+- `domain` en `harness.config.json`; `rules.one_feature_at_a_time_per_owner`,
+  `rules.require_spec_to_start` y `rules.require_verification_to_close` en
+  `feature_list.json`; la línea `**Estado:**` de `docs/specs/_plantilla.md`.
+  Nada los leía: las reglas las aplica `init.sh` por su cuenta y el estado
+  sale de `feature_list.json`.
+
+### Notas de migración
+
+- Al mezclar el molde, `docs/futuro/wiki-de-conocimiento.md` desaparece y
+  aparece `docs-molde/`: bórralo (`rm -rf docs-molde`).
+- `.claude/formato-preguntas.md` es nuevo y obligatorio: sin él `./init.sh`
+  se pone en rojo. Llega con el merge; si tu instancia edita los comandos,
+  toma la versión del molde de `.claude/`.
+- `domain` y `rules.*` (salvo `valid_status`) se pueden quitar o dejar en la
+  instancia: nada los lee.
+
 ## [1.0.0] — 2026-09-24
 
 Primera versión numerada. Recoge la ola A (PRs #2, #3, #4) y este PR.

@@ -166,53 +166,20 @@ con su razón. Sin desviaciones se escribe «Sigue la constitución sin excepcio
 
 ### 4. Preguntas
 
-**Máximo 5 preguntas. Una a la vez. Nunca reveles la cola de preguntas.**
-
-Prioriza por **impacto × incertidumbre**. Impacto alto = si se decide mal,
-obliga a rehacer código, migrar datos o rediseñar pantallas.
-
-Cada pregunta cumple **todas** estas reglas:
-
-- Es una **interrogación completa que termina en `?`**, nunca una etiqueta.
-- Trae una línea **`Por qué importa:`** en lenguaje llano.
-- Trae una **recomendación explícita** antes de la tabla, con su razón.
-- Trae una **tabla de opciones** con la consecuencia real de cada una.
-- Cierra con `Responde con la letra, o descríbeme la tuya.`
-- **Autocomprobación:** ¿alguien no técnico que no ha leído este repo puede
-  responderla con lo que hay en pantalla? Si no, reescríbela.
-
-Ejemplo:
-
-```markdown
-**P2.** Cuando un cliente cancela su plan, ¿hasta cuándo debe conservar el acceso?
-
-Por qué importa: define si hay que cobrar proporcional, si el sistema necesita
-recordar una fecha de corte, y qué ve el cliente el día que se le vence.
-
-**Recomendado:** Opción B — es lo que el cliente espera al haber pagado el mes.
-
-| Opción | Qué pasa | Consecuencia |
-|---|---|---|
-| A | Pierde el acceso al instante | Simple; genera reclamos por el tiempo pagado |
-| B | Conserva el acceso hasta el fin del periodo pagado | Justo; hay que guardar fecha de corte y algo que la revise a diario |
-| C | Conserva el acceso y se le devuelve la parte no usada | Lo más generoso; obliga a integrar devoluciones con la pasarela |
-
-Responde con la letra, o descríbeme la tuya.
-```
+**Máximo 5 preguntas** (también con `--desde`). Impacto alto = si se decide
+mal, obliga a rehacer código, migrar datos o rediseñar pantallas. Formato y
+reglas: @.claude/formato-preguntas.md
 
 ### 5. Escritura incremental
 
-**Después de CADA respuesta aceptada**, actualiza `docs/specs/<modulo>.md`
-antes de preguntar lo siguiente. Añade la entrada al log:
+Después de cada respuesta aceptada actualiza `docs/specs/<modulo>.md` y añade
+la entrada al log:
 
 ```markdown
 ## Clarificaciones
 ### Sesión 2026-08-25
 - P: ¿Hasta cuándo conserva el acceso un cliente que cancela? → R: Opción B
 ```
-
-Lo que el usuario no sepa responder **no se inventa**: queda como
-`[NEEDS CLARIFICATION: <pregunta concreta>]` en su sección.
 
 ### 6. Auditoría
 
@@ -421,10 +388,8 @@ Y recuerda: mientras el spec tenga `[NEEDS CLARIFICATION]` sin resolver,
 
 ## Reglas duras
 
-- ❌ Nunca hagas dos preguntas en el mismo mensaje.
-- ❌ Nunca uses jerga sin definirla en la misma frase.
+Las de `.claude/formato-preguntas.md`, y además:
+
 - ❌ Nunca escribas una feature en `feature_list.json` sin confirmación explícita.
 - ❌ Nunca inventes una regla de negocio para «destrabar» el spec: eso es
   exactamente el producto-hecho-con-IA que este comando existe para evitar.
-- ✅ Si el usuario responde «lo que recomiendes», acepta tu recomendación y
-  regístrala como decisión suya en el log de clarificaciones.

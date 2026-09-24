@@ -49,58 +49,17 @@ para priorizar.
 
 ### 3. Preguntas
 
-**Máximo 8 preguntas. Una a la vez. Nunca reveles la cola de preguntas.**
-
-Prioriza por **impacto × incertidumbre**: primero lo que, si se decide mal,
-obliga a rehacer trabajo ya construido.
-
-Cada pregunta cumple **todas** estas reglas:
-
-- Es una **interrogación completa que termina en `?`**. Nunca una etiqueta
-  («Zona horaria:») ni un tema suelto.
-- Va seguida de una línea **`Por qué importa:`** en lenguaje llano — sin jerga,
-  o con la jerga definida en la misma frase.
-- Trae una **recomendación explícita** antes de las opciones:
-  `**Recomendado:** Opción B — <razón en una línea>`
-- Trae una **tabla de opciones** con la consecuencia de cada una.
-- Cierra con: `Responde con la letra, o descríbeme la tuya.`
-- **Autocomprobación antes de enviarla:** ¿alguien que no es técnico y no ha
-  leído este repo puede responderla solo con lo que hay en pantalla? Si no,
-  reescríbela.
-
-Formato:
-
-```markdown
-**P3.** ¿Qué debe pasar cuando un usuario intenta abrir algo para lo que no tiene permiso?
-
-Por qué importa: define si el producto se siente cerrado y seguro o confuso;
-cambiarlo después toca todas las pantallas.
-
-**Recomendado:** Opción B — no revela qué existe y no deja al usuario atascado.
-
-| Opción | Qué ve el usuario | Consecuencia |
-|---|---|---|
-| A | Error 403 «no autorizado» | Claro, pero revela que ese recurso existe |
-| B | Se le redirige a su inicio con un aviso | No filtra información; requiere una pantalla de inicio por rol |
-| C | La opción ni siquiera aparece en el menú | Lo más limpio; obliga a que cada menú conozca los permisos |
-
-Responde con la letra, o descríbeme la tuya.
-```
+**Máximo 8 preguntas.** Formato y reglas: @.claude/formato-preguntas.md
 
 ### 4. Escritura incremental
 
-**Después de CADA respuesta aceptada**, escribe en `docs/architecture.md` antes
-de hacer la siguiente pregunta. Si la sesión se corta, no se pierde nada.
-
-Cada respuesta se registra además en `## 8. Gobernanza → Bitácora`:
+Después de cada respuesta aceptada escribe en `docs/architecture.md`, y registra
+la respuesta en `## 8. Gobernanza → Bitácora`:
 
 ```markdown
 ### Sesión 2026-08-25
 - P: ¿Qué debe pasar cuando un usuario intenta abrir algo sin permiso? → R: Opción B
 ```
-
-Lo que el usuario **no sepa responder** no se inventa: queda como
-`[NEEDS CLARIFICATION: <la pregunta concreta>]` en la sección que corresponda.
 
 ### 5. Enmiendas
 
@@ -128,10 +87,5 @@ Al terminar:
 
 ## Reglas duras
 
-- ❌ Nunca hagas dos preguntas en el mismo mensaje.
-- ❌ Nunca uses jerga sin definirla en la misma frase (`RLS`, `idempotente`,
-  `webhook`, `SLA`) — quien responde no es técnico.
-- ❌ Nunca rellenes una política con un valor por defecto sin decirlo: si
-  recomiendas, se ve la recomendación; si asumes, se marca `[NEEDS CLARIFICATION]`.
-- ✅ Si el usuario responde «lo que recomiendes», acepta tu recomendación y
-  regístrala como decisión suya en la bitácora.
+Las de `.claude/formato-preguntas.md`. La decisión aceptada por «lo que
+recomiendes» se registra en la bitácora de §8 como cualquier otra.

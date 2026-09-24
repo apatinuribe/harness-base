@@ -1,9 +1,8 @@
 {
   "_ayuda_harness_version": "Versión del molde (semver). No la edites a mano: la sube cada release del molde y sirve para comparar con la plantilla al actualizar (README §Actualizar una instancia).",
-  "harness_version": "1.0.0",
+  "harness_version": "1.1.0",
   "project": "TODO-nombre-del-proyecto",
   "description": "TODO-una-linea",
-  "domain": "code",
 
   "_ayuda_team": "Un alias por persona + el email de su 'git config user.email'. Con 0 o 1 miembros reales el arnes corre en modo solitario (maximo 1 feature in_progress en total). Con 2 o mas, exige que cada feature in_progress declare 'owner' y permite una por persona.",
   "team": [
@@ -45,6 +44,7 @@
     "scripts/hooks.sh",
     "scripts/check_peer_review.py",
     ".claude/settings.json",
+    ".claude/formato-preguntas.md",
     ".githooks/pre-push",
     "scripts/test_guard.sh",
     "scripts/test_cierre.sh"

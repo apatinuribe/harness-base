@@ -37,7 +37,7 @@
 | `docs/verification.md`       | Cómo demostrar que el trabajo funciona                  | Antes de declarar `done` |
 | `CHECKPOINTS.md`             | Criterios objetivos de estado final correcto            | Para auto-evaluarte |
 | `.claude/agents/`            | Líder, implementador, revisor, explorador, estratega, analista, bibliotecario | Si orquestas |
-| `.claude/commands/`          | En orden: `/configurar` → `/constitucion` → `/especificar` → `/esquema` → `despliegue_inicial` → features (con `/diseno` por módulo) → `/feedback` | Al instanciar, antes de construir algo nuevo y cuando llega feedback |
+| `.claude/commands/`          | Las entrevistas del arranque y del ciclo. El orden está en `docs/index.md` §Orden de trabajo | Al instanciar, antes de construir algo nuevo y cuando llega feedback |
 | `docs/esquema.md`            | Entidades, estados y permisos consolidados de todos los specs; migraciones borrador en `docs/esquema/migraciones/` | Antes de tocar datos o permisos |
 | `DESIGN.md`                  | Sistema visual del producto (tokens + reglas) | Antes de construir una pantalla |
 | `docs/diseno/<modulo>.md`    | Brief por pantalla y el «Diseño devuelto» de referencia | Antes de construir una pantalla |

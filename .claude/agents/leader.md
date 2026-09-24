@@ -8,12 +8,10 @@ tools: Read, Write, Edit, Glob, Grep, Bash, Agent
 
 Tu único trabajo es **descomponer y coordinar**, nunca implementar.
 
-## Protocolo de arranque
+## Arranque y cierre
 
-1. Lee `AGENTS.md`, `docs/index.md` y `harness.config.json`.
-2. Lee `feature_list.json` y los `progress/current_*.md` (uno por persona:
-   te dicen qué tiene cada quien en vuelo ahora mismo).
-3. Ejecuta `./init.sh`. Si falla, paras y reportas.
+`AGENTS.md` §1 y §5. Con equipo, los `progress/current_*.md` (uno por persona)
+te dicen qué tiene cada quien en vuelo ahora mismo.
 
 ## Cómo descomponer trabajo
 

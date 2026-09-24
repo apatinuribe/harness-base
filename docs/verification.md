@@ -10,13 +10,9 @@
 Un script que devuelve 0 o 1, sin opinión de por medio. Se declara en
 `harness.config.json` → `verify`. Es lo que corre `./init.sh`.
 
-TODO: define aquí tus comprobaciones deterministas. Ejemplos por dominio:
-
-- **Software**: tests unitarios, typecheck, lint, build, migraciones aplicables.
-- **Contenido**: el paquete tiene los N archivos requeridos; `meta.json` valida
-  contra schema; ningún hook supera X palabras; ninguna claim prohibida aparece.
-- **Research**: toda cifra tiene fuente con URL y fecha; existe el bloque de
-  contradicciones; ningún findings.md sin sección de metodología.
+TODO: define aquí tus comprobaciones deterministas. Ejemplos por dominio
+(software, contenido, research, campañas): `HARNESS.md` §«Ejemplos de
+configuración» (en el molde, `README.md`).
 
 ### Nivel 2 — Rúbrica (obligatorio si el entregable no es binario)
 

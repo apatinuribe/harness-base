@@ -23,8 +23,8 @@
 #      una instancia, y los cambios del molde llegan por «Actualizar una
 #      instancia» (README).
 #   3. Copia el molde a la raíz del destino excluyendo .git, .harness,
-#      .worktrees, README.md (se guarda como HARNESS.md), docs/futuro/,
-#      docs-molde/, node_modules, __pycache__ y .claude/settings.local.json.
+#      .worktrees, README.md (se guarda como HARNESS.md), docs-molde/,
+#      node_modules, __pycache__ y .claude/settings.local.json.
 #      Colisiones con archivos del proyecto: se listan y se detiene, salvo
 #      --forzar. .gitignore y .gitattributes no se sobrescriben: se les
 #      añaden las líneas del molde que falten.
@@ -95,7 +95,7 @@ def excluido(rel):
     partes = rel.split("/")
     if partes[0] in (".git", ".harness", ".worktrees", "node_modules", "docs-molde"):
         return True
-    if rel.startswith("docs/futuro/") or rel == ".claude/settings.local.json":
+    if rel == ".claude/settings.local.json":
         return True
     if "__pycache__" in partes or rel.endswith(".pyc"):
         return True
@@ -160,9 +160,9 @@ def _forzar_borrado(func, path, exc):
     os.chmod(path, stat.S_IWRITE); func(path)
 
 def limpiar_anidado(anidado):
-    # Lo que queda tras mover es del molde (.git del clon, docs/futuro, cachés)
+    # Lo que queda tras mover es del molde (.git del clon, docs-molde, cachés)
     # o carpetas vacías. Si queda otra cosa, se conserva y se avisa.
-    for rel in (".git", ".harness", ".worktrees", "node_modules", "docs/futuro", "docs-molde"):
+    for rel in (".git", ".harness", ".worktrees", "node_modules", "docs-molde"):
         p = os.path.join(anidado, rel)
         if os.path.isdir(p):
             shutil.rmtree(p, onerror=_forzar_borrado)
@@ -317,7 +317,7 @@ if [ -n "$ANIDADO_REL" ]; then
     fi
     echo "[harness] La copia tiene trabajo (configuración, constitución o features). Propongo MOVERLA a la raíz:"
     echo "            - cada archivo de $ANIDADO_REL/ pasa a la misma ruta en la raíz (README.md -> HARNESS.md)"
-    echo "            - se descartan .git, .harness, .worktrees y docs/futuro/ de la copia (son del molde)"
+    echo "            - se descartan .git, .harness, .worktrees y docs-molde/ de la copia (son del molde)"
     echo "            - ningún archivo del proyecto se sobrescribe (ya comprobado: sin colisiones)"
     confirmar "¿Mover $ANIDADO_REL/ a la raíz?" || exit 1
     V_MOLDE=$(py version "$RAIZ/harness.config.json")  # antes de mover: la copia puede ser este mismo clon

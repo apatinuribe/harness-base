@@ -4,24 +4,6 @@ Andamiaje agnóstico de stack derivado de `betta-tech/ejemplo-harness-subagentes
 Aquí no hay aplicación de ejemplo: solo el arnés, listo para envolver cualquier
 proyecto (software, contenido, research, campañas).
 
-## Qué cambia respecto al repo original
-
-| Original | Aquí |
-|---|---|
-| `init.sh` corre `unittest` hardcodeado | Corre los comandos de `harness.config.json` |
-| Reglas atadas a `src/` y `tests/` | Rutas configurables (`protected_paths`) |
-| Features sin dependencias ni rutas | `depends_on` y `touches` en cada feature |
-| Paralelismo a ojo | `./init.sh --plan` agrupa features en olas seguras |
-| Reviewer solo con checkpoints | Reviewer con acceptance citable + rúbrica 1-5 bloqueante |
-| Sin capa de especificación | `/configurar`, `/constitucion` y `/especificar`: entrevistan y producen configuración y specs auditables |
-| Cada feature decide su tabla | `/esquema` consolida entidades, estados y permisos de todos los specs antes de la primera migración |
-| La IA elige el aspecto | `/diseno <modulo>`: `DESIGN.md` como sistema visual + un brief por pantalla para Claude Design |
-| El feedback entra como tareas sueltas | `/feedback` lo clasifica y lo manda a su destino antes de que se vuelva trabajo |
-| «Tests en verde» = hecho | Un test por criterio (`F<id>-C<n>`); «hecho» es en producción con el evento de su métrica |
-| Se construía sobre un titular | `init.sh` bloquea arrancar una feature sin spec resuelto |
-| Conocimiento que no se acumula | `docs/index.md` + `bibliotecario` cruzan los specs entre sí |
-| — | `exclusive_paths`: rutas que solo una feature puede tocar (migraciones, schema) |
-
 ## Instanciar el arnés (10 minutos)
 
 ```bash
@@ -32,7 +14,7 @@ git clone https://github.com/apatinuribe/harness-base.git
 bash harness-base/scripts/instalar.sh /ruta/a/mi-proyecto
 cd /ruta/a/mi-proyecto
 
-# 2. Abre Claude y corre las tres entrevistas, en este orden
+# 2. Abre Claude y corre las entrevistas, en este orden
 claude
 #    /configurar                → detecta tu stack, prueba los comandos de test,
 #                                 escribe harness.config.json y conventions.md,
@@ -49,7 +31,7 @@ claude
 ```
 
 `instalar.sh` copia el molde a la raíz del destino (sin `.git`, `.harness`,
-`.worktrees`, `docs/futuro/` ni `docs-molde/`), guarda este README como
+`.worktrees` ni `docs-molde/`), guarda este README como
 `HARNESS.md`, hace `git init` si el destino no es un repo, deja los archivos del
 arnés en el índice, añade el remoto `molde` (para actualizar después) y corre
 `./init.sh --quick`. Sus reglas:
@@ -72,16 +54,8 @@ tiene verificación determinista, y el reviewer queda aprobando por opinión. Si
 `/constitucion` cada módulo inventa sus propias reglas transversales. Sin
 `/especificar` el implementador rellena los huecos del negocio a su criterio.
 
-Después vienen tres más, cada uno en su momento. El orden completo es:
-
-```
-/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback
-```
-
-`/esquema` en cuanto haya specs con datos; `despliegue_inicial`, la primera
-feature de todo proyecto, deja el camino a producción listo; `/diseno` por cada
-módulo con pantallas, antes de construirlas; `/feedback` cada vez que los
-usuarios digan algo.
+Después vienen tres más, cada uno en su momento: el orden completo, y qué
+produce cada comando, está en `docs/index.md` §Orden de trabajo.
 
 También puedes editar `harness.config.json`, `docs/conventions.md` y
 `docs/verification.md` a mano si prefieres: `/configurar` solo automatiza eso y
@@ -119,12 +93,11 @@ En una instancia recién instalada con `project` y `README.md` propios son dos:
 | `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde (solo chocan si los editaste): `git checkout --theirs -- init.sh scripts .claude .githooks` |
 | `.gitignore`, `.gitattributes` | Quédate con las dos partes |
 
-El merge también trae lo que `instalar.sh` excluye: `docs-molde/` y los
-archivos del molde en `docs/futuro/` (hoy `wiki-de-conocimiento.md`). Son
-decisiones del molde sobre sí mismo, no tuyas: bórralos. Después:
+El merge también trae `docs-molde/`, que `instalar.sh` excluye: son decisiones
+del molde sobre sí mismo, no tuyas. Bórralo. Después:
 
 ```bash
-rm -rf docs-molde docs/futuro/wiki-de-conocimiento.md
+rm -rf docs-molde
 git add -A && git commit -m "Arnés vX.Y.Z"
 ./init.sh --quick                    # verde, y con la versión nueva
 bash scripts/test_guard.sh && bash scripts/test_cierre.sh
@@ -215,14 +188,16 @@ negocio. Eso es lo que hace que un producto se sienta «hecho con IA».
 Todos corren en la sesión principal (un subagente no puede preguntarte):
 
 ```bash
-/configurar              # una vez al instanciar el arnés
-/constitucion            # una vez por proyecto
-/especificar suscripciones   # una vez por módulo
+/configurar
+/constitucion
+/especificar suscripciones
 /especificar suscripciones --desde docs/borradores/suscripciones.md   # partiendo de lo tuyo
-/esquema                 # tras especificar: un solo modelo de datos para todos los specs
-/diseno suscripciones    # por módulo con pantallas, antes de sus features
-/feedback                # cuando llega lo que dicen los usuarios
+/esquema
+/diseno suscripciones
+/feedback
 ```
+
+Cuándo va cada uno y qué produce: `docs/index.md` §Orden de trabajo.
 
 **Si ya tienes la lógica pensada, no empieces en blanco.** Guarda tus notas en
 `docs/borradores/<modulo>.md` —prosa, viñetas, Given/When/Then, lo que sea— y
@@ -250,10 +225,11 @@ constitución. Si cambia módulo a módulo, va al spec. Si es «quién lo hace y
 cuándo», va al backlog.
 
 **Cómo son las entrevistas.** Máximo 5 preguntas por módulo (8 para la
-constitución), **una a la vez**, cada una con su recomendación y una tabla de
-opciones con las consecuencias. Puedes responder solo con la letra. Lo que no
-sepas queda marcado como `[NEEDS CLARIFICATION]` — y `./init.sh` **bloquea
-arrancar** esa feature hasta resolverlo. Nada se inventa por ti.
+constitución, 4 para el diseño), **una a la vez**, cada una con su
+recomendación y una tabla de opciones con las consecuencias. Puedes responder
+solo con la letra. Lo que no sepas queda marcado como `[NEEDS CLARIFICATION]` —
+y `./init.sh` **bloquea arrancar** esa feature hasta resolverlo. Nada se inventa
+por ti. El formato exacto está en `.claude/formato-preguntas.md`.
 
 **Después de la entrevista** corren dos auditorías, en este orden. Primero el
 `estratega`: si cada feature **debería existir**, en ese orden y con ese alcance
@@ -404,6 +380,22 @@ Por qué los merges salen limpios (si se respetan las reglas):
 "exclusive_paths": ["findings/_sintesis.md"]
 ```
 
+**Campañas**
+```json
+"verify": [
+  {"name": "piezas", "command": "python3 scripts/check_piezas.py", "required": true}
+],
+"protected_paths": ["piezas/"],
+"exclusive_paths": ["brand/"]
+```
+
+Qué comprueba cada script, en dominios sin tests: **Contenido** — el paquete
+tiene los N archivos requeridos, `meta.json` valida contra esquema, ninguna
+afirmación de la lista de prohibidas aparece. **Research** — toda cifra tiene
+fuente con URL y fecha, existe el bloque de contradicciones, ningún hallazgo sin
+sección de metodología. **Campañas** — cada pieza declara ángulo, avatar y
+formato, y los activos existen en las medidas pedidas.
+
 ## Estructura
 
 ```
@@ -431,13 +423,15 @@ Por qué los merges salen limpios (si se respetan las reglas):
 │   ├── esquema/migraciones/  # Migraciones borrador, aplicadas por features infra
 │   ├── diseno/             # Un brief por módulo para Claude Design (/diseno)
 │   ├── feedback.md         # Registro de feedback y su destino (/feedback)
-│   └── futuro/             # Decisiones aplazadas y su señal de activación
+│   └── futuro/             # Decisiones aplazadas (lo crea /feedback en la instancia)
+├── docs-molde/             # Decisiones del molde sobre sí mismo (no se instala)
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   estratega, analista, bibliotecario
     ├── commands/           # /configurar, /constitucion, /especificar,
     │                       #   /esquema, /diseno, /feedback
+    ├── formato-preguntas.md  # Cómo preguntan las entrevistas (lo cargan los comandos)
     └── settings.json       # Hooks de verificación automática
 ```
 
