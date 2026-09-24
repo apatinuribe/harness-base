@@ -12,16 +12,9 @@ Resuelve la parte mecánica: **qué comando demuestra que algo funciona**, qué
 rutas se protegen y qué convenciones hace cumplir el reviewer. Es lo que hace
 que `./init.sh` pase de rojo a verde.
 
-## Las tres piezas del arranque
-
-| Comando | Resuelve | Produce |
-|---|---|---|
-| **`/configurar`** ← estás aquí | Cómo se verifica | `harness.config.json`, `docs/conventions.md`, `docs/verification.md` §Nivel 1 |
-| `/constitucion` | Qué reglas rigen el producto | `docs/architecture.md` |
-| `/especificar <modulo>` | Qué se construye | `docs/specs/<modulo>.md` + features |
-
-Corre este **primero**: sin verificación determinista, la rúbrica del reviewer
-es un LLM aprobando a otro LLM.
+Es el **primer** comando del orden de trabajo (`docs/index.md` §Orden de
+trabajo): sin verificación determinista, la rúbrica del reviewer es un LLM
+aprobando a otro LLM.
 
 ## Protocolo
 
@@ -73,38 +66,11 @@ Y clasifícalo con lo que viste:
 
 ### 3. Preguntas
 
-**Máximo 5 preguntas. Una a la vez. Solo lo que no pudiste deducir.**
+**Máximo 5 preguntas. Solo lo que no pudiste deducir.** Formato y reglas:
+@.claude/formato-preguntas.md
 
-Mismas reglas que el resto de comandos del arnés: interrogación completa que
-termina en `?`, línea `Por qué importa:` en lenguaje llano, recomendación
-explícita con su razón, tabla de opciones con consecuencias, y cierre con
-`Responde con la letra, o descríbeme la tuya.`
-
-**Traduce siempre a resultado, nunca a herramienta.** Quien responde no es
-técnico:
-
-- ❌ «¿Qué test runner usas?»
-- ✅ «¿Cómo sabemos hoy que algo dejó de funcionar antes de que lo vea un cliente?»
-
-Ejemplo:
-
-```markdown
-**P1.** Cuando alguien cambia el código, ¿qué comprobación tiene que pasar sí o sí antes de darlo por bueno?
-
-Por qué importa: es lo único que el arnés puede verificar solo, sin opinión de
-por medio. Si no hay ninguna, el revisor solo puede dar su parecer — y un
-parecer no detecta que algo se rompió.
-
-**Recomendado:** Opción A — ya tienes `npm test` configurado y pasa en 4 segundos.
-
-| Opción | Qué comprueba | Consecuencia |
-|---|---|---|
-| A | `npm test` (los tests que ya existen) | El arnés detecta regresiones desde hoy |
-| B | Solo que el proyecto compile (`npm run build`) | Más débil: compila pero puede estar roto |
-| C | Todavía nada — lo añadimos más adelante | El arnés queda sin dientes; el reviewer aprueba a ojo |
-
-Responde con la letra, o descríbeme la tuya.
-```
+Aquí «traducir a resultado» significa: ❌ «¿Qué test runner usas?» → ✅ «¿Cómo
+sabemos hoy que algo dejó de funcionar antes de que lo vea un cliente?».
 
 Las cinco preguntas, si hicieran falta todas:
 
@@ -129,14 +95,8 @@ Las cinco preguntas, si hicieran falta todas:
 
 El arnés es agnóstico. Si el dominio es contenido, research o campañas, la
 verificación determinista sigue existiendo — solo cambia de forma. Propón un
-script mínimo en `scripts/` y **escríbelo tú**:
-
-| Dominio | Comprobación determinista realista |
-|---|---|
-| Contenido | El paquete tiene los N archivos requeridos · `meta.json` valida contra esquema · ninguna afirmación de la lista de prohibidas aparece |
-| Research | Toda cifra tiene fuente con URL y fecha · existe el bloque de contradicciones · ningún hallazgo sin sección de metodología |
-| Campañas | Cada pieza declara ángulo, avatar y formato · los activos existen en las medidas pedidas |
-
+script mínimo en `scripts/` y **escríbelo tú** (comprobaciones realistas por
+dominio: `HARNESS.md` §«Ejemplos de configuración»; en el molde, `README.md`).
 Escribe el script, **pruébalo**, y solo entonces lo pones en `verify[]`.
 
 ### 5. Escritura
@@ -144,7 +104,7 @@ Escribe el script, **pruébalo**, y solo entonces lo pones en `verify[]`.
 Escribe en este orden, y **después de cada archivo** informa en una línea de qué
 cambió:
 
-**`harness.config.json`** — `project`, `description`, `domain`, `team`,
+**`harness.config.json`** — `project`, `description`, `team`,
 `require_peer_review`, `verify[]` (solo comandos probados), `protected_paths`,
 `exclusive_paths`. No toques `required_files` salvo que el usuario añada
 documentos propios.
@@ -197,8 +157,6 @@ Siguiente: /constitucion
 - ❌ Nunca pongas `"required": true` en algo que sabes que no puede pasar nunca
   (un test que no existe). El arnés en rojo permanente se acaba ignorando, y ahí
   se pierde entero.
-- ❌ Nunca preguntes lo que puedes leer del repo.
-- ❌ Nunca uses jerga sin definirla en la misma frase.
 - ⚠️ Este comando edita `harness.config.json`, que el guard bloquea si hay una
   feature `in_progress`. Si te bloquea, es correcto: cierra la feature antes.
 - ✅ Si no hay ninguna verificación determinista posible hoy, **dilo con todas

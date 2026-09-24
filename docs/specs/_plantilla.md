@@ -1,6 +1,5 @@
 # Spec — <Nombre del módulo>
 
-**Estado:** borrador | auditado | listo
 **Constitución:** v<X.Y.Z> (la de `docs/architecture.md` cuando se escribió esto)
 **Última actualización:** YYYY-MM-DD
 

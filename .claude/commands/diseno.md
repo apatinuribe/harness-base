@@ -65,10 +65,8 @@ de productos cuyo aspecto le guste al usuario, o un `DESIGN.md` exportado de
 Google Stitch. Con referencias, extrae de ellas los tokens y pregunta solo lo
 que no se deduzca. Sin referencias, entrevista.
 
-**Máximo 4 preguntas. Una a la vez.** Misma forma que el resto de comandos del
-arnés: interrogación completa que termina en `?`, línea `Por qué importa:`,
-recomendación explícita, tabla de opciones con su consecuencia, y
-`Responde con la letra, o descríbeme la tuya.` Prioriza:
+**Máximo 4 preguntas.** Formato y reglas: @.claude/formato-preguntas.md
+Prioriza:
 
 1. **Dirección** — qué experiencia debe crear el producto (sobria y densa para
    uso diario, cálida y espaciosa para uso ocasional...). Parte de §1 de la

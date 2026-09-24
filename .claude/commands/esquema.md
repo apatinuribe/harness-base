@@ -24,15 +24,8 @@ preguntarte por el stack, y los conflictos se deciden contigo.
 
 ## Dónde encaja
 
-| Paso | Comando | Produce |
-|---|---|---|
-| 1 | `/configurar` | Cómo se verifica |
-| 2 | `/constitucion` | Las reglas transversales — incluida quién es quién (§5.1) |
-| 3 | `/especificar <modulo>` | Un spec por módulo, con sus entidades y permisos |
-| **4** | **`/esquema`** ← estás aquí | `docs/esquema.md` + el borrador de migración |
-| 5 | features | La primera de ellas aplica la migración |
-
-Se vuelve a correr **cada vez que entra un spec nuevo** o cambia §4.3/§4.6/§5.1
+Va después de `/especificar` y antes de la primera feature (`docs/index.md`
+§Orden de trabajo). Se vuelve a correr **cada vez que entra un spec nuevo** o cambia §4.3/§4.6/§5.1
 de uno existente. La segunda vez no reescribe: propone solo la diferencia.
 
 ## Qué hace y qué no
@@ -78,8 +71,8 @@ preguntar**, en este orden:
 | Base de documentos (Firestore, Mongo...) | Reglas de seguridad o validadores del motor + índices | En las reglas del motor, si las tiene; si no, en la capa de servidor |
 | Sin persistencia (contenido, research) | — | **Detente**: este comando no aplica. Dilo y no escribas nada |
 
-Si las señales se contradicen o no hay ninguna, haz **una** pregunta —con la
-forma de siempre: `Por qué importa:`, recomendación, tabla de opciones— y sigue.
+Si las señales se contradicen o no hay ninguna, haz **una** pregunta con el
+formato de @.claude/formato-preguntas.md y sigue.
 
 ### 3. Extraer
 

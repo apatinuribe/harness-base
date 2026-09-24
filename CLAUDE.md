@@ -35,35 +35,17 @@ implementar.
   - `analista` → audita un spec antes de convertirlo en features.
   - `bibliotecario` → chequeo de salud del conocimiento, **entre olas**.
 
-### Protocolo de arranque
+### Protocolo de sesión
 
-1. Lee `AGENTS.md` y `docs/index.md`.
-2. Lee `harness.config.json`, `feature_list.json` y los `progress/current_*.md`.
-   Si `team` tiene 2+ miembros, identifica tu alias con `git config user.email`
-   antes de tocar el backlog.
-3. Ejecuta `./init.sh`. Si falla, paras y reportas.
-4. Aplica la tabla de escalado de `.claude/agents/leader.md`.
+Sigue `AGENTS.md` §1 al arrancar y §5 al cerrar. Después aplica la tabla de
+escalado de `.claude/agents/leader.md`.
 
 ### Antes de construir: especificar
 
 El arnés resuelve **la ejecución** (quién hace qué, en qué orden, sin colisiones,
 con evidencia). No resuelve **qué hay que construir**, ni cómo se ve, ni qué
-pasó cuando llegó a los usuarios. Eso son estos comandos, en este orden:
-
-`/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo) → /feedback`
-
-| Comando | Cuándo | Produce |
-|---|---|---|
-| `/configurar` | Una vez al instanciar | `harness.config.json` + `docs/conventions.md` — qué comando verifica, qué rutas se protegen, qué está prohibido |
-| `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
-| `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
-| `/especificar <modulo> --desde <ruta>` | Igual, pero el usuario ya escribió el módulo a mano | Lo mismo, partiendo de `docs/borradores/<modulo>.md`: mapea lo cubierto y pregunta solo por los huecos |
-| `/esquema` | Tras especificar, antes de la primera tabla; y cada vez que un spec nuevo añade entidades | `docs/esquema.md` (entidades, estados y permisos de todos los specs, con sus conflictos) + una migración borrador en `docs/esquema/migraciones/` + la feature `infra` que la aplica |
-| `/diseno <modulo>` | Por módulo con pantallas, antes de sus features | `DESIGN.md` en la raíz (una vez) + `docs/diseno/<modulo>.md`: un brief por pantalla para Claude Design |
-| `/feedback` | Cuando llega lo que dicen los usuarios | `docs/feedback.md` + cada punto en su destino: `fix_<name>`, clarificación del spec, borrador o `docs/futuro/` |
-
-Todos **corren en la sesión principal, no como subagente**: un subagente no
-puede hacer preguntas al usuario.
+pasó cuando llegó a los usuarios. Eso son los comandos de `.claude/commands/`:
+el orden y qué produce cada uno están en `docs/index.md` §Orden de trabajo.
 
 Una feature de cara al usuario declara `evento` y no está hecha hasta que
 corre en producción y ese evento se emite; una de infraestructura declara

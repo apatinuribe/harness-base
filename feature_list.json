@@ -12,9 +12,6 @@
     "infra": "Razón por la que la feature no tiene nada que medir (esquema, CI, tooling). La exime de despliegue y evento. Exactamente uno de evento o infra."
   },
   "rules": {
-    "one_feature_at_a_time_per_owner": true,
-    "require_spec_to_start": true,
-    "require_verification_to_close": true,
     "valid_status": ["pending", "in_progress", "done", "blocked"]
   },
   "features": [

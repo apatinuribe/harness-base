@@ -60,7 +60,8 @@ caso() {
 D="$TMP/1"; mkdir -p "$D"; git -C "$D" init -q
 caso "instalación limpia en repo git vacío" 0 "Siguiente paso" \
   '[ -f "$D/harness.config.json" ] && [ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ -f "$D/.claude/settings.json" ] \
-   && [ -f "$D/.githooks/pre-push" ] && [ ! -f "$D/README.md" ] && [ ! -d "$D/docs/futuro" ] && [ ! -d "$D/.harness" ] \
+   && [ -f "$D/.githooks/pre-push" ] && [ ! -f "$D/README.md" ] && [ ! -d "$D/docs-molde" ] && [ ! -d "$D/.harness" ] \
+   && [ -f "$D/.claude/formato-preguntas.md" ] \
    && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1) && [ "$(git -C "$D" remote get-url molde)" = "https://github.com/apatinuribe/harness-base.git" ]' \
   -- "$D"
 
@@ -91,8 +92,9 @@ caso "destino ya instanciado: aborta y remite a actualizar" 1 "Actualizar una in
 
 D="$TMP/7"; mkdir -p "$D"; git -C "$D" init -q; echo '{}' > "$D/package.json"
 copia_molde "$D/harness-base"; configurada "$D/harness-base"; mkdir -p "$D/harness-base/.git"; echo x > "$D/harness-base/.git/HEAD"
-caso "anidado harness-base/ con trabajo, sin conflicto: se mueve a la raíz" 0 "Movidos" \
-  '[ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ ! -e "$D/harness-base" ] && [ ! -d "$D/docs/futuro" ] \
+mkdir -p "$D/harness-base/docs/futuro"; echo mio > "$D/harness-base/docs/futuro/mio.md"   # decisión propia de la instancia: viaja
+caso "anidado harness-base/ con trabajo, sin conflicto: se mueve a la raíz (docs/futuro propio incluido)" 0 "Movidos" \
+  '[ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ ! -e "$D/harness-base" ] && [ ! -d "$D/docs-molde" ] && [ -f "$D/docs/futuro/mio.md" ] \
    && grep -q "\"project\": \"tienda\"" "$D/harness.config.json" && [ -f "$D/package.json" ] \
    && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1) && git -C "$D" remote get-url molde >/dev/null' \
   -- "$D" --si
@@ -118,7 +120,7 @@ D="$TMP/11"; mkdir -p "$D"; git -C "$D" init -q; echo '{}' > "$D/package.json"
 copia_molde "$D/harness-base"; mkdir -p "$D/harness-base/.git"; echo x > "$D/harness-base/.git/HEAD"
 caso "anidado sin configurar (project TODO): reinstala limpio" 0 "REINSTALAR LIMPIO" \
   '[ ! -e "$D/harness-base" ] && [ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ -f "$D/package.json" ] \
-   && grep -q "\"harness_version\": \"1.0.0\"" "$D/harness.config.json" && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)' \
+   && grep -q "\"harness_version\": \"1.1.0\"" "$D/harness.config.json" && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)' \
   -- "$D" --si
 
 D="$TMP/12"; mkdir -p "$D"; git -C "$D" init -q; bash "$INSTALAR" "$D" --si >/dev/null 2>&1 < /dev/null
