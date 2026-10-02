@@ -185,6 +185,58 @@ caso "marcador sin contenido no cuenta" 0 "$D" "1 feature(s) con spec resuelto"
 printf '\n[NEEDS CLARIFICATION: ¿una?] y [NEEDS CLARIFICATION: ¿dos?]\n' >> "$D/docs/architecture.md"
 caso "dos pendientes reales: cuenta 2" 1 "$D" "tiene 2 $W_NEEDS"
 
+# ── Diseño (init.sh §3e y «Siguiente paso») ─────────────
+# Una feature in_progress cuyo spec tiene pantallas (§4.2 con filas) y sin
+# docs/diseno/<modulo>.md: FAIL si la constitución dice Audiencia: público,
+# WARN con interno o sin resolver. «Siguiente paso» sale del estado, por
+# precedencia: /configurar, /constitucion, /diseno <modulo>.
+echo ""
+echo "── Diseño (init.sh §3e y Siguiente paso) ───────────────"
+
+SIN_DISENO="no existe docs/diseno/ejemplo.md"
+# configura <dir>: project y description reales en harness.config.json.
+configura()      { sed -i 's/"project": *"TODO[^"]*"/"project": "tienda"/; s/"description": *"TODO[^"]*"/"description": "x"/' "$1/harness.config.json"; }
+# audiencia <dir> <valor>: resuelve la linea '**Audiencia:**' de la constitucion.
+audiencia()      { sed -i "s/^\*\*Audiencia:\*\*.*/**Audiencia:** $2/" "$1/docs/architecture.md"; }
+# spec_pantallas <dir> <modulo> [vacio]: spec con §4.2 con una fila de datos, o solo la fila vacia.
+spec_pantallas() {
+  local fila='| Lista | «Nada aún» | spinner | tabla | toast | 403 |'
+  [ "${3:-}" = "vacio" ] && fila='| | | | | |'
+  printf '# Spec — %s\n\n## 4. Vertical\n\n### 4.2 Pantallas y estados\n\n| Pantalla | Vacío | Cargando | Con datos | Error | Sin permiso |\n|---|---|---|---|---|---|\n%s\n\n### 4.3 Entidades\n\nninguna\n' "$2" "$fila" > "$1/docs/specs/$2.md"
+}
+diseno()         { mkdir -p "$1/docs/diseno"; printf '# Diseño — %s\n' "$2" > "$1/docs/diseno/$2.md"; }
+
+# Base: feature 1 done y completa; feature 2 in_progress con spec propio.
+base_dis='F[1]["status"] = "done"; F[2]["status"] = "in_progress"'
+prepara_dis() {
+  copia_limpia "$D"; muta "$D" "$base_dis"
+  review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+  spec_pantallas "$D" ejemplo "${1:-}"
+}
+
+prepara_dis
+caso "pantallas sin diseño, audiencia sin resolver: avisa" 0 "$D" "[WARN]  Feature 2 (ejemplo_slug): el spec tiene pantallas (§4.2) y $SIN_DISENO"
+audiencia "$D" interno
+caso "pantallas sin diseño, interno: avisa" 0 "$D" "[WARN]  Feature 2 (ejemplo_slug): el spec tiene pantallas (§4.2) y $SIN_DISENO — corre /diseno ejemplo"
+audiencia "$D" público
+caso "pantallas sin diseño, público: bloquea" 1 "$D" "[FAIL]  Feature 2 (ejemplo_slug): el spec tiene pantallas (§4.2) y $SIN_DISENO — producto público"
+diseno "$D" ejemplo
+caso "público con docs/diseno/ejemplo.md: pasa" 0 "$D" "diseño en docs/diseno/ejemplo.md" "$SIN_DISENO"
+prepara_dis vacio; audiencia "$D" público
+caso "público, §4.2 solo con la fila vacía: sin pantallas" 0 "$D" "Sin pantallas que diseñar"
+prepara_dis; audiencia "$D" público; muta "$D" 'F[2]["status"] = "pending"'
+caso "público, pantallas sin diseño pero pending: no aplica" 0 "$D" "Sin pantallas que diseñar" "$SIN_DISENO"
+
+# Siguiente paso
+copia_limpia "$D"
+caso "siguiente paso: config sin configurar → /configurar" 0 "$D" "corre /configurar"
+configura "$D"
+caso "siguiente paso: constitución con TODO: → /constitucion" 0 "$D" "corre /constitucion" "corre /configurar"
+prepara_dis; configura "$D"; resuelve_todos "$D"; audiencia "$D" público
+caso "siguiente paso: pantallas sin diseño → /diseno ejemplo" 1 "$D" "corre /diseno ejemplo"
+diseno "$D" ejemplo
+caso "siguiente paso: nada pendiente → sin bloque" 0 "$D" "" "Siguiente paso"
+
 echo ""
 if [ "$fallos" -eq 0 ]; then
   echo "[OK]    Gate de cierre: $total casos, todos pasan"

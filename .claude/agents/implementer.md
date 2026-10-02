@@ -26,6 +26,11 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    Si la feature tiene pantallas y existe `docs/diseno/<modulo>.md`, su
    sección «Diseño devuelto» es la referencia visual (la última fila de cada
    pantalla), y `DESIGN.md` en la raíz el sistema visual.
+   Si tiene pantallas (§4.2 del spec con filas) y **no** existe
+   `docs/diseno/<modulo>.md`: con `**Audiencia:** público` en la constitución
+   (§1), **paras y reportas bloqueo** —propón `/diseno <modulo>`; `./init.sh`
+   §3e lo marca en rojo igual—. Con `interno`, lo anotas como aviso en tu
+   informe y sigues: la pantalla la decides tú, y queda dicho.
 3. **Anota** en tu archivo de sesión: feature en curso, plan en 3-5 bullets.
    Es `progress/current.md` en solitario; con equipo, `current_<alias>.md`
    (el alias que imprime `./init.sh`). Nunca escribas en el de otra persona.

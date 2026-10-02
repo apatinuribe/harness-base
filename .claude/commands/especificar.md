@@ -192,7 +192,7 @@ Agotadas las preguntas, el spec pasa por **dos auditorías, en este orden**:
 
 **El orden no es negociable, y la razón es económica:** no vale la pena auditar
 la consistencia de una feature que se va a cortar. Si el `analista` corriera
-primero, gastaría sus siete pasadas —y tu tiempo resolviendo sus hallazgos— en
+primero, gastaría sus ocho pasadas —y tu tiempo resolviendo sus hallazgos— en
 historias que el `estratega` va a mandar a `docs/futuro/` diez minutos después.
 
 #### 6a. El porqué
@@ -305,12 +305,12 @@ con el id más bajo:
   "id": 1,
   "name": "despliegue_inicial",
   "title": "Despliegue inicial a producción",
-  "description": "Deja el camino a producción de docs/architecture.md §6 funcionando de punta a punta, con la analítica recibiendo eventos.",
+  "description": "Deja el camino a producción de docs/architecture.md §6 funcionando de punta a punta, con la analítica de §5.4 recibiendo eventos.",
   "spec": "docs/architecture.md",
   "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
   "acceptance": [
     "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
-    "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+    "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §5.4 (Analítica / evidencia de hecho)",
     "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
   ],
   "touches": ["<config de despliegue y CI del stack>"],
@@ -319,9 +319,10 @@ con el id más bajo:
 }
 ```
 
-- Su `spec` es la constitución: el camino a producción, la analítica y la
-  reversión se deciden en §6, no en un módulo. Si §6 no los define, es un
-  hueco de `/constitucion` — no los inventes aquí.
+- Su `spec` es la constitución: el camino a producción y la reversión se
+  deciden en §6, y dónde se ven los eventos en §5.4 («Analítica / evidencia
+  de hecho»), no en un módulo. Si la constitución no los define, es un hueco
+  de `/constitucion` — no los inventes aquí.
 - `touches` son los archivos que el stack declarado usa para desplegar; no
   asumas una plataforma.
 - **Toda feature de cara al usuario pone su id en `depends_on`.** Así

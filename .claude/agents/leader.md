@@ -21,6 +21,9 @@ te dicen qué tiene cada quien en vuelo ahora mismo.
 2b. Si la feature no tiene `spec`, o su spec tiene `[NEEDS CLARIFICATION]`
    pendientes, **para**: no es un problema de ejecución, es que falta decidir.
    Propón `/especificar <modulo>` al usuario. `./init.sh` te bloqueará igual.
+   Lo mismo si el spec tiene pantallas (§4.2) sin `docs/diseno/<modulo>.md` y
+   la constitución dice `**Audiencia:** público`: propón `/diseno <modulo>`
+   antes de lanzar al `implementer` (`./init.sh` §3e lo pone en rojo).
 3. Una feature simple → **1** `implementer`, siempre con el **id explícito**
    en el prompt («implementa la feature #N»), nunca «la siguiente pendiente».
 4. Requiere investigación previa → **2-3** `explorer` en paralelo, cada uno

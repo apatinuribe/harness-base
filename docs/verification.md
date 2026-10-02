@@ -100,7 +100,8 @@ Cada feature declara **exactamente uno** de estos dos campos en
   de release, un número de build publicado. No tiene que ser de ninguna
   plataforma en concreto; tiene que poder comprobarse.
 - **La evidencia del evento** muestra el evento emitido **por ese despliegue**:
-  una consulta a la herramienta de analítica, una línea de log, una fila en la
+  una consulta a la herramienta de analítica (la de `docs/architecture.md`
+  §5.4 «Analítica / evidencia de hecho»), una línea de log, una fila en la
   tabla de eventos. Un test que llama a `track()` no basta — prueba el código,
   no la producción.
 
