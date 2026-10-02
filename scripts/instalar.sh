@@ -3,12 +3,24 @@
 #
 # Uso (desde el clon del molde):
 #   bash harness-base/scripts/instalar.sh /ruta/a/mi-proyecto [--si] [--forzar]
+# Uso (dentro de un repo creado con «Use this template»):
+#   bash scripts/instalar.sh --desde-template [<destino>] [--si]
 #
-#   --si      responde «sí» a las confirmaciones (tests, CI, sin terminal)
-#   --forzar  en la instalación limpia, sobrescribe los archivos del proyecto
-#             que colisionen con el molde (nunca se usa al mover un anidado)
+#   --si              responde «sí» a las confirmaciones (tests, CI, sin terminal)
+#   --forzar          en la instalación limpia, sobrescribe los archivos del
+#                     proyecto que colisionen con el molde (nunca se usa al
+#                     mover un anidado)
+#   --desde-template  el arnés ya está en la raíz (la copia la hizo GitHub):
+#                     solo cierra. Sin destino, el repo donde vive este script.
 #
 # Qué hace, en orden:
+#   0. Repo creado con «Use this template»: no hay nada que copiar. Con
+#      --desde-template, o si lo detecta (arnés en la raíz sin configurar y
+#      docs-molde/ todavía ahí; pide confirmación), borra lo que es solo del
+#      molde —docs-molde/, este script y su suite— y salta al paso 4. Una
+#      copia de disposición antigua (README.md = el manual, sin HARNESS.md)
+#      queda con el manual en HARNESS.md. Sobre el propio molde (origin
+#      apuntando a él) se niega.
 #   1. Detecta el error habitual: el arnés copiado como SUBCARPETA
 #      (mi-proyecto/harness-base/ o cualquier carpeta con harness.config.json
 #      e init.sh dentro, hasta 2 niveles). Desde ahí Claude nunca carga
@@ -21,13 +33,14 @@
 #          sin mover nada. Después remite al flujo de actualización.
 #   2. Si el destino ya tiene harness.config.json en la raíz, aborta: eso es
 #      una instancia, y los cambios del molde llegan por «Actualizar una
-#      instancia» (README).
+#      instancia» (HARNESS.md).
 #   3. Copia el molde a la raíz del destino excluyendo .git, .harness,
-#      .worktrees, README.md (se guarda como HARNESS.md), docs-molde/,
-#      node_modules, __pycache__ y .claude/settings.local.json.
+#      .worktrees, docs-molde/, este script y su suite, node_modules,
+#      __pycache__ y .claude/settings.local.json.
 #      Colisiones con archivos del proyecto: se listan y se detiene, salvo
 #      --forzar. .gitignore y .gitattributes no se sobrescriben: se les
-#      añaden las líneas del molde que falten.
+#      añaden las líneas del molde que falten. README.md (la portada) solo
+#      se copia si el proyecto no tiene uno, ni siquiera con --forzar.
 #   4. git init si el destino no es un repo, remoto `molde` apuntando al
 #      repo del molde (si no existe), ./init.sh --quick y el siguiente paso.
 #
@@ -35,15 +48,18 @@
 set -u
 export PYTHONIOENCODING=utf-8
 
-MOLDE_URL="https://github.com/apatinuribe/harness-base.git"
+MOLDE_REPO="apatinuribe/harness-base"
+MOLDE_URL="https://github.com/$MOLDE_REPO.git"
 RAIZ=$(cd "$(dirname "$0")/.." && pwd)
 
 uso() {
   echo "Uso: bash $0 <destino> [--si] [--forzar]" >&2
+  echo "     bash $0 --desde-template [<destino>] [--si]" >&2
   echo "  --si      confirma sin preguntar   --forzar  sobrescribe colisiones (solo instalación limpia)" >&2
+  echo "  --desde-template  repo creado con «Use this template»: solo cierra (sin destino: este repo)" >&2
 }
 
-DEST=""; SI=0; FORZAR=0; LISTA=""; BORRAR_ANIDADO=""
+DEST=""; SI=0; FORZAR=0; TEMPLATE=0; LISTA=""; TOCADOS=""; BORRAR_ANIDADO=""
 if [ ! -f "$RAIZ/harness.config.json" ] || [ ! -f "$RAIZ/init.sh" ]; then
   echo "[harness] No encuentro el molde en $RAIZ (falta harness.config.json o init.sh). Corre este script desde un clon de harness-base." >&2
   exit 1
@@ -52,11 +68,17 @@ for arg in "$@"; do
   case "$arg" in
     --si) SI=1 ;;
     --forzar) FORZAR=1 ;;
+    --desde-template) TEMPLATE=1 ;;
     -*) echo "[harness] Opción desconocida: $arg" >&2; uso; exit 1 ;;
     *) if [ -n "$DEST" ]; then echo "[harness] Solo se admite un destino." >&2; uso; exit 1; fi; DEST="$arg" ;;
   esac
 done
+[ -z "$DEST" ] && [ "$TEMPLATE" = 1 ] && DEST="$RAIZ"
 [ -z "$DEST" ] && { uso; exit 1; }
+if [ "$TEMPLATE" = 1 ] && [ ! -d "$DEST" ]; then
+  echo "[harness] $DEST no existe: --desde-template cierra un repo creado con «Use this template», no instala." >&2
+  exit 1
+fi
 
 PY=""
 for candidate in "python" "python3" "py -3"; do
@@ -68,7 +90,6 @@ done
 
 mkdir -p "$DEST" || exit 1
 DEST=$(cd "$DEST" && pwd)
-[ "$DEST" = "$RAIZ" ] && { echo "[harness] El destino es el propio molde. Indica la raíz de tu proyecto." >&2; exit 1; }
 
 # confirmar <pregunta>: --si responde solo; sin terminal no se adivina.
 confirmar() {
@@ -90,19 +111,33 @@ import json, os, shutil, stat, sys
 op = sys.argv[1]
 sys.stdout.reconfigure(newline="\n")  # en Windows python escribiria \r\n y bash leeria rutas con \r
 MERGE = (".gitignore", ".gitattributes")
+SOLO_SI_FALTA = ("README.md",)  # la portada del molde nunca pisa la del proyecto
+DEL_MOLDE = ("scripts/instalar.sh", "scripts/test_instalar.sh")  # no llegan a la instancia
 
 def excluido(rel):
     partes = rel.split("/")
     if partes[0] in (".git", ".harness", ".worktrees", "node_modules", "docs-molde"):
         return True
-    if rel == ".claude/settings.local.json":
+    if rel in DEL_MOLDE or rel == ".claude/settings.local.json":
         return True
     if "__pycache__" in partes or rel.endswith(".pyc"):
         return True
     return False
 
+def readme_es_manual(origen):
+    # Disposición antigua (hasta 1.1.0): el README era el manual y no había HARNESS.md.
+    if os.path.exists(os.path.join(origen, "HARNESS.md")):
+        return False
+    try:
+        with open(os.path.join(origen, "README.md"), encoding="utf-8", errors="replace") as f:
+            return f.readline().startswith("# harness-base")
+    except OSError:
+        return False
+
 def archivos(origen):
-    # [(rel_origen, rel_destino)] con barras "/". README.md del molde -> HARNESS.md.
+    # [(rel_origen, rel_destino)] con barras "/". Todo va a su misma ruta; solo
+    # en una copia de disposición antigua README.md (el manual) -> HARNESS.md.
+    viejo = readme_es_manual(origen)
     salida = []
     for carpeta, dirs, ficheros in os.walk(origen):
         dirs.sort(); ficheros.sort()
@@ -113,12 +148,17 @@ def archivos(origen):
             rel = base + f
             if excluido(rel):
                 continue
-            salida.append((rel, "HARNESS.md" if rel == "README.md" else rel))
+            salida.append((rel, "HARNESS.md" if viejo and rel == "README.md" else rel))
     return salida
 
 def colisiones(origen, destino):
     return [dst for _, dst in archivos(origen)
-            if os.path.lexists(os.path.join(destino, dst)) and dst not in MERGE]
+            if os.path.lexists(os.path.join(destino, dst)) and dst not in MERGE + SOLO_SI_FALTA]
+
+def lista(origen, destino=None):
+    # Lo que este script deja en el destino: sin la portada que ya era del proyecto.
+    return [dst for _, dst in archivos(origen)
+            if not (destino and dst in SOLO_SI_FALTA and os.path.lexists(os.path.join(destino, dst)))]
 
 def fusionar(src, dst):
     # Añade a dst las líneas de src que no tenga. Nunca borra nada.
@@ -145,6 +185,10 @@ def transferir(origen, destino, mover, forzar):
                 print("  fusionado  %s (+%d líneas)" % (dst_rel, k))
                 if mover: os.remove(src)
                 continue
+            if dst_rel in SOLO_SI_FALTA:
+                print("  conservado %s (el del proyecto; el del molde no se copia)" % dst_rel)
+                if mover: os.remove(src)
+                continue
             if not forzar:
                 raise SystemExit("[harness] BUG: colisión no detectada en " + dst_rel)
             print("  sobrescrito %s" % dst_rel)
@@ -160,12 +204,17 @@ def _forzar_borrado(func, path, exc):
     os.chmod(path, stat.S_IWRITE); func(path)
 
 def limpiar_anidado(anidado):
-    # Lo que queda tras mover es del molde (.git del clon, docs-molde, cachés)
-    # o carpetas vacías. Si queda otra cosa, se conserva y se avisa.
+    # Lo que queda tras mover es del molde (.git del clon, docs-molde, el
+    # instalador, cachés) o carpetas vacías. Si queda otra cosa, se conserva
+    # y se avisa.
     for rel in (".git", ".harness", ".worktrees", "node_modules", "docs-molde"):
         p = os.path.join(anidado, rel)
         if os.path.isdir(p):
             shutil.rmtree(p, onerror=_forzar_borrado)
+    for rel in DEL_MOLDE:
+        p = os.path.join(anidado, rel)
+        if os.path.isfile(p):
+            os.remove(p)
     for carpeta, dirs, ficheros in os.walk(anidado, topdown=False):
         for d in dirs:
             if d == "__pycache__":
@@ -232,7 +281,7 @@ elif op == "estado":
 elif op == "version":
     print(version(a[0]))
 elif op == "lista":
-    print("\n".join(dst for _, dst in archivos(a[0])))
+    print("\n".join(lista(*a[:2])))
 elif op == "colisiones":
     print("\n".join(colisiones(a[0], a[1])))
 elif op == "copiar":
@@ -268,6 +317,8 @@ cerrar() {
       git add -- "$f"
       case "$f" in scripts/*.sh|.githooks/*) git update-index --chmod=+x -- "$f" ;; esac
     done
+    # Cierre desde template: lo borrado o renombrado también va al índice.
+    for f in $TOCADOS; do git add -A -- "$f"; done
   ) >/dev/null 2>&1
   echo "[harness] Archivos del arnés añadidos al índice (git add); haz commit cuando quieras."
   if ! git -C "$DEST" remote get-url molde >/dev/null 2>&1; then
@@ -281,11 +332,80 @@ cerrar() {
   return $rc
 }
 
+# ---- Repo creado con «Use this template» ------------------------------------
+# es_el_molde <dir>: es la raíz de un repo cuyo origin apunta al molde.
+es_el_molde() {
+  local url
+  [ -z "$(git -C "$1" rev-parse --show-prefix 2>/dev/null)" ] || return 1
+  url=$(git -C "$1" remote get-url origin 2>/dev/null) || return 1
+  url=$(printf '%s' "$url" | tr 'A-Z' 'a-z')
+  url=${url%/}; url=${url%.git}
+  case "$url" in *[:/]"$MOLDE_REPO") return 0 ;; esac
+  return 1
+}
+
+# es_copia_template <dir>: el arnés en la raíz, sin configurar y todavía con
+# docs-molde/, que instalar.sh nunca deja: la copia la hizo GitHub.
+es_copia_template() {
+  [ -f "$1/harness.config.json" ] && [ -d "$1/docs-molde" ] && ! es_el_molde "$1" \
+    && [ "$(py estado "$1")" = "sin_configurar" ]
+}
+
+# cerrar_template: quita de $DEST lo que es solo del molde y cierra. No vuelve.
+# Puede borrar este mismo script: todo ocurre dentro de la función, ya leída.
+cerrar_template() {
+  local viejo=0
+  if [ ! -f "$DEST/harness.config.json" ] || [ ! -f "$DEST/init.sh" ]; then
+    echo "[harness] $DEST no tiene el arnés en la raíz: --desde-template cierra un repo creado con «Use this template»." >&2
+    echo "[harness] Para instalarlo en un proyecto que ya existe: bash $0 <destino>" >&2
+    exit 1
+  fi
+  if es_el_molde "$DEST"; then
+    echo "[harness] $DEST es el propio molde (origin -> $MOLDE_REPO): cerrarlo borraría docs-molde/ y el instalador. No se tocó nada." >&2
+    echo "[harness] Si este clon va a ser tu proyecto, apunta origin a tu repo (git remote set-url origin <url>) y vuelve a correr." >&2
+    exit 1
+  fi
+  [ ! -f "$DEST/HARNESS.md" ] && head -1 "$DEST/README.md" 2>/dev/null | grep -q '^# harness-base' && viejo=1
+  echo "[harness] Cierre de un repo creado con «Use this template» en $DEST:"
+  echo "            - se borran docs-molde/, scripts/instalar.sh y scripts/test_instalar.sh (son del molde, no del proyecto)"
+  [ $viejo = 1 ] && echo "            - README.md (el manual del molde) pasa a HARNESS.md"
+  echo "            - remoto 'molde' para actualizar el arnés después, y ./init.sh --quick"
+  confirmar "¿Cerrar la instalación?" || exit 1
+  TOCADOS="docs-molde scripts/instalar.sh scripts/test_instalar.sh"
+  if [ $viejo = 1 ]; then
+    mv "$DEST/README.md" "$DEST/HARNESS.md" || exit 1
+    # La portada mínima sale del molde desde el que corre este script.
+    if [ "$RAIZ" != "$DEST" ] && [ -f "$RAIZ/HARNESS.md" ] && [ -f "$RAIZ/README.md" ]; then
+      cp "$RAIZ/README.md" "$DEST/README.md"
+    fi
+    TOCADOS="$TOCADOS README.md HARNESS.md"
+    echo "[harness] El manual del molde quedó en HARNESS.md."
+  fi
+  rm -rf "$DEST/docs-molde" "$DEST/scripts/instalar.sh" "$DEST/scripts/test_instalar.sh" \
+    || { echo "[harness] No se pudo borrar docs-molde/ o el instalador en $DEST: bórralos a mano." >&2; exit 1; }
+  echo "[harness] Eliminados docs-molde/ y el instalador."
+  # Con historia (el commit inicial de GitHub) solo se registra lo que cambió
+  # el cierre; sin ella (zip, git init reciente) todo, como en una instalación.
+  if git -C "$DEST" rev-parse --verify -q HEAD >/dev/null 2>&1; then LISTA=""; else LISTA=$(py lista "$DEST"); fi
+  cerrar; exit $?
+}
+
+if [ "$TEMPLATE" = 1 ]; then cerrar_template; fi
+if [ "$DEST" = "$RAIZ" ]; then
+  if es_copia_template "$DEST"; then
+    echo "[harness] $DEST tiene el arnés sin configurar y conserva docs-molde/: es un repo creado con «Use this template»."
+    cerrar_template
+  fi
+  echo "[harness] El destino es el propio molde. Indica la raíz de tu proyecto." >&2
+  echo "[harness] Si este repo salió de «Use this template»: bash $0 --desde-template" >&2
+  exit 1
+fi
+
 # ---- 1. Arnés anidado ------------------------------------------------------
 if [ -f "$DEST/harness.config.json" ] && [ -n "$(py anidados "$DEST")" ]; then
   echo "[harness] La raíz de $DEST ya tiene el arnés y además hay una copia anidada en:" >&2
   py anidados "$DEST" | sed 's/^/    /' >&2
-  echo "[harness] Borra la copia anidada a mano (es la que sobra) y, para traer cambios del molde, sigue README §Actualizar una instancia." >&2
+  echo "[harness] Borra la copia anidada a mano (es la que sobra) y, para traer cambios del molde, sigue HARNESS.md §Actualizar una instancia." >&2
   exit 1
 fi
 
@@ -316,19 +436,19 @@ if [ -n "$ANIDADO_REL" ]; then
       exit 1
     fi
     echo "[harness] La copia tiene trabajo (configuración, constitución o features). Propongo MOVERLA a la raíz:"
-    echo "            - cada archivo de $ANIDADO_REL/ pasa a la misma ruta en la raíz (README.md -> HARNESS.md)"
-    echo "            - se descartan .git, .harness, .worktrees y docs-molde/ de la copia (son del molde)"
+    echo "            - cada archivo de $ANIDADO_REL/ pasa a la misma ruta en la raíz (un README.md propio de la raíz se conserva)"
+    echo "            - se descartan .git, .harness, .worktrees, docs-molde/ y el instalador de la copia (son del molde)"
     echo "            - ningún archivo del proyecto se sobrescribe (ya comprobado: sin colisiones)"
     confirmar "¿Mover $ANIDADO_REL/ a la raíz?" || exit 1
     V_MOLDE=$(py version "$RAIZ/harness.config.json")  # antes de mover: la copia puede ser este mismo clon
-    LISTA=$(py lista "$ANIDADO")
+    LISTA=$(py lista "$ANIDADO" "$DEST")
     py mover "$ANIDADO" "$DEST" || exit 1
     V_MOVIDA=$(py version "$DEST/harness.config.json")
     if [ -z "$V_MOVIDA" ]; then
       echo "[harness] La copia movida no tiene harness_version (anterior a 1.0.0); el molde va en v$V_MOLDE."
-      echo "          Tráete los cambios con README §Actualizar una instancia."
+      echo "          Tráete los cambios con HARNESS.md §Actualizar una instancia."
     elif [ "$V_MOVIDA" != "$V_MOLDE" ]; then
-      echo "[harness] La copia movida es v$V_MOVIDA y el molde v$V_MOLDE: sigue README §Actualizar una instancia."
+      echo "[harness] La copia movida es v$V_MOVIDA y el molde v$V_MOLDE: sigue HARNESS.md §Actualizar una instancia."
     fi
     cerrar; exit $?
   fi
@@ -336,9 +456,13 @@ fi
 
 # ---- 2. Ya instanciado -----------------------------------------------------
 if [ -f "$DEST/harness.config.json" ]; then
+  if es_copia_template "$DEST"; then
+    echo "[harness] $DEST tiene el arnés sin configurar y conserva docs-molde/: es un repo creado con «Use this template»."
+    cerrar_template
+  fi
   V=$(py version "$DEST/harness.config.json")
   echo "[harness] $DEST ya tiene el arnés (v${V:-anterior a 1.0.0}). No se instala encima." >&2
-  echo "[harness] Para traer los cambios del molde (v$(py version "$RAIZ/harness.config.json")) sigue README §Actualizar una instancia." >&2
+  echo "[harness] Para traer los cambios del molde (v$(py version "$RAIZ/harness.config.json")) sigue HARNESS.md §Actualizar una instancia." >&2
   exit 1
 fi
 
@@ -351,9 +475,9 @@ if [ -n "$COL" ] && [ "$FORZAR" != 1 ]; then
   exit 1
 fi
 echo "[harness] Instalando el molde v$(py version "$RAIZ/harness.config.json") en $DEST"
-LISTA=$(py lista "$RAIZ")
+LISTA=$(py lista "$RAIZ" "$DEST")
 if [ "$FORZAR" = 1 ]; then py copiar "$RAIZ" "$DEST" forzar; else py copiar "$RAIZ" "$DEST"; fi || exit 1
-echo "[harness] El README del molde quedó como HARNESS.md."
+echo "[harness] El manual del arnés quedó en HARNESS.md."
 if [ -n "$BORRAR_ANIDADO" ]; then
   rm -rf "$BORRAR_ANIDADO" || { echo "[harness] No se pudo borrar $BORRAR_ANIDADO: bórralo a mano." >&2; exit 1; }
   echo "[harness] $ANIDADO_REL/ eliminado (era la copia anidada sin trabajo)."

@@ -96,7 +96,7 @@ Las cinco preguntas, si hicieran falta todas:
 El arnés es agnóstico. Si el dominio es contenido, research o campañas, la
 verificación determinista sigue existiendo — solo cambia de forma. Propón un
 script mínimo en `scripts/` y **escríbelo tú** (comprobaciones realistas por
-dominio: `HARNESS.md` §«Ejemplos de configuración»; en el molde, `README.md`).
+dominio: `HARNESS.md` §«Ejemplos de configuración»).
 Escribe el script, **pruébalo**, y solo entonces lo pones en `verify[]`.
 
 ### 5. Escritura
@@ -117,6 +117,10 @@ ahí toda feature necesita `owner` para arrancar, y cada persona trabaja en su
 **Elimina la feature de ejemplo `ejemplo_slug`** (la que apunta a
 `docs/specs/ejemplo.md`) y deja `despliegue_inicial`, que es la primera de todo
 proyecto. No añadas features aquí: salen de `/especificar`.
+
+**`README.md`** — solo si conserva el título de plantilla
+(`# TODO-nombre-del-proyecto`): pon el nombre y la descripción de la config y
+quita la cita de arranque del final. Un README propio no se toca.
 
 **`docs/conventions.md`** — resuelve los TODO con reglas **comprobables**. Si una
 convención no se puede verificar leyendo el entregable, no es una convención: es

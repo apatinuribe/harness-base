@@ -47,8 +47,8 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
 7. **Escribe** tu informe en `progress/impl_<name>.md`: archivos tocados,
    decisiones, salida de la verificación y el bloque `producción`
    (despliegue + evento, o la exención `infra`).
-7b. **Trazabilidad con el OS** — solo si existe `PROYECTO.md` en la raíz.
-   Su tabla «Trazabilidad» es lo que conecta los objetivos del proyecto con lo
+7b. **Trazabilidad con el OS** — solo si `PROYECTO.md` declara KRs (su
+   cabecera dice cuándo). Su tabla «Trazabilidad» es lo que conecta los objetivos del proyecto con lo
    que de verdad llegó a producción; si no la actualizas tú, nadie lo hace:
 
    ```markdown
@@ -66,7 +66,7 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
      despliegue y el evento de su métrica en «Evidencia». Una de
      infraestructura (`infra` declarado) se cierra en `hecho`, con la razón de
      la exención en «Evidencia».
-   - Si `PROYECTO.md` existe pero **no tiene la tabla**, no la crees:
+   - Si `PROYECTO.md` declara KRs pero **no tiene la tabla**, no la crees:
      repórtalo en tu informe. El formato lo decide el OS, no tú.
    - Toca solo tu fila. `PROYECTO.md` queda fuera de `touches` por diseño.
 8. **No marques `done` tú mismo.** El veredicto es del `reviewer`.

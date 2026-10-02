@@ -60,7 +60,7 @@ HARNESS_VERSION=$($PY -c "import json; print(json.load(open('harness.config.json
 if [ -n "$HARNESS_VERSION" ]; then
   ok "Arnés v$HARNESS_VERSION"
 else
-  warn "harness.config.json sin harness_version (instancia anterior a 1.0.0): sigue README §Actualizar una instancia"
+  warn "harness.config.json sin harness_version (instancia anterior a 1.0.0): sigue HARNESS.md §Actualizar una instancia"
 fi
 
 # El gate de revisión cruzada vive en .githooks/pre-push, y git no mira ahí
@@ -105,7 +105,7 @@ echo ""
 echo "── 3. Estado del backlog ───────────────────────────────"
 
 HARNESS_GIT_EMAIL="$(git config user.email 2>/dev/null)" $PY - <<'PYCODE'
-import json, os, sys
+import json, os, re, sys
 try:
     data = json.load(open("feature_list.json", encoding="utf-8"))
 except Exception as e:
@@ -183,7 +183,17 @@ for f in feats:
 # con un evento emitido en produccion, o exenta por infra. Descubrirlo al
 # cerrar es tarde. Se exige a las in_progress y a las done: una done sin
 # evento ni infra nunca demostro que llego a produccion.
-proyecto = os.path.exists("PROYECTO.md")
+def declara_krs(ruta="PROYECTO.md"):
+    # La plantilla existe siempre; cuenta cuando declara un KR: alguna linea
+    # que no es cita (>) nombra KR<n> fuera de backticks (la regla esta en la
+    # cabecera de PROYECTO.md).
+    if not os.path.exists(ruta):
+        return False
+    texto = re.sub(r"```.*?```", "", open(ruta, encoding="utf-8", errors="replace").read(), flags=re.S)
+    return any(re.search(r"\bKR\d", re.sub(r"`[^`\n]*`", "", l))
+               for l in texto.splitlines() if not l.lstrip().startswith(">"))
+
+proyecto = declara_krs()
 for f in in_progress + [f for f in feats if f["status"] == "done"]:
     estado = "en in_progress" if f["status"] == "in_progress" else "done"
     tiene_evento, tiene_infra = bool(f.get("evento")), bool(f.get("infra"))
@@ -193,7 +203,7 @@ for f in in_progress + [f for f in feats if f["status"] == "done"]:
                       " — exactamente uno (ver docs/verification.md)")
     if proyecto and not f.get("kr"):
         errors.append(f"Feature {f['id']} ({f['name']}) {estado} sin 'kr' — "
-                      "existe PROYECTO.md: ¿a qué resultado clave sirve?")
+                      "PROYECTO.md declara KRs: ¿a qué resultado clave sirve?")
 
 for e in errors:
     print("[FAIL]  " + e)

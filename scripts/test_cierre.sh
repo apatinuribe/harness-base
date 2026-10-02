@@ -120,6 +120,18 @@ review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; review_ok "$
 tests_con "$D" F1-C1 F1-C2 F1-C3 F2-C1 F2-C2
 caso "dos done completas (infra + evento con dependencia)" 0 "$D" "2 feature(s) done con review APPROVED"
 
+# 'kr' solo es obligatorio cuando PROYECTO.md declara KRs (la regla esta en su
+# cabecera): la plantilla sin rellenar no cuenta, ni KR<n> en backticks o citas.
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "done"'
+review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+caso "sin kr, PROYECTO.md de plantilla (no declara KRs)" 0 "$D" "1 feature(s) done con review APPROVED"
+printf '| KR1 | Pedidos sin llamar | %% desde la app | 60 %% | CE-001 |\n' >> "$D/PROYECTO.md"
+caso "sin kr, PROYECTO.md declara KR1" 1 "$D" "Feature 1 (despliegue_inicial) done sin 'kr'"
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "done"'
+review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+printf 'Inline: `KR1`.\n```\n| KR1 | en bloque |\n```\n> KR1 en cita\n' >> "$D/PROYECTO.md"
+caso "KR1 solo en backticks o en cita no cuenta" 0 "$D" "1 feature(s) done con review APPROVED"
+
 echo ""
 if [ "$fallos" -eq 0 ]; then
   echo "[OK]    Gate de cierre: $total casos, todos pasan"

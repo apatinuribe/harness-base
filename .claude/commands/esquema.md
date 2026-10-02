@@ -243,7 +243,7 @@ Propón —**sin escribirla** hasta que confirmes— una feature de infraestruct
   "title": "Aplicar la migración 002_reservas",
   "spec": "docs/esquema.md",
   "infra": "No tiene cara al usuario: habilita F8 y F9, que son las que emiten evento.",
-  "kr": "<el de la primera feature que desbloquea, si existe PROYECTO.md>",
+  "kr": "<el de la primera feature que desbloquea, si PROYECTO.md declara KRs>",
   "acceptance": [
     "DADO una base en la migración 001 CUANDO se aplica 002 ENTONCES existen las tablas de reservas y la 001 sigue intacta",
     "DADO un cliente autenticado CUANDO intenta leer la reserva de otro cliente ENTONCES se le deniega (reservas §4.6)"

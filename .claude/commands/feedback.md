@@ -45,8 +45,8 @@ ya está en alcance; una feature nueva lo amplía.
 ### 1. Contexto
 
 Lee `docs/index.md`, `feature_list.json`, los specs de `docs/specs/` que el
-feedback toque, `docs/futuro/` y `docs/feedback.md` si existe. Si existe
-`PROYECTO.md`, lee sus KRs.
+feedback toque, `docs/futuro/` y `docs/feedback.md` si existe. Si `PROYECTO.md` declara KRs,
+léelos.
 
 ### 2. Partir en puntos
 

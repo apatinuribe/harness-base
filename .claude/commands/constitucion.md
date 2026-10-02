@@ -83,6 +83,12 @@ Al terminar:
 - `docs/architecture.md` sin ningún `TODO` en §5, §6 y §8.
 - Recuerda al usuario que la rúbrica de §4 es lo que el `reviewer` usa para
   puntuar: si está genérica, el reviewer aprueba cualquier cosa.
+- Si en las respuestas aparecieron objetivos medibles o resultados clave y
+  `PROYECTO.md` no declara KRs (su cabecera dice cuándo), **ofrece rellenarlo**
+  con lo ya dicho: problema, usuario y cada KR con su métrica y su meta. Sin
+  preguntas nuevas: muestra el contenido propuesto y pide una confirmación; lo
+  que no se dijo queda con su `<…>`. Si el usuario no quiere, no insistas:
+  `/especificar` lo exigirá cuando un spec nombre un KR.
 - Siguiente paso: `/especificar <modulo>` para el primer módulo.
 
 ## Reglas duras
