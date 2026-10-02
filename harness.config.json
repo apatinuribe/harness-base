@@ -1,5 +1,5 @@
 {
-  "_ayuda_harness_version": "Versión del molde (semver). No la edites a mano: la sube cada release del molde y sirve para comparar con la plantilla al actualizar (README §Actualizar una instancia).",
+  "_ayuda_harness_version": "Versión del molde (semver). No la edites a mano: la sube cada release del molde y sirve para comparar con la plantilla al actualizar (HARNESS.md §Actualizar una instancia).",
   "harness_version": "1.1.0",
   "project": "TODO-nombre-del-proyecto",
   "description": "TODO-una-linea",
@@ -32,6 +32,7 @@
 
   "required_files": [
     "AGENTS.md",
+    "PROYECTO.md",
     "CHECKPOINTS.md",
     "docs/architecture.md",
     "docs/index.md",

@@ -52,6 +52,7 @@
 
 | Quiero saber... | Voy a |
 |---|---|
+| Para qué existe el proyecto y qué resultado persigue | `PROYECTO.md` (en la raíz) |
 | Qué reglas aplican a todo el producto | `docs/architecture.md` |
 | Qué hace un módulo y por qué | `docs/specs/<modulo>.md` |
 | Qué se está construyendo ahora | `feature_list.json` + `progress/current_*.md` (uno por persona) |

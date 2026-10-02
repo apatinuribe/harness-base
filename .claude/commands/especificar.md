@@ -233,6 +233,16 @@ antes de seguir. No propongas features sobre un spec con CRITICAL abiertos.
 Con el spec limpio, **propón** las entradas para `feature_list.json`. No las
 escribas sin confirmación del usuario.
 
+**Antes de proponer, el OS.** Busca resultados clave nombrados
+(`grep -n 'KR[0-9]' docs/architecture.md docs/specs/<modulo>.md`). Si alguno
+de los dos nombra un `KR<n>` y `PROYECTO.md` no declara KRs (su cabecera dice
+cuándo), **detente**: hay objetivos escritos donde `./init.sh`, el `estratega`
+y el `implementer` no los ven. Propón rellenar `PROYECTO.md` primero —problema,
+usuario y cada KR con su métrica, su meta y el `CE-*` que lo mide— con lo que
+la constitución y el spec ya dicen, en una sola pregunta de confirmación con
+el contenido propuesto; lo que no esté dicho se pregunta, no se inventa. No
+propongas features hasta que quede escrito.
+
 **Si vino de un borrador con features declaradas**, la propuesta dice de dónde
 sale cada una. El usuario tiene que poder ver qué pasó con su lista sin
 compararla a mano:
@@ -251,8 +261,8 @@ razón y merece saber cuál la venció.
 
 #### A qué KR sirve cada feature
 
-Si existe `PROYECTO.md` en la raíz, el proyecto tiene un OS por encima: unos
-resultados clave (KRs) que justifican que se esté construyendo algo. Léelos
+Si `PROYECTO.md` declara KRs, el proyecto tiene un OS por encima: unos
+resultados clave que justifican que se esté construyendo algo. Léelos
 antes de proponer, y **pregunta a cuál sirve cada feature** — una sola pregunta
 con la tabla completa, no una por feature:
 
@@ -274,8 +284,8 @@ Confirma la tabla, o dime qué cambiarías.
 La respuesta va al campo `kr` de cada feature. **No asignes un KR por
 aproximación** para que la feature pase: si el usuario dice que no sirve a
 ninguno, la feature queda sin `kr`, y el `estratega` la va a señalar — es
-exactamente la conversación que tiene que ocurrir. Sin `PROYECTO.md`, sáltate
-esta pregunta: `kr` es opcional.
+exactamente la conversación que tiene que ocurrir. Si `PROYECTO.md` no declara
+KRs, sáltate esta pregunta: `kr` es opcional.
 
 #### La primera feature del proyecto: `despliegue_inicial`
 
@@ -317,8 +327,8 @@ con el id más bajo:
 - **Toda feature de cara al usuario pone su id en `depends_on`.** Así
   `./init.sh` no la deja arrancar hasta que el despliegue esté `done`, en vez
   de descubrir al cerrarla que no hay dónde desplegarla.
-- Con `PROYECTO.md`, lleva el `kr` de la primera feature de usuario que
-  desbloquea.
+- Si `PROYECTO.md` declara KRs, lleva el `kr` de la primera feature de usuario
+  que desbloquea.
 - Si ya existe, no la propongas otra vez: solo añade su id al `depends_on` de
   las features nuevas de cara al usuario.
 

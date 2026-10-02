@@ -12,7 +12,7 @@ Un script que devuelve 0 o 1, sin opinión de por medio. Se declara en
 
 TODO: define aquí tus comprobaciones deterministas. Ejemplos por dominio
 (software, contenido, research, campañas): `HARNESS.md` §«Ejemplos de
-configuración» (en el molde, `README.md`).
+configuración».
 
 ### Nivel 2 — Rúbrica (obligatorio si el entregable no es binario)
 

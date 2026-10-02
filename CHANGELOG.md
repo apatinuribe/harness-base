@@ -2,7 +2,7 @@
 
 Versión del molde: `harness_version` en `harness.config.json`. Una instancia
 compara la suya con la del molde y lee aquí qué cambió entre las dos
-(README §«Actualizar una instancia»). Formato: [Keep a Changelog](https://keepachangelog.com/es/).
+(`HARNESS.md` §«Actualizar una instancia»). Formato: [Keep a Changelog](https://keepachangelog.com/es/).
 
 ## [1.1.0] — 2026-09-24
 
