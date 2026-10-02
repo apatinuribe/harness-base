@@ -5,18 +5,17 @@
 
 > Plantilla usada por `/especificar`. No la edites a mano para un módulo:
 > copia este archivo a `docs/specs/<modulo>.md` y **borra este bloque de
-> instrucciones** — si se queda, el marcador de pendiente que menciona hace que
-> `init.sh` considere el spec eternamente sin resolver.
+> instrucciones**.
 >
 > **Si ya escribiste el módulo por tu cuenta, no lo pegues aquí:** guárdalo en
 > `docs/borradores/<modulo>.md` y corre
 > `/especificar <modulo> --desde docs/borradores/<modulo>.md`. La entrevista
 > mapea lo que ya cubriste y pregunta solo por los huecos.
 >
-> Todo lo que no se sepa se marca como pendiente: la etiqueta NEEDS
-> CLARIFICATION entre corchetes, seguida de dos puntos y la pregunta concreta.
-> **No se inventa.** Mientras quede uno sin resolver, `./init.sh` bloquea el
-> arranque de las features que referencien este spec.
+> Todo lo que no se sepa se marca `[NEEDS CLARIFICATION: <la pregunta concreta>]`
+> (formato en `.claude/formato-preguntas.md`). **No se inventa.** Mientras quede
+> uno sin resolver, `./init.sh` bloquea el arranque de las features que
+> referencien este spec. Citarlo en backticks, como aquí, no cuenta.
 
 ---
 

@@ -122,13 +122,13 @@ proyecto. No añadas features aquí: salen de `/especificar`.
 (`# TODO-nombre-del-proyecto`): pon el nombre y la descripción de la config y
 quita la cita de arranque del final. Un README propio no se toca.
 
-**`docs/conventions.md`** — resuelve los TODO con reglas **comprobables**. Si una
+**`docs/conventions.md`** — resuelve los `TODO:` con reglas **comprobables**. Si una
 convención no se puede verificar leyendo el entregable, no es una convención: es
 una opinión, y no entra. La «Lista de prohibidos» es la sección que más usa el
 reviewer — que sea concreta («credenciales en el código», «`console.log` en
 producción», «dependencias nuevas sin aprobar»), no genérica.
 
-**`docs/verification.md`** — reemplaza el TODO del Nivel 1 por los comandos
+**`docs/verification.md`** — reemplaza el `TODO:` del Nivel 1 por los comandos
 reales que quedaron en `verify[]`, con una línea de qué demuestra cada uno.
 
 ### 6. Comprobación final
@@ -142,14 +142,14 @@ Reporta el resultado tal cual, sin maquillar:
 - **Verde** → el arnés está listo. Siguiente paso: `/constitucion`.
 - **Rojo por `verify`** → correcto si el proyecto está roto de verdad; dilo
   claramente y di qué hay que arreglar.
-- **Rojo por TODOs en `docs/architecture.md`** → esperado, lo resuelve
+- **Aviso por `TODO:` en `docs/architecture.md`** → esperado, lo resuelve
   `/constitucion`. Acláralo para que no parezca un fallo tuyo.
 
 Cierra con cuatro líneas:
 
 ```
 Verificación: N comandos, M obligatorios (todos probados)
-Convenciones: docs/conventions.md sin TODOs
+Convenciones: docs/conventions.md sin TODO:
 Backlog: ejemplo_slug eliminado, despliegue_inicial pendiente
 Siguiente: /constitucion
 ```

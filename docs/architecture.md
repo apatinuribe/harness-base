@@ -21,7 +21,7 @@ TODO: qué carpetas existen, qué vive en cada una, qué NO debe vivir ahí.
 
 | Ruta | Contiene | No contiene |
 |------|----------|-------------|
-| TODO | TODO     | TODO        |
+| TODO: ruta | TODO: qué contiene | TODO: qué no debe vivir ahí |
 
 ## 3. Reglas de dependencia
 
@@ -36,9 +36,9 @@ Ejemplo (contenido): el copy depende del brief; el brief nunca se ajusta al copy
 
 | Criterio | 1 = | 5 = |
 |----------|-----|-----|
-| TODO     | TODO | TODO |
-| TODO     | TODO | TODO |
-| TODO     | TODO | TODO |
+| TODO: criterio | TODO: qué es un 1 | TODO: qué es un 5 |
+| TODO: criterio | TODO: qué es un 1 | TODO: qué es un 5 |
+| TODO: criterio | TODO: qué es un 1 | TODO: qué es un 5 |
 
 ---
 
@@ -108,11 +108,11 @@ TODO: qué se respalda, cada cuánto, y cómo se comprueba que el respaldo sirve
 
 | Decisión | Por qué | Desde |
 |---|---|---|
-| TODO | TODO | TODO |
+| TODO: decisión | TODO: por qué | TODO: fecha |
 
 ## 8. Gobernanza
 
-**Versión:** 0.0.0 · **Ratificada:** TODO · **Última enmienda:** TODO
+**Versión:** 0.0.0 · **Ratificada:** TODO: fecha · **Última enmienda:** TODO: fecha
 
 Cómo cambia esta constitución:
 

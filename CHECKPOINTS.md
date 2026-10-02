@@ -14,7 +14,7 @@
 
 ## C1b — El trabajo estaba especificado antes de empezar
 
-- [ ] La constitución (`docs/architecture.md` §5, §6, §8) está ratificada, sin TODOs.
+- [ ] La constitución (`docs/architecture.md` §5, §6, §8) está ratificada, sin `TODO:`.
 - [ ] La feature declara `spec`, y ese archivo existe.
 - [ ] El spec no tiene `[NEEDS CLARIFICATION]` sin resolver.
 - [ ] Existe `progress/audit_<modulo>.md` sin hallazgos CRITICAL abiertos.
