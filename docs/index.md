@@ -75,7 +75,7 @@
 | `/especificar <modulo> --desde <ruta>` | Igual, pero el usuario ya escribió el módulo a mano | Lo mismo, partiendo de `docs/borradores/<modulo>.md`: mapea lo cubierto y pregunta solo por los huecos |
 | `/esquema` | Tras especificar, antes de la primera tabla; y cada vez que un spec nuevo añade entidades | `docs/esquema.md` (entidades, estados y permisos de todos los specs, con sus conflictos) + una migración borrador en `docs/esquema/migraciones/` + la feature `infra` que la aplica |
 | `despliegue_inicial` | Primera feature de todo proyecto | El camino a producción funcionando; toda feature de usuario la lleva en `depends_on` |
-| `/diseno <modulo>` | Por módulo con pantallas, antes de sus features | `DESIGN.md` en la raíz (una vez) + `docs/diseno/<modulo>.md`: un brief por pantalla para Claude Design |
+| `/diseno <modulo>` | Por módulo con pantallas, antes de sus features. **Obligatorio si la constitución dice `Audiencia: público`** (`./init.sh` §3e bloquea); con interno, avisa | `DESIGN.md` en la raíz (una vez) + `docs/diseno/<modulo>.md`: un brief por pantalla para Claude Design |
 | `/feedback` | Cuando llega lo que dicen los usuarios | `docs/feedback.md` + cada punto en su destino: `fix_<name>`, clarificación del spec, borrador o `docs/futuro/` |
 
 Todos **corren en la sesión principal, no como subagente**: un subagente no

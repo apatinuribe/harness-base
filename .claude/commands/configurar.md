@@ -41,7 +41,27 @@ De ahí sale casi todo:
 | Carpetas `src/`, `tests/`, `supabase/migrations/` | `protected_paths` y `exclusive_paths` |
 | No hay código: `.md`, `.csv`, activos | Dominio contenido o research — ver §4 |
 
-Si el repo está vacío (proyecto nuevo), dilo y pasa directo a las preguntas.
+### 1b. Repo vacío
+
+Si el repo no tiene código (proyecto nuevo), no hay nada que detectar ni que
+probar — y un arnés sin `verify[]` no tiene dientes desde el primer día. Dilo,
+y **propón el andamiaje de herramientas del stack, sin código de producto**:
+gestor de paquetes, test runner, typecheck, linter y **un test de humo que
+pasa**. Pregunta primero (§3, pregunta 1) qué stack es; luego escríbelo y
+pruébalo igual que cualquier comando (§2 aplica entero). Es andamiaje, no una
+feature: no va al backlog ni lleva `touches`.
+
+Dos cosas que se aprenden a golpes:
+
+- **Typecheck en repo vacío.** `tsc --noEmit` falla con `TS18003` cuando
+  `include` no matchea ningún archivo. Deja un archivo de arranque vacío
+  (`src/index.ts` con `export {}`) o no pongas el typecheck en `verify[]` hasta
+  la primera feature.
+- **Si el proyecto tiene interfaz, los tests necesitan un DOM.** Sin él, los
+  criterios de pantalla se acaban «probando» leyendo la fuente. Propón un
+  entorno DOM (jsdom, happy-dom o el equivalente del stack) como **opción
+  explícita** en la pregunta de verificación, con su porqué, y déjalo instalado
+  y probado con el test de humo.
 
 ### 2. Probar antes de escribir
 
@@ -74,7 +94,9 @@ sabemos hoy que algo dejó de funcionar antes de que lo vea un cliente?».
 
 Las cinco preguntas, si hicieran falta todas:
 
-1. **Verificación** — qué comprobación es obligatoria (§2).
+1. **Verificación** — qué comprobación es obligatoria (§2). En un repo vacío,
+   también el stack del andamiaje (§1b); con interfaz, la opción de entorno
+   DOM para los tests, explícita y recomendada.
 2. **Nombre y una línea** — para `project` y `description`.
 2b. **Quiénes trabajan en esto** — para `team` y `require_peer_review`.
    Deduce los candidatos primero: `git config user.email` y
@@ -145,10 +167,11 @@ Reporta el resultado tal cual, sin maquillar:
 - **Aviso por `TODO:` en `docs/architecture.md`** → esperado, lo resuelve
   `/constitucion`. Acláralo para que no parezca un fallo tuyo.
 
-Cierra con cuatro líneas:
+Cierra con cuatro líneas (cinco si hubo andamiaje):
 
 ```
 Verificación: N comandos, M obligatorios (todos probados)
+Andamiaje: <runner, typecheck, DOM…> instalados, test de humo en verde   ← solo repo vacío
 Convenciones: docs/conventions.md sin TODO:
 Backlog: ejemplo_slug eliminado, despliegue_inicial pendiente
 Siguiente: /constitucion

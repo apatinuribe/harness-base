@@ -19,13 +19,13 @@
       "id": 1,
       "name": "despliegue_inicial",
       "title": "Despliegue inicial a producción",
-      "description": "Primera feature de todo proyecto: deja el camino a producción de docs/architecture.md §6 funcionando, con la analítica recibiendo eventos. Sin ella, ninguna feature de usuario puede cerrarse.",
+      "description": "Primera feature de todo proyecto: deja el camino a producción de docs/architecture.md §6 funcionando, con la analítica de §5.4 recibiendo eventos. Sin ella, ninguna feature de usuario puede cerrarse.",
       "owner": null,
       "spec": "docs/architecture.md",
       "infra": "deja el despliegue funcionando para que las features de usuario puedan cerrarse",
       "acceptance": [
         "DADO la rama principal CUANDO se despliega por el camino de §6 ENTONCES producción responde en su URL con la versión desplegada",
-        "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §6",
+        "DADO producción desplegada CUANDO se dispara un evento de prueba ENTONCES aparece en la herramienta de analítica de §5.4 (Analítica / evidencia de hecho)",
         "DADO un despliegue fallido CUANDO se aplica la reversión de §6 ENTONCES producción vuelve a la versión anterior"
       ],
       "touches": ["<config de despliegue y CI del stack>"],

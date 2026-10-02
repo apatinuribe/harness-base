@@ -425,6 +425,121 @@ sys.exit(1 if errors else 0)
 PYCODE
 [ $? -ne 0 ] && EXIT_CODE=1
 
+# Diseño y «Siguiente paso» comparten lógica (audiencia de la constitución,
+# pantallas de un spec), así que viven en un solo heredoc con dos entradas:
+#   diseno_py bloque     → imprime §3e; exit 1 si bloquea
+#   diseno_py siguiente  → imprime el comando que toca correr, o nada
+diseno_py() {
+$PY - "$1" <<'PYCODE'
+import json, os, re, sys
+modo = sys.argv[1]
+
+def sin_codigo(texto):
+    texto = re.sub(r"```.*?```", "", texto, flags=re.S)
+    return re.sub(r"`[^`\n]*`", "", texto)
+
+def leer(p):
+    try:
+        return open(p, encoding="utf-8", errors="replace").read()
+    except Exception:
+        return ""
+
+# Audiencia: la linea '**Audiencia:** publico | interno' de §1 de la
+# constitucion. Con 'TODO:' u otra cosa se trata como desconocida (solo avisa).
+def audiencia():
+    m = re.search(r"\*\*Audiencia:\*\*\s*(\S+)", leer("docs/architecture.md"))
+    v = (m.group(1) if m else "").lower()
+    if v.startswith(("públic", "public")):
+        return "público"
+    if v.startswith("interno"):
+        return "interno"
+    return "desconocida"
+
+# Pantallas: alguna fila con datos en la tabla de '### 4.2' del spec. La
+# cabecera, el separador y la fila vacia de la plantilla no cuentan.
+def tiene_pantallas(spec):
+    m = re.search(r"^###\s*4\.2\b[^\n]*\n(.*?)(?=^#{1,3}\s|\Z)", leer(spec), re.M | re.S)
+    if not m:
+        return False
+    filas = [l.strip() for l in m.group(1).splitlines() if l.strip().startswith("|")]
+    for fila in filas[1:]:
+        if re.fullmatch(r"[\s|:\-]*", fila):
+            continue
+        if any(c.strip() for c in fila.strip("|").split("|")):
+            return True
+    return False
+
+# [(feature, modulo)] de las in_progress con pantallas: con diseno y sin el.
+def pantallas_en_curso():
+    try:
+        feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
+    except Exception:
+        return [], []
+    con, sin = [], []
+    for f in feats:
+        spec = f.get("spec") or ""
+        if f.get("status") != "in_progress" or not os.path.exists(spec):
+            continue
+        if not tiene_pantallas(spec):
+            continue
+        modulo = os.path.splitext(os.path.basename(spec))[0]
+        (con if os.path.exists("docs/diseno/%s.md" % modulo) else sin).append((f, modulo))
+    return con, sin
+
+if modo == "bloque":
+    con, sin = pantallas_en_curso()
+    aud = audiencia()
+    for f, modulo in con:
+        print("[OK]    Feature %s (%s): diseño en docs/diseno/%s.md"
+              % (f.get("id"), f.get("name", "?"), modulo))
+    for f, modulo in sin:
+        base = ("Feature %s (%s): el spec tiene pantallas (§4.2) y no existe docs/diseno/%s.md"
+                % (f.get("id"), f.get("name", "?"), modulo))
+        if aud == "público":
+            print("[FAIL]  %s — producto público: corre /diseno %s antes de construir" % (base, modulo))
+        else:
+            print("[WARN]  %s — corre /diseno %s, o la pantalla se decide en el código" % (base, modulo))
+    if not con and not sin:
+        print("[OK]    Sin pantallas que diseñar")
+    sys.exit(1 if (sin and aud == "público") else 0)
+
+# modo == "siguiente": por precedencia, lo primero que falta.
+try:
+    proyecto = json.load(open("harness.config.json", encoding="utf-8")).get("project") or ""
+except Exception:
+    proyecto = ""
+if str(proyecto).startswith("TODO"):
+    print("El arnés todavía no está configurado. Abre Claude y corre /configurar.")
+elif re.search(r"(?:^|[\s>|*])TODO:", sin_codigo(leer("docs/architecture.md")), re.M):
+    print("La constitución tiene huecos. Abre Claude y corre /constitucion.")
+else:
+    con, sin = pantallas_en_curso()
+    if sin:
+        f, modulo = sin[0]
+        print("Feature %s (%s) tiene pantallas sin diseño. Abre Claude y corre /diseno %s."
+              % (f.get("id"), f.get("name", "?"), modulo))
+PYCODE
+}
+
+siguiente_paso() {
+  local paso
+  paso=$(diseno_py siguiente 2>/dev/null)
+  if [ -n "$paso" ]; then
+    echo ""
+    echo "── Siguiente paso ──────────────────────────────────────"
+    printf '        %s\n' "$paso"
+  fi
+}
+
+echo ""
+echo "── 3e. Diseño ────────────────────────────────────────"
+
+# Una feature con pantallas (§4.2 del spec) sin docs/diseno/<modulo>.md deja
+# que el diseño lo decida el código. Con producto público bloquea; con interno
+# o audiencia sin resolver, avisa. No toca el gate de cierre (§3d).
+diseno_py bloque
+[ $? -ne 0 ] && EXIT_CODE=1
+
 # Checkpoint C7. Durante la feature solo avisa: el cruce ocurre DESPUÉS del
 # veredicto del reviewer, así que exigirlo antes sería un rojo permanente — y
 # un rojo permanente se acaba ignorando. Bloquea en --merge y en el pre-push.
@@ -442,6 +557,7 @@ if [ "$MODE" = "--quick" ]; then
   echo ""
   echo "── Resumen (modo quick) ────────────────────────────────"
   [ $EXIT_CODE -eq 0 ] && ok "Estructura y estado OK (verificación omitida)" || fail "Revisa los errores"
+  siguiente_paso
   exit $EXIT_CODE
 fi
 
@@ -484,9 +600,8 @@ if [ $EXIT_CODE -eq 0 ]; then
   ok "Entorno listo. Puedes empezar a trabajar."
 else
   fail "Entorno NO está listo. Resuelve los errores antes de avanzar."
-  # Arnes recien instanciado: el comando que lo pone en verde es /configurar.
-  if grep -q '"project": *"TODO' harness.config.json 2>/dev/null; then
-    echo "        El arnés todavía no está configurado. Abre Claude y corre /configurar."
-  fi
 fi
+# Derivado del estado: /configurar, /constitucion o /diseno <modulo>. Nada si
+# no falta ninguno.
+siguiente_paso
 exit $EXIT_CODE

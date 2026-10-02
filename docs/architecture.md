@@ -15,6 +15,10 @@
 
 TODO: una o dos frases. El entregable, no la actividad.
 
+**Audiencia:** TODO: público (lo usan personas ajenas al equipo) o interno (solo el equipo).
+Si es público, `/diseno` es obligatorio antes de la primera feature con pantalla:
+`./init.sh` lo bloquea.
+
 ## 2. Estructura
 
 TODO: qué carpetas existen, qué vive en cada una, qué NO debe vivir ahí.
@@ -67,6 +71,11 @@ guarda cada tipo de dato. Cómo se borra una cuenta y qué queda después.
 TODO: qué se registra y qué no (nunca datos sensibles en logs). Qué métricas
 importan. Cómo se entera una persona de que algo se rompió, y quién es.
 
+**Analítica / evidencia de hecho:** TODO: dónde se ven los eventos de producto
+(herramienta y proyecto o panel) y cómo se comprueba que un evento llegó desde
+producción. Es lo que exige `despliegue_inicial` y el cierre de toda feature
+con `evento` (`docs/verification.md` §«Hecho»).
+
 ### 5.5 Tiempo, moneda e idioma
 
 TODO: zona horaria de referencia y cómo se guardan las fechas. Formato de fecha
@@ -76,6 +85,8 @@ que ve el usuario. Monedas soportadas y cómo se guardan los importes. Idiomas.
 
 TODO: cuánto puede tardar una operación antes de considerarse rota. Cuántos
 usuarios y cuánto volumen se esperan en 12 meses. Qué se limita por usuario.
+Todo límite que imponga un tercero (cuota, plan) lleva fuente (URL de su
+documentación) y fecha de consulta.
 
 ## 6. Alrededor del sistema
 
@@ -88,7 +99,9 @@ TODO: qué entornos existen. Cómo llega algo a producción. Cómo se revierte.
 ### 6.2 Terceros y costos
 
 TODO: de qué servicios externos depende el producto. Qué pasa si uno se cae.
-Qué cuestan y a partir de qué volumen dejan de ser viables.
+Qué cuestan y a partir de qué volumen dejan de ser viables. Cada precio o
+límite de plan lleva fuente (URL de la documentación del proveedor) y fecha de
+consulta: lo que no se verificó queda como `TODO:` con la URL, no como dato.
 
 ### 6.3 Soporte y operación
 

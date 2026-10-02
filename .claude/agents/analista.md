@@ -19,10 +19,10 @@ es. El `reviewer` juzga el código contra el spec; nadie juzga el spec. Ese eres
    `blocked -> no se indicó qué spec auditar`.
 3. Lee los otros specs de `docs/specs/` **solo** para detectar contradicciones
    con el que auditas. No los audites a ellos (eso es trabajo del `bibliotecario`).
-4. Ejecuta las siete pasadas de abajo.
+4. Ejecuta las ocho pasadas de abajo.
 5. Escribe el informe y devuelve una sola línea.
 
-## Las siete pasadas
+## Las ocho pasadas
 
 ### A. Cobertura
 
@@ -79,6 +79,23 @@ está describiendo la solución, no el resultado.
 
 Cuenta los `[NEEDS CLARIFICATION]`. Cada uno dentro de una historia P1 es
 **HIGH**; en P2/P3 o en secciones informativas, **MEDIUM**.
+
+### H. Escrituras parciales y textos variables
+
+Dos cosas que un spec casi nunca dice y que siempre llegan a producción:
+
+- **Escrituras parciales.** Toda operación que crea o modifica un **padre y
+  sus hijos** (un pedido y sus líneas, un curso y sus vídeos), o que escribe en
+  **dos o más entidades o almacenes** (base de datos + archivo, dos tablas, un
+  tercero + registro local), debe declarar **atomicidad** (todo o nada, en una
+  transacción) **o compensación** (qué pasa si falla la segunda escritura, qué
+  queda a medias y quién lo limpia). Búscalo en §4.3, §4.5 y §5.2. Ausente →
+  **HIGH**; **CRITICAL** si toca dinero o datos que no se pueden regenerar.
+- **Textos con número variable.** Todo texto que muestra una cantidad («N
+  vídeos», «hace N días», «quedan N») debe tener su **regla de plural** —qué
+  se muestra con 0, con 1 y con n— en el idioma de §5.5 de la constitución.
+  Búscalo en §4.2 y §4.4. Ausente → **MEDIUM**: «1 videos» no rompe nada, pero
+  es lo primero que ve el usuario.
 
 ## Severidades
 
