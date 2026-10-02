@@ -7,7 +7,7 @@
 > Lo mantiene el subagente `bibliotecario` entre olas. Si lo editas a mano,
 > deja la línea en su sitio: es la única forma de que siga siendo grepeable.
 
-**Proyecto:** TODO
+**Proyecto:** TODO: nombre
 **Constitución vigente:** `docs/architecture.md` v0.0.0
 **Último lint:** ninguno todavía
 

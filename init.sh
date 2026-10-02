@@ -84,17 +84,28 @@ echo ""
 echo "── 2. Archivos base del arnés ──────────────────────────"
 
 $PY - <<'PYCODE'
-import json, os, sys
+import json, os, re, sys
 cfg = json.load(open("harness.config.json", encoding="utf-8"))
 missing = [f for f in cfg.get("required_files", []) if not os.path.exists(f)]
 for f in cfg.get("required_files", []):
     print(("[FAIL]  Falta " if f in missing else "[OK]    Existe ") + f)
+
+# El marcador de hueco es 'TODO:' (con dos puntos) como token propio: al inicio
+# de linea, en una cita '>', en una celda '|' o tras una etiqueta '**x:**'.
+# Fuera de codigo: ni bloques ``` ni inline `...`. Un 'TODO(#12)' en prosa
+# (la convencion de comentarios con id) no es un hueco de la plantilla.
+MARCA_TODO = re.compile(r"(?:^|[\s>|*])TODO:", re.M)
+def sin_codigo(texto):
+    texto = re.sub(r"```.*?```", "", texto, flags=re.S)
+    return re.sub(r"`[^`\n]*`", "", texto)
+
 todos = []
 if "TODO" in cfg.get("project", ""):
     todos.append("harness.config.json: campo 'project' sin configurar")
 for p in ("docs/architecture.md", "docs/conventions.md", "docs/verification.md"):
-    if os.path.exists(p) and "TODO" in open(p, encoding="utf-8").read():
-        todos.append(f"{p} contiene TODOs sin resolver")
+    if os.path.exists(p) and MARCA_TODO.search(
+            sin_codigo(open(p, encoding="utf-8", errors="replace").read())):
+        todos.append(f"{p} contiene 'TODO:' sin resolver")
 for t in todos:
     print("[WARN]  " + t)
 sys.exit(1 if missing else 0)
@@ -226,13 +237,21 @@ echo ""
 echo "── 3b. Especificación ────────────────────────────────"
 
 $PY - <<'PYCODE'
-import json, os, sys
+import json, os, re, sys
 try:
     feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
 except Exception as e:
     print("[FAIL]  feature_list.json ilegible: %s" % e); sys.exit(1)
 
-MARK = "[NEEDS CLARIFICATION"
+# Pendiente real: '[NEEDS CLARIFICATION: <pregunta>]' con contenido, fuera de
+# codigo (ni bloques ``` ni inline `...`). Citar el marcador en backticks, o
+# '[NEEDS CLARIFICATION]' a secas como lo nombran los docs, no es un pendiente.
+MARK = "[NEEDS CLARIFICATION: ...]"
+PEND = re.compile(r"\[NEEDS CLARIFICATION:\s*[^\]\s][^\]]*\]")
+def sin_codigo(texto):
+    texto = re.sub(r"```.*?```", "", texto, flags=re.S)
+    return re.sub(r"`[^`\n]*`", "", texto)
+
 errors, warns, oks = [], [], 0
 
 # Una feature no puede ARRANCAR sin spec resuelto. Mientras esta 'pending'
@@ -250,9 +269,10 @@ for f in feats:
     if not os.path.exists(spec):
         bucket.append("Feature %s (%s): no existe %s" % (fid, name, spec))
         continue
-    pend = open(spec, encoding="utf-8").read().count(MARK)
+    pend = len(PEND.findall(sin_codigo(
+        open(spec, encoding="utf-8", errors="replace").read())))
     if pend:
-        bucket.append("Feature %s (%s): %s tiene %d '%s ...]' sin resolver"
+        bucket.append("Feature %s (%s): %s tiene %d '%s' sin resolver"
                       % (fid, name, spec, pend, MARK))
         continue
     oks += 1

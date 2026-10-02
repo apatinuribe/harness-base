@@ -26,7 +26,7 @@ módulo a módulo, va en el spec.
 ### 1. Contexto
 
 Lee `docs/architecture.md`, `harness.config.json` y `README.md`. Si la
-constitución ya está ratificada (§8 con versión y sin TODOs), **no la
+constitución ya está ratificada (§8 con versión y sin `TODO:`), **no la
 reescribas**: pasa a modo enmienda (paso 5).
 
 ### 2. Escaneo de cobertura
@@ -80,9 +80,11 @@ Para cambiar una constitución ya ratificada:
 
 Al terminar:
 
-- `docs/architecture.md` sin ningún `TODO` en §5, §6 y §8.
+- `docs/architecture.md` sin ningún `TODO:` en §5, §6 y §8.
 - Recuerda al usuario que la rúbrica de §4 es lo que el `reviewer` usa para
-  puntuar: si está genérica, el reviewer aprueba cualquier cosa.
+  puntuar: si está genérica, el reviewer aprueba cualquier cosa. Sus criterios
+  hablan del entregable; no citan marcadores del arnés (`TODO:`,
+  `[NEEDS CLARIFICATION: …]`): eso lo comprueba `./init.sh`, no el reviewer.
 - Si en las respuestas aparecieron objetivos medibles o resultados clave y
   `PROYECTO.md` no declara KRs (su cabecera dice cuándo), **ofrece rellenarlo**
   con lo ya dicho: problema, usuario y cada KR con su métrica y su meta. Sin

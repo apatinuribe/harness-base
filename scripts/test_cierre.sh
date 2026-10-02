@@ -49,23 +49,25 @@ review_ko()  { printf '# Review — feature %s\n\n**Veredicto:** CHANGES_REQUEST
 impl_ok()    { printf '# Informe — %s\n\n- producción: exenta — infra: plantilla\n' "$2" > "$1/progress/impl_$2.md"; }
 tests_con()  { local dir="$1"; shift; mkdir -p "$dir/tests"; { for id in "$@"; do printf 'test("%s pasa", () => {});\n' "$id"; done; } > "$dir/tests/cierre.test.js"; }
 
-# caso <desc> <exit esperado> <dir> <texto que debe aparecer, o "">
+# caso <desc> <exit esperado> <dir> <texto que debe aparecer, o ""> [<texto que NO debe aparecer>]
 caso() {
-  local desc="$1" esperado="$2" dir="$3" texto="$4"
+  local desc="$1" esperado="$2" dir="$3" texto="$4" sin="${5:-}"
   total=$((total + 1))
   local salida rc
   salida=$(cd "$dir" && bash ./init.sh --quick 2>&1); rc=$?
   local ok=1
   [ "$rc" -eq "$esperado" ] || ok=0
   if [ -n "$texto" ] && ! printf '%s\n' "$salida" | grep -qF -- "$texto"; then ok=0; fi
+  if [ -n "$sin" ] && printf '%s\n' "$salida" | grep -qF -- "$sin"; then ok=0; fi
   if [ "$ok" -eq 1 ]; then
     printf '[OK]    %-58s exit=%s\n' "$desc" "$rc"
   else
     fallos=$((fallos + 1))
     printf '[FAIL]  %-58s exit=%s (esperado %s' "$desc" "$rc" "$esperado"
     [ -n "$texto" ] && printf ', con "%s"' "$texto"
+    [ -n "$sin" ] && printf ', sin "%s"' "$sin"
     printf ')\n'
-    printf '%s\n' "$salida" | sed -n '/3d\./,/Resumen/p' | sed 's/^/        | /'
+    printf '%s\n' "$salida" | sed -n '/── 2\./,/Resumen/p' | sed 's/^/        | /'
   fi
 }
 
@@ -131,6 +133,57 @@ copia_limpia "$D"; muta "$D" 'F[1]["status"] = "done"'
 review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
 printf 'Inline: `KR1`.\n```\n| KR1 | en bloque |\n```\n> KR1 en cita\n' >> "$D/PROYECTO.md"
 caso "KR1 solo en backticks o en cita no cuenta" 0 "$D" "1 feature(s) done con review APPROVED"
+
+# ── Marcadores (init.sh §2 y §3b) ────────────────────────
+# §2 avisa por 'TODO:' como token (inicio de linea, cita, celda, etiqueta) y
+# §3b bloquea por '[NEEDS CLARIFICATION: ...]' con contenido. Ninguno cuenta
+# dentro de backticks ni de bloques ```; 'TODO(#12)' en prosa tampoco.
+echo ""
+echo "── Marcadores (init.sh §2 y §3b) ───────────────────────"
+
+W_TODO="contiene 'TODO:' sin resolver"
+W_NEEDS="'[NEEDS CLARIFICATION: ...]' sin resolver"
+# resuelve_todos <dir>: deja los tres docs de §2 sin ningun 'TODO:'.
+resuelve_todos() {
+  local p
+  for p in docs/architecture.md docs/conventions.md docs/verification.md; do
+    sed -i 's/TODO:/Hecho:/g' "$1/$p"
+  done
+}
+
+copia_limpia "$D"
+caso "plantilla: avisa 'TODO:' en los docs" 0 "$D" "$W_TODO"
+resuelve_todos "$D"
+caso "docs sin 'TODO:': no avisa" 0 "$D" "" "$W_TODO"
+printf 'Los pendientes en código llevan id: TODO(#12) y se cierran con el issue.\nUn TODO-123 o un #TODO tampoco son huecos.\n' >> "$D/docs/conventions.md"
+caso "TODO(#12) en prosa no es un hueco" 0 "$D" "" "$W_TODO"
+printf 'Ejemplo: `TODO: en backticks`.\n```\nTODO: en bloque de código\n```\n' >> "$D/docs/conventions.md"
+caso "'TODO:' solo en backticks o bloque no cuenta" 0 "$D" "" "$W_TODO"
+printf 'TODO: al inicio de línea.\n' >> "$D/docs/conventions.md"
+caso "'TODO:' al inicio de línea avisa" 0 "$D" "docs/conventions.md $W_TODO"
+resuelve_todos "$D"
+printf '> TODO: en una cita de plantilla.\n' >> "$D/docs/verification.md"
+caso "'> TODO:' en cita avisa" 0 "$D" "docs/verification.md $W_TODO"
+resuelve_todos "$D"
+printf '| Criterio | TODO: qué es un 1 | ok |\n' >> "$D/docs/architecture.md"
+caso "'| TODO:' en celda avisa" 0 "$D" "docs/architecture.md $W_TODO"
+resuelve_todos "$D"
+printf '**Ratificada:** TODO: fecha\n' >> "$D/docs/architecture.md"
+caso "'**Etiqueta:** TODO:' avisa" 0 "$D" "docs/architecture.md $W_TODO"
+
+# §3b: la feature 1 apunta a docs/architecture.md; in_progress convierte el
+# aviso en bloqueo.
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "in_progress"'
+caso "spec sin pendientes: in_progress pasa" 0 "$D" "1 feature(s) con spec resuelto"
+printf '\n[NEEDS CLARIFICATION: ¿quién aprueba el despliegue?]\n' >> "$D/docs/architecture.md"
+caso "spec con [NEEDS CLARIFICATION: ...] bloquea" 1 "$D" "tiene 1 $W_NEEDS"
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "in_progress"'
+printf '\nSin `[NEEDS CLARIFICATION]` ni `[NEEDS CLARIFICATION: ejemplo]` abiertos.\n```\n[NEEDS CLARIFICATION: en bloque]\n```\n' >> "$D/docs/architecture.md"
+caso "marcador citado en backticks o bloque no cuenta" 0 "$D" "1 feature(s) con spec resuelto"
+printf '\nQueda [NEEDS CLARIFICATION] sin pregunta, y [NEEDS CLARIFICATION:   ] vacío.\n' >> "$D/docs/architecture.md"
+caso "marcador sin contenido no cuenta" 0 "$D" "1 feature(s) con spec resuelto"
+printf '\n[NEEDS CLARIFICATION: ¿una?] y [NEEDS CLARIFICATION: ¿dos?]\n' >> "$D/docs/architecture.md"
+caso "dos pendientes reales: cuenta 2" 1 "$D" "tiene 2 $W_NEEDS"
 
 echo ""
 if [ "$fallos" -eq 0 ]; then
