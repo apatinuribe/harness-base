@@ -246,7 +246,8 @@ Termina el archivo con la sección de registro vacía:
 
 ## Diseño devuelto
 
-> Append-only. Una fila por entrega de Claude Design.
+> Append-only. Una fila por entrega de Claude Design. Decisión es una de:
+> `aceptado` · `con cambios` · `validado con usuario — <fecha>, <N> personas, <evidencia>`.
 
 | Fecha | Pantallas | Dónde está | Qué cambió respecto al brief | Decisión |
 |---|---|---|---|---|
@@ -263,10 +264,22 @@ y el diseño que se aprobó se pierde.
    —agregó una pantalla, quitó un estado, cambió quién ve qué—, eso no es una
    decisión de diseño: es un cambio de spec. Anótalo en «Qué cambió» y
    propón `/especificar <modulo>`. El diseño no enmienda el spec.
-3. Añade la fila a `## Diseño devuelto`, con la fecha de hoy.
+3. Pregunta la **Decisión**:
+   - `aceptado` — se construye tal cual.
+   - `con cambios` — se construye con lo anotado en «Qué cambió» (y, si cambia
+     el comportamiento, después de `/especificar`).
+   - `validado con usuario — <fecha>, <N> personas, <evidencia>` — alguien
+     **de fuera del equipo** lo usó (prototipo, prueba de pasillo, sesión
+     grabada) antes de construirlo. Exige las tres cosas: cuándo, cuántas
+     personas y dónde está la evidencia (grabación, notas, `docs/descubrimiento/`).
+     Sin ellas se registra como `aceptado`: «se lo enseñé a alguien» no es
+     validación.
+4. Añade la fila a `## Diseño devuelto`, con la fecha de hoy.
 
 El `implementer` lee esta sección antes de construir: la última fila de cada
-pantalla es la referencia visual vigente.
+pantalla es la referencia visual vigente. Que esté `validado con usuario` no
+cambia cómo se cierra la feature: eso sigue siendo producción y evento
+(`docs/verification.md` §«Hecho»), y si sirvió lo dice `/validar`.
 
 ### 6. Cierre
 
@@ -286,3 +299,5 @@ la herramienta decida para ellos no está validado por nadie.
 - ❌ Nunca reescribas `DESIGN.md` desde este comando si ya existe.
 - ❌ Nunca registres un diseño devuelto que cambia el comportamiento sin
   señalarlo como cambio de spec.
+- ❌ Nunca registres `validado con usuario` sin fecha, número de personas y
+  dónde está la evidencia.

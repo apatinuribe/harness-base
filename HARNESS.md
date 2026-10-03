@@ -218,6 +218,7 @@ Todos corren en la sesión principal (un subagente no puede preguntarte):
 /diseno suscripciones
 /planear 7
 /feedback
+/validar KR1                       # o /validar 7, cuando lleva semanas en producción
 ```
 
 Cuándo va cada uno y qué produce: `docs/index.md` §Orden de trabajo.
@@ -302,8 +303,9 @@ en la raíz, se escribe una vez: tokens (color, tipografía, espaciado, forma) y
 sus reglas de uso. `docs/diseno/<modulo>.md` es un brief por pantalla —objetivo,
 contenido, los estados vacío / cargando / error / éxito / sin permiso— para
 llevar a Claude Design. Lo que el spec no define queda marcado, no inventado.
-`--devuelto <url>` registra el diseño que vuelve, y el implementer lo usa como
-referencia.
+`--devuelto <url>` registra el diseño que vuelve —`aceptado`, `con cambios` o
+`validado con usuario`, este último solo con fecha, personas y evidencia— y el
+implementer lo usa como referencia.
 
 **`/planear <id>`** saca del subagente las decisiones técnicas de una feature
 antes de que haya código: qué módulos toca, en qué orden, qué migración
@@ -330,7 +332,7 @@ confirmado.
   camino a producción y la analítica funcionando, y las features de usuario la
   llevan en `depends_on`. `/especificar` la propone si el backlog no la tiene.
 
-## Después de lanzar: feedback
+## Después de lanzar: feedback y validación
 
 **`/feedback`** recibe lo que dicen los usuarios —pegado o en un archivo— y lo
 parte en puntos. Cada uno es un bug, una clarificación, una feature nueva, algo
@@ -338,6 +340,17 @@ para el futuro o se descarta, y va a su destino: un bug en una feature `done`
 crea `fix_<name>` (que hereda su `kr` y su `evento`), una duda del negocio va al
 spec, una idea nueva a `docs/borradores/`. Te muestra la tabla antes de escribir
 nada, y deja todo en `docs/feedback.md`.
+
+**`/validar <id|kr>`** responde la pregunta que «hecho» no responde: ¿sirvió?
+Una feature cierra con su evento emitido en producción; semanas después nadie
+compara cuánto se emitió con la meta del KR. `/validar` lee la fuente de
+analítica que declara la constitución §5.4 (o te pide el número, nunca lo
+estima), lo compara con el `CE-*` del spec y la meta de `PROYECTO.md`, y deja en
+`docs/validacion.md` fecha, medido y una decisión: `seguir`, `ajustar`
+(clarificación del spec) o `cortar` (a `docs/futuro/` con señal de activación).
+`./init.sh` (3h) avisa cuando una feature lleva `validar_tras_dias` (14 por
+defecto, en `harness.config.json`) en producción sin validar, y cuando un
+`cortar` deja features abiertas.
 
 ## Correr una feature
 
@@ -480,14 +493,15 @@ formato, y los activos existen en las medidas pedidas.
 │   ├── esquema/migraciones/  # Migraciones borrador, aplicadas por features infra
 │   ├── diseno/             # Un brief por módulo para Claude Design (/diseno)
 │   ├── feedback.md         # Registro de feedback y su destino (/feedback)
-│   └── futuro/             # Decisiones aplazadas (lo crea /feedback en la instancia)
+│   ├── futuro/             # Decisiones aplazadas (lo crea /feedback en la instancia)
+│   └── validacion.md       # Medido vs meta y decisión por KR o feature (lo crea /validar)
 ├── docs-molde/             # Decisiones del molde sobre sí mismo (no se instala)
 ├── progress/               # current.md (vivo) + history/ (1 entrada/sesión)
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   estratega, analista, bibliotecario
     ├── commands/           # /configurar, /descubrir, /constitucion, /especificar,
-    │                       #   /esquema, /diseno, /planear, /feedback
+    │                       #   /esquema, /diseno, /planear, /feedback, /validar
     ├── formato-preguntas.md  # Cómo preguntan las entrevistas (lo cargan los comandos)
     └── settings.json       # Hooks de verificación automática
 ```

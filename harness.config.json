@@ -15,6 +15,9 @@
   "_ayuda_plan_requerido": "Cuando una feature necesita un plan tecnico confirmado por el usuario (progress/plan_<name>.md, lo escribe /planear <id>) antes de pasar a in_progress. 'auto' = solo si toca migraciones (alguna ruta de touches contiene 'migra' o esta bajo exclusive_paths) o tiene mas de 4 criterios de acceptance. true = siempre. false = nunca. Si la clave falta, es auto. Lo comprueba ./init.sh (3f).",
   "plan_requerido": "auto",
 
+  "_ayuda_validar_tras_dias": "Dias que una feature con evento lleva done antes de que ./init.sh (3h) avise de que falta validarla con /validar <id|kr> (medir el evento contra la meta del KR y dejar la decision en docs/validacion.md). La fecha sale de su entrada progress/history/YYYY-MM-DD-f<id>-*.md; sin entrada, avisa desde el primer dia. Si la clave falta, son 14.",
+  "validar_tras_dias": 14,
+
   "verify": [
     {
       "name": "tests",
