@@ -622,6 +622,42 @@ if faltan:
 PYCODE
 }
 
+# Descubrimiento (/descubrir). Solo avisa, nunca bloquea: entrevistar es
+# opcional. Una entrevista es un .md de docs/descubrimiento/ que no empieza por
+# «_» ni es README.md; está incorporada si _sintesis.md nombra su archivo.
+descubrimiento_py() {
+$PY - <<'PYCODE'
+import os
+
+carpeta = "docs/descubrimiento"
+try:
+    ents = sorted(n for n in os.listdir(carpeta)
+                  if n.endswith(".md") and not n.startswith("_") and n != "README.md")
+except OSError:
+    ents = []
+
+if not ents:
+    print("[OK]    Sin entrevistas en docs/descubrimiento/ (opcional: /descubrir)")
+    raise SystemExit(0)
+
+ruta = os.path.join(carpeta, "_sintesis.md")
+if not os.path.exists(ruta):
+    print("[WARN]  docs/descubrimiento/: %d entrevista(s) sin síntesis — corre /descubrir sintesis" % len(ents))
+    raise SystemExit(0)
+
+try:
+    texto = open(ruta, encoding="utf-8", errors="replace").read()
+except Exception:
+    texto = ""
+faltan = [e for e in ents if e not in texto]
+if faltan:
+    print("[WARN]  docs/descubrimiento/: %d entrevista(s) que _sintesis.md no incorpora (%s) — corre /descubrir sintesis"
+          % (len(faltan), ", ".join(faltan)))
+else:
+    print("[OK]    docs/descubrimiento/_sintesis.md incorpora las %d entrevistas" % len(ents))
+PYCODE
+}
+
 siguiente_paso() {
   local paso
   paso=$(diseno_py siguiente 2>/dev/null)
@@ -650,6 +686,13 @@ echo "── 3f. Plan ───────────────────�
 # el usuario (/planear <id>). Solo mira las in_progress; no toca el gate §3d.
 plan_py bloque
 [ $? -ne 0 ] && EXIT_CODE=1
+
+echo ""
+echo "── 3g. Descubrimiento ────────────────────────────────"
+
+# Entrevistas que la síntesis todavía no incorpora alimentan PROYECTO.md y al
+# estratega con datos viejos. Avisa; no cambia el exit (entrevistar es opcional).
+descubrimiento_py
 
 # Checkpoint C7. Durante la feature solo avisa: el cruce ocurre DESPUÉS del
 # veredicto del reviewer, así que exigirlo antes sería un rojo permanente — y

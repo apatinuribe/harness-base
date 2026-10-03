@@ -43,6 +43,7 @@
 | `docs/diseno/<modulo>.md`    | Brief por pantalla y el «Diseño devuelto» de referencia | Antes de construir una pantalla |
 | `docs/feedback.md`           | Registro append-only del feedback y a dónde fue cada punto | Al priorizar o corregir |
 | `docs/borradores/`           | Notas propias antes de la entrevista — entrada de `/especificar --desde` | Solo si vas a especificar un módulo |
+| `docs/descubrimiento/`       | Entrevistas a clientes y su síntesis (`/descubrir`): problema, personas, journey actual, métrica candidata | Antes de `/constitucion`; antes de cada `/especificar` si hay entrevistas nuevas |
 | `scripts/plan_parallel.py`   | Qué features pueden correr en paralelo sin colisionar   | Al planear una ola |
 
 ## 3. Reglas duras (no negociables)

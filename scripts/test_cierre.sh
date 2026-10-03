@@ -287,6 +287,31 @@ caso "siguiente paso: plan requerido sin confirmar → /planear 2" 1 "$D" "corre
 plan "$D" ejemplo_slug
 caso "siguiente paso: plan confirmado → sin bloque" 0 "$D" "" "Siguiente paso"
 
+# ── Descubrimiento (init.sh 3g) ──
+# Una entrevista es un .md de docs/descubrimiento/ que no empieza por «_» ni es
+# README.md; está incorporada si _sintesis.md nombra su archivo. Solo avisa:
+# el exit no cambia en ningún caso.
+echo ""
+echo "── Descubrimiento (init.sh 3g) ─────────────────────────"
+
+ENT_A="2026-10-02-dueno-tienda.md"; ENT_B="2026-10-03-autoentrevista.md"
+# entrevista <dir> <archivo>: escribe una entrevista mínima.
+entrevista()     { printf '# Entrevista — rol · 2026-10-02\n\n**Quién:** rol · **Canal:** llamada · **Entrevistó:** yo\n\n## 1. Quién es y qué intenta conseguir\n' > "$1/docs/descubrimiento/$2"; }
+# sintesis <dir> <archivos…>: escribe _sintesis.md nombrando esos archivos.
+sintesis()       { local dir="$1"; shift; local lista=""; for a in "$@"; do lista="${lista:+$lista, }\`$a\`"; done; printf '# Síntesis de descubrimiento — tienda\n\n**Fecha:** 2026-10-04 · **Entrevistas:** %s (%s)\n\n## Problema\n' "$#" "$lista" > "$dir/docs/descubrimiento/_sintesis.md"; }
+
+copia_limpia "$D"; configura "$D"
+caso "plantilla (solo _guion.md): sin entrevistas" 0 "$D" "Sin entrevistas en docs/descubrimiento/" "[WARN]  docs/descubrimiento"
+entrevista "$D" "$ENT_A"; entrevista "$D" "$ENT_B"
+caso "2 entrevistas sin síntesis: avisa" 0 "$D" "docs/descubrimiento/: 2 entrevista(s) sin síntesis — corre /descubrir sintesis"
+sintesis "$D" "$ENT_A" "$ENT_B"
+caso "síntesis que nombra las dos: al día" 0 "$D" "_sintesis.md incorpora las 2 entrevistas" "[WARN]  docs/descubrimiento"
+sintesis "$D" "$ENT_A"
+caso "síntesis que nombra una: avisa cuál falta" 0 "$D" "1 entrevista(s) que _sintesis.md no incorpora ($ENT_B) — corre /descubrir sintesis"
+copia_limpia "$D"; configura "$D"
+printf 'x\n' > "$D/docs/descubrimiento/README.md"; printf 'x\n' > "$D/docs/descubrimiento/_borrador.md"
+caso "README.md y _borrador.md no cuentan como entrevistas" 0 "$D" "Sin entrevistas en docs/descubrimiento/"
+
 echo ""
 if [ "$fallos" -eq 0 ]; then
   echo "[OK]    Gate de cierre: $total casos, todos pasan"

@@ -45,7 +45,9 @@ escalado de `.claude/agents/leader.md`.
 El arnés resuelve **la ejecución** (quién hace qué, en qué orden, sin colisiones,
 con evidencia). No resuelve **qué hay que construir**, ni cómo se ve, ni qué
 pasó cuando llegó a los usuarios. Eso son los comandos de `.claude/commands/`:
-el orden y qué produce cada uno están en `docs/index.md` §Orden de trabajo.
+el orden y qué produce cada uno están en `docs/index.md` §Orden de trabajo. Si
+`PROYECTO.md` §Problema sigue en `<…>` y nadie ha hablado con un usuario,
+propón `/descubrir` antes que `/especificar`.
 
 Una feature de cara al usuario declara `evento` y no está hecha hasta que
 corre en producción y ese evento se emite; una de infraestructura declara

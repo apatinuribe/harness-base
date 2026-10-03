@@ -57,7 +57,9 @@ sistema) todavía tienen `TODO`, **detente** y responde:
   instrucciones de la cabecera** (el que empieza con «Plantilla usada por
   `/especificar`»: si se queda, `init.sh` leerá su mención del marcador de
   pendiente como un pendiente real) y rellena todo lo que ya puedas deducir de
-  lo que el usuario dijo, del resto de `docs/specs/` y del código existente.
+  lo que el usuario dijo, de `docs/descubrimiento/_sintesis.md` si existe
+  (§4.0 y las Personas salen de ahí), del resto de `docs/specs/` y del código
+  existente.
 
 ### 2b. Borrador (solo con `--desde <ruta>`)
 
@@ -144,6 +146,8 @@ insumo para priorizar; no se la muestres al usuario.
 
 | Casilla | Qué tiene que quedar resuelto |
 |---|---|
+| Proceso actual y fricciones | Cómo se hace hoy sin el producto y dónde duele — de la síntesis de `/descubrir` si existe |
+| Personas | Qué tipos de usuario pasan por este módulo y qué quiere cada uno |
 | Journey | Qué hace el usuario paso a paso, desde dónde entra y con qué se va |
 | Pantallas y estados | Qué ve: vacío, cargando, con datos, error, sin permiso |
 | Entidades y datos | Qué objetos existen, sus campos, cuáles obligatorios, cómo se relacionan |
@@ -239,7 +243,8 @@ de los dos nombra un `KR<n>` y `PROYECTO.md` no declara KRs (su cabecera dice
 cuándo), **detente**: hay objetivos escritos donde `./init.sh`, el `estratega`
 y el `implementer` no los ven. Propón rellenar `PROYECTO.md` primero —problema,
 usuario y cada KR con su métrica, su meta y el `CE-*` que lo mide— con lo que
-la constitución y el spec ya dicen, en una sola pregunta de confirmación con
+la constitución, el spec y `docs/descubrimiento/_sintesis.md` (si existe: su
+Problema, sus Personas y su métrica candidata) ya dicen, en una sola pregunta de confirmación con
 el contenido propuesto; lo que no esté dicho se pregunta, no se inventa. No
 propongas features hasta que quede escrito.
 

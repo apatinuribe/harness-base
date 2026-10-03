@@ -53,6 +53,7 @@
 | Quiero saber... | Voy a |
 |---|---|
 | Para qué existe el proyecto y qué resultado persigue | `PROYECTO.md` (en la raíz) |
+| Qué dijeron los clientes antes de construir | `docs/descubrimiento/` (`_sintesis.md`) |
 | Qué reglas aplican a todo el producto | `docs/architecture.md` |
 | Qué hace un módulo y por qué | `docs/specs/<modulo>.md` |
 | Qué se está construyendo ahora | `feature_list.json` + `progress/current_*.md` (uno por persona) |
@@ -65,11 +66,12 @@
 
 ## Orden de trabajo
 
-`/configurar → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo y /planear por feature) → /feedback`
+`/configurar → /descubrir → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo y /planear por feature) → /feedback`
 
 | Comando | Cuándo | Produce |
 |---|---|---|
 | `/configurar` | Una vez al instanciar | `harness.config.json` + `docs/conventions.md` — qué comando verifica, qué rutas se protegen, qué está prohibido |
+| `/descubrir` | Antes de `/constitucion`, si hay clientes a los que preguntar; `/descubrir yo` si el usuario eres tú; `/descubrir sintesis` cuando haya entrevistas. Opcional y repetible | `docs/descubrimiento/`: un archivo por entrevista + `_sintesis.md` (problema, personas, journey actual con fricciones, métrica candidata) → `PROYECTO.md` y la pasada A del `estratega` |
 | `/constitucion` | Una vez por proyecto | `docs/architecture.md` — lo transversal: identidad, errores, datos, tiempo, entornos, terceros |
 | `/especificar <modulo>` | Una vez por módulo | `docs/specs/<modulo>.md` — journey, entidades, reglas de negocio, estados, casos borde + las features propuestas |
 | `/especificar <modulo> --desde <ruta>` | Igual, pero el usuario ya escribió el módulo a mano | Lo mismo, partiendo de `docs/borradores/<modulo>.md`: mapea lo cubierto y pregunta solo por los huecos |

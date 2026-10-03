@@ -2,9 +2,10 @@
 
 > **El OS del proyecto**: para qué existe, para quién y qué resultado persigue.
 > Un spec dice *qué* construir; esto dice *por qué*. Lo rellena una persona:
-> `/constitucion` ofrece hacerlo con lo que se dijo en la entrevista, y
-> `/especificar` lo exige antes de proponer features si la constitución o el
-> spec nombran un resultado clave.
+> `/descubrir sintesis` ofrece rellenar «Problema» y «Usuario» con lo que
+> dijeron las entrevistas, `/constitucion` ofrece hacerlo con lo que se dijo
+> en la suya, y `/especificar` lo exige antes de proponer features si la
+> constitución o el spec nombran un resultado clave.
 >
 > **Cuándo «declara KRs».** Cuando alguna línea que no es una cita (`>`) nombra
 > un resultado clave con su número —`KR` seguido del número— fuera de
@@ -23,7 +24,8 @@ tres frases: si no caben, el problema todavía no está claro.>
 ## Usuario
 
 <Quién lo usa: su rol, su contexto y qué intenta conseguir. Si hay más de un
-tipo de usuario, uno por línea, empezando por el primero al que se sirve.>
+tipo de usuario, uno por línea, empezando por el primero al que se sirve. Si
+corriste `/descubrir`, son las Personas de `docs/descubrimiento/_sintesis.md`.>
 
 ## Resultados clave
 
