@@ -143,7 +143,7 @@ D="$TMP/11"; mkdir -p "$D"; git -C "$D" init -q; echo '{}' > "$D/package.json"
 copia_molde "$D/harness-base"; mkdir -p "$D/harness-base/.git"; echo x > "$D/harness-base/.git/HEAD"
 caso "anidado sin configurar (project TODO): reinstala limpio" 0 "REINSTALAR LIMPIO" \
   '[ ! -e "$D/harness-base" ] && [ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ -f "$D/package.json" ] \
-   && grep -q "\"harness_version\": \"1.1.0\"" "$D/harness.config.json" && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)' \
+   && grep -q "\"harness_version\": \"1.2.0\"" "$D/harness.config.json" && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1)' \
   -- "$D" --si
 
 D="$TMP/12"; mkdir -p "$D"; git -C "$D" init -q; bash "$INSTALAR" "$D" --si >/dev/null 2>&1 < /dev/null

@@ -22,6 +22,21 @@ for candidate in "python" "python3" "py -3"; do
 done
 [ -z "$PY" ] && { echo "[FAIL]  No se encontro Python"; exit 1; }
 
+# Los casos mutan el backlog de la plantilla (F1 despliegue_inicial pending,
+# F2 ejemplo_slug pending). En una instancia con su propio backlog no hay nada
+# que mutar: la suite no aplica, y decirlo vale mas que 60 fallos engañosos.
+if ! $PY - "$RAIZ/feature_list.json" <<'PYCODE'
+import json, sys
+f = json.load(open(sys.argv[1], encoding="utf-8")).get("features", [])
+ok = (len(f) == 2 and [x.get("name") for x in f] == ["despliegue_inicial", "ejemplo_slug"]
+      and all(x.get("status") == "pending" for x in f))
+sys.exit(0 if ok else 1)
+PYCODE
+then
+  echo "[SKIP]  Gate de cierre: esta suite muta el backlog de la plantilla y aqui hay uno propio; corre ./init.sh --quick (o la suite en un clon del molde)"
+  exit 0
+fi
+
 total=0; fallos=0
 
 # copia_limpia <dir>: la plantilla sin .git ni artefactos.
