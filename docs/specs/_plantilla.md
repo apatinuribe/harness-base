@@ -57,6 +57,25 @@ Qué le permite hacer este módulo a quién, y por qué le importa al negocio.
 
 ## 4. Vertical — el módulo de cara al usuario
 
+### 4.0 Proceso actual y fricciones
+
+Cómo se resuelve esto **hoy, sin el producto** —a mano, con otra herramienta,
+no se resuelve— y en qué paso duele. Es lo que §4.1 reemplaza: si no está
+escrito, nadie puede decir después si el journey nuevo mejoró algo. Si
+corriste `/descubrir`, sale de `docs/descubrimiento/_sintesis.md`.
+
+**Personas**
+
+| Persona | Quién es | Qué quiere conseguir en este módulo | Qué le cuesta hoy |
+|---|---|---|---|
+| | | | |
+
+**Proceso actual**
+
+| Paso de hoy | Cómo se hace | Fricción | Qué cambia con este módulo |
+|---|---|---|---|
+| | | | |
+
 ### 4.1 Journey
 
 Paso a paso: desde dónde entra el usuario, qué hace, con qué se va.

@@ -27,7 +27,10 @@ aprende el producto si se construye, o qué pasa si no se construye. Ese eres t�
 3. Lee `feature_list.json`: qué está ya `done` —lo que el producto ya sabe
    hacer— y qué está `pending` —aquello con lo que esto compite por el mismo
    tiempo. Si `PROYECTO.md` declara KRs (su cabecera dice cuándo), léelo
-   también: son la vara de la pasada E.
+   también: son la vara de la pasada E. Si existe
+   `docs/descubrimiento/_sintesis.md`, léela: es la evidencia de usuario con
+   la que contrastas la pasada A. Si no existe, no la inventes: lo dices en
+   el informe.
 4. Ejecuta las cinco pasadas de abajo.
 5. Escribe el informe y devuelve una sola línea.
 
@@ -45,6 +48,14 @@ se está apostando, así que nadie podrá decir después si salió bien.
 
 Si la frase se formula pero la señal **no se puede medir con lo que el producto
 ya registra**, es **MEDIUM**, y nombras qué habría que empezar a medir y dónde.
+
+**Si hay síntesis de descubrimiento**, el `<usuario>` y el `<problema>` de
+cada hipótesis se contrastan con sus Personas y su Journey actual. Una
+hipótesis cuyo problema **ninguna entrevista nombró** es **MEDIUM**, y el
+hallazgo lo dice con el número: «ninguna de las N entrevistas lo menciona».
+No es motivo de corte por sí solo —es la señal de que la apuesta no tiene
+evidencia—; si además el usuario no es ninguna Persona, es la pasada E la
+que decide.
 
 ### B. Costo de no construir
 

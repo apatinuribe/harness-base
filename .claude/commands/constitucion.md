@@ -25,7 +25,9 @@ módulo a módulo, va en el spec.
 
 ### 1. Contexto
 
-Lee `docs/architecture.md`, `harness.config.json` y `README.md`. Si la
+Lee `docs/architecture.md`, `harness.config.json`, `README.md` y, si existe,
+`docs/descubrimiento/_sintesis.md` (lo que dijeron los usuarios en
+`/descubrir`: su Problema y sus Personas resuelven §1 sin preguntar). Si la
 constitución ya está ratificada (§8 con versión y sin `TODO:`), **no la
 reescribas**: pasa a modo enmienda (paso 5).
 
@@ -60,6 +62,14 @@ en la misma pregunta pide **referencias visuales** (capturas, URLs de productos
 que le gusten) o un **`DESIGN.md` de marca** si ya existe; déjalas anotadas en
 §7 para que `/diseno` las encuentre, y di que `/diseno` es obligatorio antes de
 la primera feature con pantalla (`./init.sh` lo bloquea).
+
+**Si hay síntesis de descubrimiento**, §1 no se pregunta: se **deduce**. Qué
+produce y para quién salen de su Problema y sus Personas; la audiencia, de
+quiénes son las Personas (todas del equipo → `interno`; alguna ajena →
+`público`). Muéstralo como deducido, igual que lo que lees del repo —«Según
+la síntesis de descubrimiento (N entrevistas): produce …, para …, audiencia
+…»— y pide una confirmación. Solo si las Personas no resuelven la audiencia
+haz la pregunta; las referencias visuales, si es público, se piden igual.
 
 ### 4. Escritura incremental
 

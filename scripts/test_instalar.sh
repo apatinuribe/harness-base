@@ -73,7 +73,7 @@ caso "instalación limpia en repo git vacío" 0 "Siguiente paso" \
   '[ -f "$D/harness.config.json" ] && [ -f "$D/init.sh" ] && [ -f "$D/HARNESS.md" ] && [ -f "$D/.claude/settings.json" ] \
    && [ -f "$D/.githooks/pre-push" ] && grep -q "^# TODO-nombre-del-proyecto" "$D/README.md" && [ -f "$D/PROYECTO.md" ] \
    && [ ! -d "$D/docs-molde" ] && [ ! -d "$D/.harness" ] && [ ! -f "$D/scripts/instalar.sh" ] && [ ! -f "$D/scripts/test_instalar.sh" ] \
-   && [ -f "$D/.claude/formato-preguntas.md" ] \
+   && [ -f "$D/.claude/formato-preguntas.md" ] && [ -f "$D/docs/descubrimiento/_guion.md" ] \
    && (cd "$D" && bash ./init.sh --quick >/dev/null 2>&1) && [ "$(git -C "$D" remote get-url molde)" = "https://github.com/apatinuribe/harness-base.git" ]' \
   -- "$D"
 

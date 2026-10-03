@@ -1,8 +1,9 @@
 # Formato de las entrevistas
 
-Lo comparten `/configurar`, `/constitucion`, `/especificar`, `/esquema`,
-`/diseno` y `/planear`. Cada comando fija **cuántas** preguntas puede hacer y **qué**
-prioriza; **cómo** se pregunta es siempre esto.
+Lo comparten `/configurar`, `/descubrir` (autoentrevista), `/constitucion`,
+`/especificar`, `/esquema`, `/diseno` y `/planear`. Cada comando fija
+**cuántas** preguntas puede hacer y **qué** prioriza; **cómo** se pregunta es
+siempre esto.
 
 ## Reglas
 

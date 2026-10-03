@@ -27,6 +27,8 @@ claude
 #    /configurar                → detecta tu stack, prueba los comandos de test,
 #                                 escribe harness.config.json y conventions.md,
 #                                 y saca la feature de ejemplo del backlog
+#    /descubrir                 → (opcional) guion para entrevistar clientes,
+#                                 o /descubrir yo si el usuario eres tú
 #    /constitucion              → llena docs/architecture.md entrevistándote
 #    /especificar <modulo>      → llena docs/specs/<modulo>.md y propone features
 #      ...o, si ya lo escribiste por tu cuenta:
@@ -70,7 +72,7 @@ tiene verificación determinista, y el reviewer queda aprobando por opinión. Si
 `/constitucion` cada módulo inventa sus propias reglas transversales. Sin
 `/especificar` el implementador rellena los huecos del negocio a su criterio.
 
-Después vienen cuatro más, cada uno en su momento: el orden completo, y qué
+Después vienen cinco más, cada uno en su momento: el orden completo, y qué
 produce cada comando, está en `docs/index.md` §Orden de trabajo.
 
 También puedes editar `harness.config.json`, `docs/conventions.md` y
@@ -208,6 +210,7 @@ Todos corren en la sesión principal (un subagente no puede preguntarte):
 
 ```bash
 /configurar
+/descubrir yo                      # o /descubrir <notas-de-entrevista>, y /descubrir sintesis
 /constitucion
 /especificar suscripciones
 /especificar suscripciones --desde docs/borradores/suscripciones.md   # partiendo de lo tuyo
@@ -228,6 +231,19 @@ entrevista te vuelve a preguntar lo que ya habías decidido — y a la segunda s
 contesta peor. Lo que escribiste es fuente, no verdad: si contradice la
 constitución te lo pregunta igual, y si trae features, las audita el `estratega`
 como a cualquier otra.
+
+**Si todavía no sabes qué duele, antes de especificar: `/descubrir`.** Te da
+el guion de entrevista a clientes (`docs/descubrimiento/_guion.md`: quién,
+qué hace hoy, qué le cuesta, qué ha probado, cómo sabría que está resuelto),
+guarda cada entrevista que le pegues como un archivo en `docs/descubrimiento/`
+—rol y canal, nunca nombres— y, si el usuario del producto eres tú,
+`/descubrir yo` lo pregunta en 3. `/descubrir sintesis` cruza todas las
+entrevistas en `_sintesis.md`: problema, personas, journey actual con sus
+fricciones y una métrica candidata, cada fila con cuántas entrevistas la
+sostienen. De ahí salen `PROYECTO.md` (problema y usuario), el §1 de la
+constitución y el §4.0 del spec, y el `estratega` marca como MEDIUM toda
+hipótesis cuyo problema ninguna entrevista nombró. Es opcional: `./init.sh`
+(§3g) solo avisa cuando hay entrevistas que la síntesis no incorpora.
 
 **Qué resuelve cada capa**
 
@@ -267,7 +283,9 @@ resultados clave (KR). Llega como plantilla y mientras no declare ningún KR
 primero, cada feature declara el `kr` al que sirve: `/especificar` lo
 pregunta —y exige rellenar `PROYECTO.md` antes de proponer features si la
 constitución o el spec nombran un KR—, el `estratega` señala las que no sirven
-a ninguno, y el implementer actualiza la tabla «Trazabilidad».
+a ninguno, y el implementer actualiza la tabla «Trazabilidad». `/descubrir
+sintesis` ofrece rellenar problema y usuario desde las entrevistas; la
+métrica candidata entra solo como cita hasta que le pongas meta y fecha.
 
 ## Entre el spec y el código: esquema, diseño y plan
 
@@ -457,6 +475,7 @@ formato, y los activos existen en las medidas pedidas.
 │   ├── verification.md     # Cómo se demuestra que algo funciona
 │   ├── specs/              # Un spec por módulo (+ _plantilla.md)
 │   ├── borradores/         # Tus notas antes de la entrevista (entrada de --desde)
+│   ├── descubrimiento/     # Guion, una entrevista por archivo y _sintesis.md (/descubrir)
 │   ├── esquema.md          # Modelo de datos consolidado (/esquema)
 │   ├── esquema/migraciones/  # Migraciones borrador, aplicadas por features infra
 │   ├── diseno/             # Un brief por módulo para Claude Design (/diseno)
@@ -467,7 +486,7 @@ formato, y los activos existen en las medidas pedidas.
 └── .claude/
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   estratega, analista, bibliotecario
-    ├── commands/           # /configurar, /constitucion, /especificar,
+    ├── commands/           # /configurar, /descubrir, /constitucion, /especificar,
     │                       #   /esquema, /diseno, /planear, /feedback
     ├── formato-preguntas.md  # Cómo preguntan las entrevistas (lo cargan los comandos)
     └── settings.json       # Hooks de verificación automática
