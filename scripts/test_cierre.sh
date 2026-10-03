@@ -312,6 +312,61 @@ copia_limpia "$D"; configura "$D"
 printf 'x\n' > "$D/docs/descubrimiento/README.md"; printf 'x\n' > "$D/docs/descubrimiento/_borrador.md"
 caso "README.md y _borrador.md no cuentan como entrevistas" 0 "$D" "Sin entrevistas en docs/descubrimiento/"
 
+# ── Validación (init.sh 3h) ──
+# Una done con evento sin fila F<id> en docs/validacion.md avisa cuando lleva
+# validar_tras_dias (14) según la fecha de progress/history/YYYY-MM-DD-f<id>-*.md;
+# sin entrada, avisa ya. «cortar» con features de ese objeto sin cerrar avisa.
+# Solo avisa: el exit no cambia en ningún caso.
+echo ""
+echo "── Validación (init.sh 3h) ─────────────────────────────"
+
+W_VAL="sin validar ("
+# validacion <dir> <n> <objeto> <decision>: crea docs/validacion.md si falta y añade una fila.
+validacion()     { [ -f "$1/docs/validacion.md" ] || printf '# Validación\n\n| # | Fecha | Objeto | Métrica | Meta y fecha | Medido | Fuente | Decisión | Siguiente |\n|---|---|---|---|---|---|---|---|---|\n' > "$1/docs/validacion.md"; printf '| %s | 2026-10-03 | %s | m | 60 %% | 42 %% | panel | %s | — |\n' "$2" "$3" "$4" >> "$1/docs/validacion.md"; }
+# historia <dir> <id> <slug> <dias atrás>: entrada de history fechada hace N días.
+historia()       { mkdir -p "$1/progress/history"; printf '## [%s] feature #%s | %s\n\n**Resultado:** done\n' "$(date -d "-$4 days" +%F)" "$2" "$3" > "$1/progress/history/$(date -d "-$4 days" +%F)-f$2-$3.md"; }
+# dias_cfg <dir> <n|borra>: fija validar_tras_dias o quita la clave.
+dias_cfg()       { if [ "$2" = "borra" ]; then sed -i '/"validar_tras_dias":/d' "$1/harness.config.json"; else sed -i "s/\"validar_tras_dias\": *[0-9]*/\"validar_tras_dias\": $2/" "$1/harness.config.json"; fi; }
+# prod2 <dir>: F1 (infra) y F2 (evento) done y completas — el estado de L120-123.
+prod2()          { copia_limpia "$1"; muta "$1" "$base2"; review_ok "$1" despliegue_inicial; impl_ok "$1" despliegue_inicial; review_ok "$1" ejemplo_slug; impl_ok "$1" ejemplo_slug; tests_con "$1" F1-C1 F1-C2 F1-C3 F2-C1 F2-C2; }
+
+copia_limpia "$D"
+caso "plantilla: nada en producción que validar" 0 "$D" "Sin features en producción pendientes de validar" "$W_VAL"
+prod2 "$D"
+caso "F2 done con evento, sin history: avisa ya" 0 "$D" "1 feature(s) en producción sin validar (F2: sin progress/history/) — corre /validar <id>"
+historia "$D" 2 ejemplo_slug 3
+caso "history de hace 3 días (<14): en gracia, sin aviso" 0 "$D" "1 feature(s) en producción con menos de 14 días (F2)" "$W_VAL"
+rm -f "$D/progress/history/"*-f2-*.md; historia "$D" 2 ejemplo_slug 20
+caso "history de hace 20 días (≥14): avisa con los días" 0 "$D" "1 feature(s) en producción sin validar (F2: 20 días done)"
+dias_cfg "$D" 30
+caso "validar_tras_dias: 30 → 20 días vuelve a ser gracia" 0 "$D" "con menos de 30 días (F2)" "$W_VAL"
+dias_cfg "$D" borra
+caso "sin la clave: 14 por defecto, avisa" 0 "$D" "1 feature(s) en producción sin validar (F2: 20 días done)"
+rm -f "$D/progress/history/"*-f2-*.md; historia "$D" 2 ejemplo_slug 40; historia "$D" 2 ejemplo_slug 5
+caso "dos entradas de F2: cuenta la última (5 días)" 0 "$D" "con menos de 14 días (F2)" "$W_VAL"
+historia "$D" 12 otra 40
+caso "f12 no cuenta como f1 ni f2" 0 "$D" "con menos de 14 días (F2)" "$W_VAL"
+validacion "$D" 1 F2 seguir
+caso "fila F2 · seguir: nada pendiente" 0 "$D" "docs/validacion.md: 1 validación(es), nada pendiente" "$W_VAL"
+rm -f "$D/progress/history/"*-f2-*.md
+caso "validada sin history: la fila basta" 0 "$D" "nada pendiente" "$W_VAL"
+
+# cortar: KR1 con F2 abierta (kr: KR1, pending); la última fila manda.
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "done"'
+review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+validacion "$D" 1 KR1 cortar
+caso "KR1 · cortar con F2 pending (kr KR1): avisa" 0 "$D" "validación #1 cortó KR1 pero F2 siguen sin cerrar — muévelas a docs/futuro/ o cámbiales el kr"
+validacion "$D" 2 KR1 seguir
+caso "  ...una fila posterior KR1 · seguir lo levanta" 0 "$D" "" "cortó KR1"
+copia_limpia "$D"; muta "$D" 'F[1]["status"] = "done"; F[2]["corrige"] = 1'
+review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+validacion "$D" 1 F1 cortar
+caso "F1 · cortar con F2 (corrige 1) pending: avisa" 0 "$D" "validación #1 cortó F1 pero F2 siguen sin cerrar"
+validacion "$D" 2 f1 ajustar
+caso "objeto en minúsculas (f1) · ajustar: se parsea y levanta el corte" 0 "$D" "" "cortó F1 pero"
+printf '| 3 | 2026-10-03 | KR1 | m | 60 %% | 42 %% | panel | **cortar** — razón | — |\n' >> "$D/docs/validacion.md"
+caso "Decisión en negrita con cola: se parsea igual" 0 "$D" "validación #3 cortó KR1 pero F2 siguen sin cerrar"
+
 echo ""
 if [ "$fallos" -eq 0 ]; then
   echo "[OK]    Gate de cierre: $total casos, todos pasan"

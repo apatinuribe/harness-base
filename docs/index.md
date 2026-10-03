@@ -63,10 +63,11 @@
 | Qué entidades, estados y permisos existen en total | `docs/esquema.md` |
 | Cómo se ve el producto | `DESIGN.md` + `docs/diseno/<modulo>.md` |
 | Qué dijeron los usuarios y qué se hizo con ello | `docs/feedback.md` |
+| Si lo que lanzamos movió la métrica y qué decidimos | `docs/validacion.md` |
 
 ## Orden de trabajo
 
-`/configurar → /descubrir → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo y /planear por feature) → /feedback`
+`/configurar → /descubrir → /constitucion → /especificar → /esquema → despliegue_inicial → features (con /diseno por módulo y /planear por feature) → /feedback → /validar`
 
 | Comando | Cuándo | Produce |
 |---|---|---|
@@ -80,6 +81,7 @@
 | `/diseno <modulo>` | Por módulo con pantallas, antes de sus features. **Obligatorio si la constitución dice `Audiencia: público`** (`./init.sh` §3e bloquea); con interno, avisa | `DESIGN.md` en la raíz (una vez) + `docs/diseno/<modulo>.md`: un brief por pantalla para Claude Design |
 | `/planear <id>` | Por feature, antes de «implementa la feature #N». **Obligatorio si toca migraciones o tiene más de 4 criterios** (`plan_requerido` en `harness.config.json`; `./init.sh` §3f bloquea); opcional para el resto | `progress/plan_<name>.md` —módulos, orden, migraciones, riesgos, verificación por criterio— confirmado por ti; el `implementer` lo sigue y el `reviewer` compara lo hecho contra él |
 | `/feedback` | Cuando llega lo que dicen los usuarios | `docs/feedback.md` + cada punto en su destino: `fix_<name>`, clarificación del spec, borrador o `docs/futuro/` |
+| `/validar <id\|kr>` | Cuando una feature lleva `validar_tras_dias` en producción (`./init.sh` 3h avisa) o vence la fecha de un KR | `docs/validacion.md`: medido vs meta del KR y `CE-*` del spec, decisión `seguir` · `ajustar` · `cortar` y su consecuencia (clarificación del spec o `docs/futuro/`) |
 
 Todos **corren en la sesión principal, no como subagente**: un subagente no
 puede hacer preguntas al usuario. Cómo preguntan: `.claude/formato-preguntas.md`.

@@ -658,6 +658,112 @@ else:
 PYCODE
 }
 
+# Validación (/validar). Una feature done con evento está en producción; si
+# lleva validar_tras_dias (14 por defecto) sin fila F<id> en docs/validacion.md,
+# nadie midió si sirvió. La fecha sale de progress/history/YYYY-MM-DD-f<id>-*.md
+# (la última); sin entrada, avisa desde el primer día. Y una validación «cortar»
+# con features de ese objeto todavía abiertas es trabajo que ya nadie quiere.
+validacion_py() {
+$PY - <<'PYCODE'
+import datetime, glob, json, os, re
+
+try:
+    cfg = json.load(open("harness.config.json", encoding="utf-8"))
+except Exception:
+    cfg = {}
+try:
+    feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
+except Exception:
+    feats = []
+try:
+    gracia = int(cfg.get("validar_tras_dias", 14))
+except (TypeError, ValueError):
+    gracia = 14
+
+# Filas de docs/validacion.md: (n, objeto, decision). Columnas por nombre en la
+# cabecera; objeto es KR<n> o F<id>, decision empieza por seguir/ajustar/cortar
+# (sin distinguir mayúsculas ni negrita/backticks).
+filas, idx = [], None
+ruta = "docs/validacion.md"
+if os.path.exists(ruta):
+    for l in open(ruta, encoding="utf-8", errors="replace"):
+        l = l.strip()
+        if not l.startswith("|"):
+            continue
+        celdas = [c.strip() for c in l.strip("|").split("|")]
+        if idx is None:
+            bajas = [c.lower() for c in celdas]
+            if "objeto" in bajas and any(c.startswith("decisi") for c in bajas):
+                idx = (bajas.index("objeto"), next(i for i, c in enumerate(bajas) if c.startswith("decisi")))
+            continue
+        if len(celdas) <= max(idx) or set("".join(celdas)) <= set("-: "):
+            continue
+        limpia = lambda c: re.sub(r"[*`_]", "", c).strip()
+        obj = re.match(r"(KR\d+|F\d+)\b", limpia(celdas[idx[0]]).upper())
+        dec = re.match(r"(seguir|ajustar|cortar)\b", limpia(celdas[idx[1]]).lower())
+        if obj and dec:
+            n = celdas[0] if celdas[0].isdigit() else str(len(filas) + 1)
+            filas.append((n, obj.group(1), dec.group(1)))
+
+validadas = {obj for _, obj, _ in filas}
+hoy = datetime.date.today()
+
+def dias_done(f):
+    fechas = []
+    for p in glob.glob("progress/history/????-??-??-f%s-*.md" % f["id"]):
+        try:
+            fechas.append(datetime.date.fromisoformat(os.path.basename(p)[:10]))
+        except ValueError:
+            pass
+    return (hoy - max(fechas)).days if fechas else None
+
+en_prod = [f for f in feats if f.get("status") == "done" and f.get("evento")]
+sin_validar, en_gracia = [], []
+for f in en_prod:
+    if "F%s" % f["id"] in validadas:
+        continue
+    d = dias_done(f)
+    if d is None:
+        sin_validar.append("F%s: sin progress/history/" % f["id"])
+    elif d >= gracia:
+        sin_validar.append("F%s: %d días done" % (f["id"], d))
+    else:
+        en_gracia.append("F%s" % f["id"])
+
+avisos = []
+if sin_validar:
+    avisos.append("[WARN]  %d feature(s) en producción sin validar (%s) — corre /validar <id>"
+                  % (len(sin_validar), ", ".join(sin_validar)))
+
+# La última fila de cada objeto manda. «cortar» con features abiertas: las del
+# kr (objeto KR<n>) o las que lo corrigen (objeto F<id>).
+ultima = {}
+for n, obj, dec in filas:
+    ultima[obj] = (n, dec)
+for obj, (n, dec) in ultima.items():
+    if dec != "cortar":
+        continue
+    if obj.startswith("KR"):
+        abiertas = [f for f in feats if f.get("kr") == obj and f.get("status") != "done"]
+    else:
+        abiertas = [f for f in feats if str(f.get("corrige")) == obj[1:] and f.get("status") != "done"]
+    if abiertas:
+        avisos.append("[WARN]  validación #%s cortó %s pero %s siguen sin cerrar — muévelas a docs/futuro/ o cámbiales el kr"
+                      % (n, obj, ", ".join("F%s" % f["id"] for f in abiertas)))
+
+for a in avisos:
+    print(a)
+if en_gracia:
+    print("[OK]    %d feature(s) en producción con menos de %d días (%s) — /validar cuando pase el periodo"
+          % (len(en_gracia), gracia, ", ".join(en_gracia)))
+if not avisos and not en_gracia:
+    if filas:
+        print("[OK]    docs/validacion.md: %d validación(es), nada pendiente" % len(filas))
+    else:
+        print("[OK]    Sin features en producción pendientes de validar (opcional: /validar)")
+PYCODE
+}
+
 siguiente_paso() {
   local paso
   paso=$(diseno_py siguiente 2>/dev/null)
@@ -693,6 +799,14 @@ echo "── 3g. Descubrimiento ────────────────
 # Entrevistas que la síntesis todavía no incorpora alimentan PROYECTO.md y al
 # estratega con datos viejos. Avisa; no cambia el exit (entrevistar es opcional).
 descubrimiento_py
+
+echo ""
+echo "── 3h. Validación ────────────────────────────────────"
+
+# Una feature done con evento que lleva validar_tras_dias sin fila en
+# docs/validacion.md nunca demostró que movió la métrica (/validar <id|kr>).
+# Avisa; no cambia el exit ni toca el gate de cierre (§3d).
+validacion_py
 
 # Checkpoint C7. Durante la feature solo avisa: el cruce ocurre DESPUÉS del
 # veredicto del reviewer, así que exigirlo antes sería un rojo permanente — y
