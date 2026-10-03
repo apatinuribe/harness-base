@@ -108,7 +108,7 @@ con la del commit del molde que introdujo tu versión:
 
 ```bash
 # 4. Conflictos en archivos que nunca editaste → los del molde
-V=$(grep -o '"harness_version": *"[^"]*"' harness.config.json | grep -o '[0-9][0-9.]*')
+V=$(git show HEAD:harness.config.json | grep -o '"harness_version": *"[^"]*"' | grep -o '[0-9][0-9.]*')
 BASE=$(git log molde/main --reverse --format=%h -S"\"harness_version\": \"$V\"" -- harness.config.json | head -1)
 for f in $(git diff --name-only --diff-filter=U); do
   git cat-file -e "$BASE:$f" 2>/dev/null && git diff --quiet "HEAD:$f" "$BASE:$f" \
@@ -123,8 +123,8 @@ Cómo resolverlos:
 | Archivo | Qué hacer |
 |---|---|
 | `README.md`, `PROYECTO.md` | Quédate con el tuyo: `git checkout --ours -- README.md PROYECTO.md` |
-| `HARNESS.md` | Toma el del molde: `git checkout --theirs -- HARNESS.md` |
-| `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `docs/*.md`, `progress/*` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos, filas nuevas de `docs/index.md`); las «Notas de migración» del `CHANGELOG.md` dicen cuáles |
+| `HARNESS.md`, `CHANGELOG.md`, `AGENTS.md` | Toma el del molde: `git checkout --theirs -- HARNESS.md CHANGELOG.md AGENTS.md` |
+| `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `CHECKPOINTS.md`, `docs/*.md`, `progress/*` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos, filas nuevas de `docs/index.md`); las «Notas de migración» del `CHANGELOG.md` dicen cuáles |
 | `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde (solo chocan si los editaste): `git checkout --theirs -- init.sh scripts .claude .githooks` |
 | `.gitignore`, `.gitattributes` | Quédate con las dos partes: `{ git show :2:.gitignore; git show :3:.gitignore; } \| awk '!seen[$0]++' > .gitignore` |
 
@@ -136,6 +136,7 @@ el índice del merge). Después:
 
 ```bash
 git rm -rqf --ignore-unmatch docs-molde scripts/instalar.sh scripts/test_instalar.sh
+git grep -l '^<<<<<<< ' -- . || echo sin-marcadores   # un archivo sin fila en la tabla se cuela con marcadores
 git add -A && git commit -m "Arnés vX.Y.Z"
 ./init.sh --quick                    # verde, y con la versión nueva
 bash scripts/test_guard.sh           # test_cierre.sh solo aplica al backlog de la plantilla
