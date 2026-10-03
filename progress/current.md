@@ -17,7 +17,7 @@
 
 ## Plan
 
-- _(vacío)_
+- _(vacío — o la referencia a `progress/plan_<name>.md` si lo escribió `/planear`)_
 
 ## Bitácora
 

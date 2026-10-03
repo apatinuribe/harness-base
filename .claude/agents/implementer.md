@@ -31,12 +31,23 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    (§1), **paras y reportas bloqueo** —propón `/diseno <modulo>`; `./init.sh`
    §3e lo marca en rojo igual—. Con `interno`, lo anotas como aviso en tu
    informe y sigues: la pantalla la decides tú, y queda dicho.
-3. **Anota** en tu archivo de sesión: feature en curso, plan en 3-5 bullets.
-   Es `progress/current.md` en solitario; con equipo, `current_<alias>.md`
-   (el alias que imprime `./init.sh`). Nunca escribas en el de otra persona.
+3. **Lee tu plan.** Si existe `progress/plan_<name>.md` con
+   `**Estado:** confirmado`, ese es tu plan: síguelo —módulos, orden de
+   tareas, migraciones y cómo se verifica cada criterio— y en tu archivo de
+   sesión apunta solo la referencia. Si `./init.sh` §3f dice que la feature
+   requiere plan y no está confirmado, **paras y reportas bloqueo** —propón
+   `/planear <id>`—. Si no lo requiere y no existe, anota en tu archivo de
+   sesión: feature en curso, plan en 3-5 bullets.
+   Tu archivo de sesión es `progress/current.md` en solitario; con equipo,
+   `current_<alias>.md` (el alias que imprime `./init.sh`). Nunca escribas en
+   el de otra persona.
 4. **Produce** el entregable siguiendo `docs/conventions.md`. No te salgas del
    scope de `acceptance`. No toques rutas fuera de `touches`: si necesitas
    hacerlo, es señal de que la feature está mal acotada → repórtalo como bloqueo.
+   Si te desvías del plan confirmado —una tarea más, un archivo que no estaba,
+   otra forma de verificar un criterio—, no edites el plan: anota la
+   desviación y su razón en tu informe (§Plan). Sin razón escrita, el
+   `reviewer` la rechaza.
 5. **Crea la evidencia** que valida cada criterio de `acceptance`, según
    `docs/verification.md`: **un test por criterio**, con `F<id>-C<n>` en su
    nombre o descripción (`<n>` = posición del criterio, desde 1). Es lo que
@@ -50,8 +61,9 @@ Ejecutas **una sola** feature de `feature_list.json`, de inicio a verificación.
    despliegue. Si no puedes desplegar desde la sesión, marca `blocked` con la
    razón — no la entregues como terminada. Con `infra`, este paso no aplica.
 7. **Escribe** tu informe en `progress/impl_<name>.md`: archivos tocados,
-   decisiones, salida de la verificación y el bloque `producción`
-   (despliegue + evento, o la exención `infra`).
+   decisiones, salida de la verificación, el bloque `producción`
+   (despliegue + evento, o la exención `infra`) y una sección `## Plan`:
+   `seguido`, la lista de desviaciones con su razón, o `no requerido`.
 7b. **Trazabilidad con el OS** — solo si `PROYECTO.md` declara KRs (su
    cabecera dice cuándo). Su tabla «Trazabilidad» es lo que conecta los objetivos del proyecto con lo
    que de verdad llegó a producción; si no la actualizas tú, nadie lo hace:

@@ -12,6 +12,9 @@
   "_ayuda_peer_review": "true = ninguna rama entra a main sin que otra persona del team haya leido el veredicto del reviewer y la evidencia (checkpoint C7). Ponlo en false si trabajas solo o si el cruce los frena mas de lo que los protege.",
   "require_peer_review": true,
 
+  "_ayuda_plan_requerido": "Cuando una feature necesita un plan tecnico confirmado por el usuario (progress/plan_<name>.md, lo escribe /planear <id>) antes de pasar a in_progress. 'auto' = solo si toca migraciones (alguna ruta de touches contiene 'migra' o esta bajo exclusive_paths) o tiene mas de 4 criterios de acceptance. true = siempre. false = nunca. Si la clave falta, es auto. Lo comprueba ./init.sh (3f).",
+  "plan_requerido": "auto",
+
   "verify": [
     {
       "name": "tests",
