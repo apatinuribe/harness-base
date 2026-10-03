@@ -100,28 +100,46 @@ git merge --allow-unrelated-histories molde/main
 #    (las siguientes veces basta con: git merge molde/main)
 ```
 
-Solo entran en conflicto (`add/add`) los archivos que las dos partes cambiaron.
-En una instancia recién instalada con `project` y `README.md` propios son dos:
-`README.md` y `harness.config.json`; el resto se mezcla solo. Cómo resolverlos:
+Como las historias no están relacionadas, **todo archivo que el molde cambió
+desde tu versión entra en conflicto (`add/add`)**, lo hayas editado tú o no
+(de 1.1.0 a 1.2.0 son unos treinta). La mayoría son copias que nunca tocaste:
+para esos, toma la del molde sin mirar. Este bucle lo hace comparando tu copia
+con la del commit del molde que introdujo tu versión:
+
+```bash
+# 4. Conflictos en archivos que nunca editaste → los del molde
+V=$(git show HEAD:harness.config.json | grep -o '"harness_version": *"[^"]*"' | grep -o '[0-9][0-9.]*')
+BASE=$(git log molde/main --reverse --format=%h -S"\"harness_version\": \"$V\"" -- harness.config.json | head -1)
+for f in $(git diff --name-only --diff-filter=U); do
+  git cat-file -e "$BASE:$f" 2>/dev/null && git diff --quiet "HEAD:$f" "$BASE:$f" \
+    && git checkout --theirs -- "$f" && git add "$f" && echo "molde: $f"
+done
+git diff --name-only --diff-filter=U        # lo que queda lo editaste tú
+```
+
+Lo que queda son archivos con trabajo tuyo (o que no existían en tu versión).
+Cómo resolverlos:
 
 | Archivo | Qué hacer |
 |---|---|
 | `README.md`, `PROYECTO.md` | Quédate con el tuyo: `git checkout --ours -- README.md PROYECTO.md` |
-| `HARNESS.md` | Toma el del molde: `git checkout --theirs -- HARNESS.md` |
-| `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `docs/*.md` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos) |
+| `HARNESS.md`, `CHANGELOG.md`, `AGENTS.md` | Toma el del molde: `git checkout --theirs -- HARNESS.md CHANGELOG.md AGENTS.md` |
+| `harness.config.json`, `feature_list.json`, `CLAUDE.md`, `CHECKPOINTS.md`, `docs/*.md`, `progress/*` | Quédate con el tuyo y copia a mano solo lo nuevo (`harness_version`, entradas nuevas de `required_files`, campos nuevos, filas nuevas de `docs/index.md`); las «Notas de migración» del `CHANGELOG.md` dicen cuáles |
 | `init.sh`, `scripts/`, `.claude/`, `.githooks/` | Toma la versión del molde (solo chocan si los editaste): `git checkout --theirs -- init.sh scripts .claude .githooks` |
-| `.gitignore`, `.gitattributes` | Quédate con las dos partes |
+| `.gitignore`, `.gitattributes` | Quédate con las dos partes: `{ git show :2:.gitignore; git show :3:.gitignore; } \| awk '!seen[$0]++' > .gitignore` |
 
 El merge también trae lo que `instalar.sh` excluye porque es del molde y no
 tuyo: `docs-molde/` (sus decisiones sobre sí mismo), el instalador y su suite.
-Si el molde los cambió, aparecen como conflicto «borrado por nosotros». En los
-dos casos, bórralos. Después:
+Si tu instancia los tiene (hasta 1.1.0 se copiaban), aparecen como `add/add`;
+si no, como archivos nuevos. En los dos casos, bórralos (`-f` porque están en
+el índice del merge). Después:
 
 ```bash
-git rm -rq --ignore-unmatch docs-molde scripts/instalar.sh scripts/test_instalar.sh
+git rm -rqf --ignore-unmatch docs-molde scripts/instalar.sh scripts/test_instalar.sh
+git grep -l '^<<<<<<< ' -- . || echo sin-marcadores   # un archivo sin fila en la tabla se cuela con marcadores
 git add -A && git commit -m "Arnés vX.Y.Z"
 ./init.sh --quick                    # verde, y con la versión nueva
-bash scripts/test_guard.sh && bash scripts/test_cierre.sh
+bash scripts/test_guard.sh           # test_cierre.sh solo aplica al backlog de la plantilla
 ```
 
 Y lee las «Notas de migración» del `CHANGELOG.md` entre tu versión y la nueva:
