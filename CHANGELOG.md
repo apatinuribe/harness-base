@@ -54,8 +54,9 @@ chequeos que leen los marcadores reales, y el ciclo completo
 - `/diseno` «Diseño devuelto» · Decisión: `aceptado` · `con cambios` ·
   `validado con usuario — <fecha>, <N> personas, <evidencia>` (#12).
 - `scripts/test_cierre.sh` pasa de 15 a 70 casos (uno por rama nueva de
-  `init.sh`) y se declara no aplicable cuando el backlog no es el de la
-  plantilla (`[SKIP]`, exit 0) en vez de fallar en una instancia (#13).
+  `init.sh`) y se declara no aplicable fuera de la plantilla del molde
+  —backlog propio o `project` configurado— (`[SKIP]`, exit 0) en vez de
+  fallar en una instancia (#13).
 
 ### Cambiado
 
@@ -84,7 +85,7 @@ chequeos que leen los marcadores reales, y el ciclo completo
 - `HARNESS.md` §Actualizar una instancia: cuenta los conflictos reales de un
   merge con historias no relacionadas (todo lo que el molde cambió), un bucle
   que toma del molde los archivos que nunca editaste, el comando para
-  `.gitignore` y `git rm -f` (#13).
+  `.gitignore`, `git rm -f` y un chequeo de marcadores antes del commit (#13).
 
 ### Eliminado
 
