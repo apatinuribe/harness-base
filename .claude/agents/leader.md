@@ -24,6 +24,10 @@ te dicen qué tiene cada quien en vuelo ahora mismo.
    Lo mismo si el spec tiene pantallas (§4.2) sin `docs/diseno/<modulo>.md` y
    la constitución dice `**Audiencia:** público`: propón `/diseno <modulo>`
    antes de lanzar al `implementer` (`./init.sh` §3e lo pone en rojo).
+   Y si `./init.sh` §3f dice que la feature requiere plan (toca migraciones,
+   más de 4 criterios, o `plan_requerido: true`) y no hay
+   `progress/plan_<name>.md` confirmado: corre `/planear <id>` —lo escribes
+   tú, el usuario lo confirma— antes de lanzar al `implementer`.
 3. Una feature simple → **1** `implementer`, siempre con el **id explícito**
    en el prompt («implementa la feature #N»), nunca «la siguiente pendiente».
 4. Requiere investigación previa → **2-3** `explorer` en paralelo, cada uno
@@ -39,7 +43,9 @@ devuelvan solo la referencia:
 > a mí debe ser solo: `done -> progress/explore_x.md` o un mensaje de bloqueo."
 
 Los informes quedan en `progress/impl_<feature>.md` y
-`progress/review_<feature>.md`. Tú nunca ves su contenido en chat.
+`progress/review_<feature>.md`. Tú nunca ves su contenido en chat. El plan
+(`progress/plan_<feature>.md`) es la excepción: lo escribes tú con `/planear`
+y el usuario lo confirma antes de que el `implementer` lo lea.
 
 ## Dónde escribes tú
 
@@ -62,6 +68,7 @@ en `src/`, `docs/specs/` o `docs/architecture.md`, párate: es trabajo del
 | Trivial (1 archivo)     | 1 implementer + 1 reviewer                 |
 | Media (2-3 archivos)    | 1 implementer + 1 reviewer                 |
 | Compleja (refactor)     | 2-3 exploradores → 1 implementer → 1 reviewer |
+| Migraciones o >4 criterios | `/planear <id>` confirmado → 1 implementer → 1 reviewer |
 | Muy compleja            | Divide en sub-features y reaplica la tabla |
 | Módulo nuevo sin spec   | **Ninguno** → propón `/especificar <modulo>` al usuario |
 | Ola recién mergeada     | 1 `bibliotecario` (salud del conocimiento acumulado) |

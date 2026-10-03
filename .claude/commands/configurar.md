@@ -128,8 +128,10 @@ cambió:
 
 **`harness.config.json`** — `project`, `description`, `team`,
 `require_peer_review`, `verify[]` (solo comandos probados), `protected_paths`,
-`exclusive_paths`. No toques `required_files` salvo que el usuario añada
-documentos propios.
+`exclusive_paths`. `plan_requerido` se deja en `auto` (su `_ayuda_` dice la
+regla) salvo que el usuario pida planificar siempre (`true`) o nunca
+(`false`): no es una pregunta de esta entrevista. No toques `required_files`
+salvo que el usuario añada documentos propios.
 
 Si el `team` queda con 2+ miembros, dilo explícitamente al cerrar: a partir de
 ahí toda feature necesita `owner` para arrancar, y cada persona trabaja en su

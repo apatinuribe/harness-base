@@ -29,7 +29,7 @@ copia_limpia() {
   rm -rf "$1"; mkdir -p "$1"
   (cd "$RAIZ" && tar --exclude=.git --exclude=node_modules --exclude=.worktrees \
       --exclude=.harness -cf - .) | (cd "$1" && tar -xf -)
-  rm -f "$1"/progress/review_*.md "$1"/progress/impl_*.md
+  rm -f "$1"/progress/review_*.md "$1"/progress/impl_*.md "$1"/progress/plan_*.md
 }
 
 # muta <dir> <script python>: edita feature_list.json de la copia.
@@ -236,6 +236,56 @@ prepara_dis; configura "$D"; resuelve_todos "$D"; audiencia "$D" público
 caso "siguiente paso: pantallas sin diseño → /diseno ejemplo" 1 "$D" "corre /diseno ejemplo"
 diseno "$D" ejemplo
 caso "siguiente paso: nada pendiente → sin bloque" 0 "$D" "" "Siguiente paso"
+
+# ── Plan (init.sh §3f y Siguiente paso) ──
+# Una in_progress que requiere plan (plan_requerido: auto → migraciones o más
+# de 4 criterios; true → siempre) no arranca sin progress/plan_<name>.md con
+# '**Estado:** confirmado'. Solo mira las in_progress; §3d no cambia.
+echo ""
+echo "── Plan (init.sh §3f y Siguiente paso) ─────────────────"
+
+PLAN_EJ="progress/plan_ejemplo_slug.md"
+# plan <dir> <name> [borrador]: escribe progress/plan_<name>.md confirmado, o en borrador.
+plan()           { printf '# Plan — feature %s\n\n**Estado:** %s · **Fecha:** 2026-01-01\n\n## Módulos a tocar\n\n| src/ejemplo/ | x | sí |\n' "$2" "${3:-confirmado}" > "$1/progress/plan_$2.md"; }
+# plan_cfg <dir> <true|false|borra>: fija plan_requerido en harness.config.json, o quita la clave.
+plan_cfg()       { if [ "$2" = "borra" ]; then sed -i '/"plan_requerido":/d' "$1/harness.config.json"; else sed -i "s/\"plan_requerido\": *\"auto\"/\"plan_requerido\": $2/" "$1/harness.config.json"; fi; }
+# exclusiva <dir> <ruta>: declara una ruta en exclusive_paths.
+exclusiva()      { sed -i "s|\"exclusive_paths\": *\[\]|\"exclusive_paths\": [\"$2\"]|" "$1/harness.config.json"; }
+cinco='F[2]["acceptance"] = ["DADO a CUANDO b ENTONCES c"] * 5'
+
+# Base: feature 1 done y completa; feature 2 in_progress sin pantallas (2 criterios, src/ejemplo/).
+prepara_plan() {
+  copia_limpia "$D"; muta "$D" "$base_dis"
+  review_ok "$D" despliegue_inicial; impl_ok "$D" despliegue_inicial; tests_con "$D" F1-C1 F1-C2 F1-C3
+  spec_pantallas "$D" ejemplo vacio
+}
+
+prepara_plan
+caso "auto, 2 criterios, sin migraciones: plan opcional" 0 "$D" "[OK]    Feature 2 (ejemplo_slug): plan opcional (2 criterios, sin migraciones)"
+muta "$D" "$cinco"
+caso "auto, 5 criterios, sin plan: bloquea" 1 "$D" "[FAIL]  Feature 2 (ejemplo_slug): requiere plan (5 criterios) y no existe $PLAN_EJ — corre /planear 2"
+plan "$D" ejemplo_slug borrador
+caso "auto, 5 criterios, plan en borrador: bloquea" 1 "$D" "[FAIL]  Feature 2 (ejemplo_slug): $PLAN_EJ sin confirmar — corre /planear 2"
+plan "$D" ejemplo_slug
+caso "auto, 5 criterios, plan confirmado: pasa" 0 "$D" "[OK]    Feature 2 (ejemplo_slug): plan confirmado en $PLAN_EJ"
+prepara_plan; muta "$D" 'F[2]["touches"] = ["supabase/migrations/"]'
+caso "auto, 2 criterios, touches con migrations/: requiere plan" 1 "$D" "requiere plan (toca migraciones)"
+prepara_plan; muta "$D" 'F[2]["touches"] = ["db/schema.sql"]'; exclusiva "$D" "db/"
+caso "auto, 2 criterios, touches bajo exclusive_paths: requiere plan" 1 "$D" "requiere plan (toca migraciones)"
+prepara_plan; plan_cfg "$D" true
+caso "plan_requerido true, 2 criterios, sin plan: bloquea" 1 "$D" "requiere plan (plan_requerido: true)"
+prepara_plan; plan_cfg "$D" false; muta "$D" "$cinco"'; F[2]["touches"] = ["supabase/migrations/"]'
+caso "plan_requerido false, 5 criterios y migraciones: no exige" 0 "$D" "plan opcional (plan_requerido: false)" "requiere plan"
+prepara_plan; plan_cfg "$D" borra; muta "$D" "$cinco"
+caso "sin la clave (instancia 1.1.0), 5 criterios: auto" 1 "$D" "requiere plan (5 criterios)"
+prepara_plan; muta "$D" "$cinco"'; F[2]["status"] = "pending"'
+caso "5 criterios pero pending: no aplica" 0 "$D" "Sin features en curso que planificar" "requiere plan"
+
+# Siguiente paso
+prepara_plan; configura "$D"; resuelve_todos "$D"; muta "$D" "$cinco"
+caso "siguiente paso: plan requerido sin confirmar → /planear 2" 1 "$D" "corre /planear 2"
+plan "$D" ejemplo_slug
+caso "siguiente paso: plan confirmado → sin bloque" 0 "$D" "" "Siguiente paso"
 
 echo ""
 if [ "$fallos" -eq 0 ]; then

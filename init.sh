@@ -521,9 +521,111 @@ else:
 PYCODE
 }
 
+# Plan técnico (/planear). Misma forma que diseno_py:
+#   plan_py bloque     → imprime §3f; exit 1 si bloquea
+#   plan_py siguiente  → imprime el comando que toca correr, o nada
+plan_py() {
+$PY - "$1" <<'PYCODE'
+import json, os, re, sys
+modo = sys.argv[1]
+
+try:
+    cfg = json.load(open("harness.config.json", encoding="utf-8"))
+except Exception:
+    cfg = {}
+try:
+    feats = json.load(open("feature_list.json", encoding="utf-8"))["features"]
+except Exception:
+    feats = []
+
+def norm(p):
+    return re.sub(r"^(\./)+", "", str(p).replace("\\", "/"))
+
+# Toca migraciones: alguna ruta de touches nombra migraciones (migrations/,
+# migraciones/, el placeholder que escribe /esquema) o cae bajo exclusive_paths.
+def toca_migraciones(f):
+    exclusivas = [norm(e) for e in cfg.get("exclusive_paths", []) if e]
+    for ruta in f.get("touches", []):
+        r = norm(ruta)
+        if "migra" in r.lower() or any(r.startswith(e) for e in exclusivas):
+            return True
+    return False
+
+# plan_requerido: true = siempre, false = nunca, 'auto' (o clave ausente) =
+# migraciones o mas de 4 criterios. Devuelve (requerido, razon).
+def requerido(f):
+    pr = cfg.get("plan_requerido", "auto")
+    if pr is True:
+        return True, "plan_requerido: true"
+    if pr is False:
+        return False, "plan_requerido: false"
+    n = len(f.get("acceptance") or [])
+    if toca_migraciones(f):
+        return True, "toca migraciones"
+    if n > 4:
+        return True, "%d criterios" % n
+    return False, "%d criterios, sin migraciones" % n
+
+def estado_plan(name):
+    ruta = "progress/plan_%s.md" % name
+    if not os.path.exists(ruta):
+        return "falta"
+    try:
+        texto = open(ruta, encoding="utf-8", errors="replace").read()
+    except Exception:
+        return "falta"
+    return "confirmado" if re.search(r"\*\*Estado:\*\*\s*confirmado", texto) else "borrador"
+
+# [(feature, razon, estado)] de las in_progress que requieren plan y no lo
+# tienen confirmado.
+def sin_plan():
+    faltan = []
+    for f in feats:
+        if f.get("status") != "in_progress":
+            continue
+        req, razon = requerido(f)
+        estado = estado_plan(f.get("name", ""))
+        if req and estado != "confirmado":
+            faltan.append((f, razon, estado))
+    return faltan
+
+if modo == "bloque":
+    en_curso = [f for f in feats if f.get("status") == "in_progress"]
+    fails = 0
+    for f in en_curso:
+        fid, name = f.get("id"), f.get("name", "?")
+        ruta = "progress/plan_%s.md" % name
+        req, razon = requerido(f)
+        estado = estado_plan(name)
+        if req and estado == "falta":
+            print("[FAIL]  Feature %s (%s): requiere plan (%s) y no existe %s — corre /planear %s y confírmalo antes de construir"
+                  % (fid, name, razon, ruta, fid)); fails += 1
+        elif req and estado == "borrador":
+            print("[FAIL]  Feature %s (%s): %s sin confirmar — corre /planear %s y confírmalo"
+                  % (fid, name, ruta, fid)); fails += 1
+        elif req:
+            print("[OK]    Feature %s (%s): plan confirmado en %s" % (fid, name, ruta))
+        elif estado == "confirmado":
+            print("[OK]    Feature %s (%s): plan confirmado en %s (opcional)" % (fid, name, ruta))
+        else:
+            print("[OK]    Feature %s (%s): plan opcional (%s)" % (fid, name, razon))
+    if not en_curso:
+        print("[OK]    Sin features en curso que planificar")
+    sys.exit(1 if fails else 0)
+
+# modo == "siguiente"
+faltan = sin_plan()
+if faltan:
+    f, razon, estado = faltan[0]
+    print("Feature %s (%s) requiere plan y no lo tiene confirmado. Abre Claude y corre /planear %s."
+          % (f.get("id"), f.get("name", "?"), f.get("id")))
+PYCODE
+}
+
 siguiente_paso() {
   local paso
   paso=$(diseno_py siguiente 2>/dev/null)
+  [ -z "$paso" ] && paso=$(plan_py siguiente 2>/dev/null)
   if [ -n "$paso" ]; then
     echo ""
     echo "── Siguiente paso ──────────────────────────────────────"
@@ -538,6 +640,15 @@ echo "── 3e. Diseño ──────────────────�
 # que el diseño lo decida el código. Con producto público bloquea; con interno
 # o audiencia sin resolver, avisa. No toca el gate de cierre (§3d).
 diseno_py bloque
+[ $? -ne 0 ] && EXIT_CODE=1
+
+echo ""
+echo "── 3f. Plan ──────────────────────────────────────────"
+
+# Una feature que toca migraciones o tiene más de 4 criterios (o siempre, con
+# plan_requerido: true) no arranca sin progress/plan_<name>.md confirmado por
+# el usuario (/planear <id>). Solo mira las in_progress; no toca el gate §3d.
+plan_py bloque
 [ $? -ne 0 ] && EXIT_CODE=1
 
 # Checkpoint C7. Durante la feature solo avisa: el cruce ocurre DESPUÉS del

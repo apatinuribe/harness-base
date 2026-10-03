@@ -70,7 +70,7 @@ tiene verificación determinista, y el reviewer queda aprobando por opinión. Si
 `/constitucion` cada módulo inventa sus propias reglas transversales. Sin
 `/especificar` el implementador rellena los huecos del negocio a su criterio.
 
-Después vienen tres más, cada uno en su momento: el orden completo, y qué
+Después vienen cuatro más, cada uno en su momento: el orden completo, y qué
 produce cada comando, está en `docs/index.md` §Orden de trabajo.
 
 También puedes editar `harness.config.json`, `docs/conventions.md` y
@@ -213,6 +213,7 @@ Todos corren en la sesión principal (un subagente no puede preguntarte):
 /especificar suscripciones --desde docs/borradores/suscripciones.md   # partiendo de lo tuyo
 /esquema
 /diseno suscripciones
+/planear 7
 /feedback
 ```
 
@@ -268,7 +269,7 @@ pregunta —y exige rellenar `PROYECTO.md` antes de proponer features si la
 constitución o el spec nombran un KR—, el `estratega` señala las que no sirven
 a ninguno, y el implementer actualiza la tabla «Trazabilidad».
 
-## Entre el spec y el código: esquema y diseño
+## Entre el spec y el código: esquema, diseño y plan
 
 **`/esquema`** lee §4.3 (entidades), §4.6 (permisos) y §5.1 (estados) de
 **todos** los specs y los consolida en `docs/esquema.md`. Dos specs que definen
@@ -285,6 +286,16 @@ contenido, los estados vacío / cargando / error / éxito / sin permiso— para
 llevar a Claude Design. Lo que el spec no define queda marcado, no inventado.
 `--devuelto <url>` registra el diseño que vuelve, y el implementer lo usa como
 referencia.
+
+**`/planear <id>`** saca del subagente las decisiones técnicas de una feature
+antes de que haya código: qué módulos toca, en qué orden, qué migración
+escribe, qué puede salir mal y cómo se verifica cada criterio. Queda en
+`progress/plan_<name>.md`, y **tú lo confirmas**; el `implementer` lo sigue en
+vez de improvisar su propio plan, y el `reviewer` compara lo hecho contra él.
+Es obligatorio cuando la feature toca migraciones o tiene más de 4 criterios
+(`plan_requerido` en `harness.config.json`: `auto`, `true` o `false`);
+`./init.sh` §3f no deja arrancar una feature que lo requiere sin plan
+confirmado.
 
 ## Qué significa «hecho»
 
@@ -318,7 +329,8 @@ claude                 # CLAUDE.md te pone en rol leader automáticamente
 ```
 
 Pídele: **«implementa la feature #N»** — siempre con el id explícito, nunca
-«la siguiente pendiente». El líder lanza `implementer` y luego `reviewer`.
+«la siguiente pendiente». El líder corre `/planear N` si la feature lo
+requiere, lanza `implementer` y luego `reviewer`.
 
 Por chat no pasa el entregable, solo referencias:
 `done -> progress/impl_<name>.md`. Abre `progress/` en el editor mientras
@@ -369,7 +381,7 @@ Por qué los merges salen limpios (si se respetan las reglas):
 - La bitácora es un archivo **por sesión** en `progress/history/`, nunca un
   archivo compartido.
 - Los informes van a `progress/impl_<name>.md` / `progress/review_<name>.md`,
-  únicos por feature.
+  únicos por feature; el plan confirmado, a `progress/plan_<name>.md`.
 
 ## Ejemplos de configuración
 
@@ -456,7 +468,7 @@ formato, y los activos existen en las medidas pedidas.
     ├── agents/             # leader, implementer, reviewer, explorer,
     │                       #   estratega, analista, bibliotecario
     ├── commands/           # /configurar, /constitucion, /especificar,
-    │                       #   /esquema, /diseno, /feedback
+    │                       #   /esquema, /diseno, /planear, /feedback
     ├── formato-preguntas.md  # Cómo preguntan las entrevistas (lo cargan los comandos)
     └── settings.json       # Hooks de verificación automática
 ```

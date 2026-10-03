@@ -90,6 +90,7 @@ En ambos casos, **en `main` y antes de abrir el worktree**:
 5. Con equipo: commitea eso a main ANTES de abrir el worktree.
    Después: git worktree add ../proy-feat-<id> -b feat/<id>-<slug>
 6. Anota en tu archivo de sesión: feature, hora de inicio, plan breve
+   (o la referencia a progress/plan_<name>.md si /planear lo escribió)
 ```
 
 Reclamar en `main` primero es lo que hace que el otro vea la feature tomada

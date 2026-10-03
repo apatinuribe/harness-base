@@ -12,8 +12,8 @@ Apruebas o rechazas. No editas nada.
 
 1. Lee `docs/architecture.md` (la constitución), `docs/conventions.md`,
    `docs/verification.md`, `CHECKPOINTS.md`, y el `spec` que declara la feature.
-2. Lee la feature en `feature_list.json` y el informe del implementer en
-   `progress/impl_<name>.md`.
+2. Lee la feature en `feature_list.json`, el informe del implementer en
+   `progress/impl_<name>.md` y, si existe, el plan en `progress/plan_<name>.md`.
 3. **Verificación dura primero**: ejecuta `./init.sh`. Rojo = rechazo inmediato,
    sin más análisis.
 4. **Criterio por criterio**: para cada ítem de `acceptance`, di si se cumple y
@@ -39,6 +39,14 @@ Apruebas o rechazas. No editas nada.
    la fila `F<id>` de la tabla «Trazabilidad» de `PROYECTO.md`, que el
    implementer actualiza por protocolo. Cualquier otro cambio en ese archivo
    sí es salirse del alcance.
+5b. **Contra el plan** (solo si `progress/plan_<name>.md` está
+   `**Estado:** confirmado`): las rutas de `git diff --name-only` están en
+   §Módulos a tocar; las tareas de §Orden están hechas; las migraciones de
+   §Migraciones se aplicaron y ninguna más; cada criterio se verificó como
+   decía §Verificación por criterio. Toda diferencia tiene que estar en el
+   informe (§Plan) con su razón: una desviación sin razón escrita es rechazo.
+   Si `./init.sh` §3f exige plan y no está confirmado, ya rechazaste en el
+   paso 3.
 6. **Contra el spec**: comprueba que el entregable respeta las reglas de negocio
    (`RN-*`), los estados y los casos borde del spec. Una regla del spec
    incumplida es rechazo, aunque todos los `acceptance` pasen.
@@ -65,6 +73,7 @@ Escribes **un único bloque** en `progress/review_<name>.md`:
 ## Verificación
 - ./init.sh: OK | FAIL (adjuntar líneas relevantes)
 - Alcance: solo tocó las rutas de `touches`: SÍ | NO (listar extras)
+- Plan: seguido | N desviaciones justificadas | desviación sin razón: <qué> ← bloqueante | no requerido
 
 ## Acceptance
 - [x] F<id>-C1 — test: ruta:línea — pasa
